@@ -1,11 +1,9 @@
 package com.jobtracker.jobtracker_app.configuration;
 
-import com.jobtracker.jobtracker_app.entity.Permission;
-import com.jobtracker.jobtracker_app.entity.User;
-import com.jobtracker.jobtracker_app.exception.AppException;
-import com.jobtracker.jobtracker_app.exception.ErrorCode;
-import com.jobtracker.jobtracker_app.repository.UserRepository;
-import com.jobtracker.jobtracker_app.serivce.cache.PermissionCacheService;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,9 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.jobtracker.jobtracker_app.serivce.cache.PermissionCacheService;
 
 @Configuration
 @EnableWebSecurity
@@ -42,18 +38,18 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-
-    private final String[] PUBLIC_ENDPOINT ={"/auth/**"};
+    private final String[] PUBLIC_ENDPOINT = {"/auth/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(request ->
-                request.requestMatchers(PUBLIC_ENDPOINT).permitAll()
-                        .anyRequest().authenticated());
+        http.authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINT)
+                .permitAll()
+                .anyRequest()
+                .authenticated());
 
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
-                .decoder(customJwtDecoder)
-                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        .decoder(customJwtDecoder)
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         http.cors(cor -> cor.configurationSource(corsConfigurationSource()));
@@ -64,30 +60,27 @@ public class SecurityConfig {
     }
 
     @Bean
-    JwtAuthenticationConverter jwtAuthenticationConverter(){
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter());
         return jwtAuthenticationConverter;
     }
 
-    private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter(){
+    private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter() {
         return jwt -> {
             String userId = jwt.getSubject();
             List<String> permissions = permissionCacheService.getPermissions(userId);
 
-            return permissions.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
-
+            return permissions.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
         };
     }
 
-    private CorsConfigurationSource corsConfigurationSource(){
+    private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowedMethods(List.of("GET","POST","PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

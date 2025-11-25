@@ -1,15 +1,9 @@
 package com.jobtracker.jobtracker_app.dto.response;
 
-import com.jobtracker.jobtracker_app.entity.Role;
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder

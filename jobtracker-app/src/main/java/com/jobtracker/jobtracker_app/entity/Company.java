@@ -7,29 +7,38 @@ import com.jobtracker.jobtracker_app.entity.base.FullAuditEntity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Entity
-@Table(name = "permissions")
+@Entity(name = "companies")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Permission extends FullAuditEntity {
+public class Company extends FullAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(length = 50, unique = true, nullable = false)
+    @Column(nullable = false)
     String name;
 
-    @Column(length = 100, nullable = false)
-    String resource;
+    @Column(length = 500)
+    String website;
 
-    @Column(length = 50, nullable = false)
-    String action;
+    @Column(length = 100)
+    String industry;
 
+    @Column(length = 50)
+    String size;
+
+    String location;
+
+    @Column(columnDefinition = "TEXT")
     String description;
 
-    @Column(name = "is_active")
-    Boolean isActive = true;
+    @Column(length = 500)
+    String logoUrl;
+
+    @Column(nullable = false)
+    Boolean isVerified = false;
 }

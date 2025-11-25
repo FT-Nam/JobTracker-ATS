@@ -51,3 +51,8 @@ databaseChangeLog:
             columns:
               - column:
                   name: deleted_at
+
+
+
+
+

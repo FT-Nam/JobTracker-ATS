@@ -1,5 +1,24 @@
 package com.jobtracker.jobtracker_app.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import com.jobtracker.jobtracker_app.dto.request.UserCreationRequest;
 import com.jobtracker.jobtracker_app.dto.request.UserUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.response.UserResponse;
@@ -12,24 +31,6 @@ import com.jobtracker.jobtracker_app.repository.RoleRepository;
 import com.jobtracker.jobtracker_app.repository.UserRepository;
 import com.jobtracker.jobtracker_app.serivce.cache.PermissionCacheService;
 import com.jobtracker.jobtracker_app.serivce.impl.UserServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
@@ -55,11 +56,8 @@ public class UserServiceImplTest {
     private UserResponse userResponse;
 
     @BeforeEach
-    void setup(){
-        role = Role.builder()
-                .id("role1")
-                .name("admin")
-                .build();
+    void setup() {
+        role = Role.builder().id("role1").name("admin").build();
         user = User.builder()
                 .id("user1")
                 .email("user1@gmail.com")
@@ -96,10 +94,10 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void create_shouldThrowException_whenEmailExists(){
+    void create_shouldThrowException_whenEmailExists() {
         when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
-        AppException appException = assertThrows(AppException.class, ()-> userService.create(creationRequest));
+        AppException appException = assertThrows(AppException.class, () -> userService.create(creationRequest));
 
         assertThat(appException.getErrorCode()).isEqualTo(ErrorCode.EMAIL_EXISTED);
         verify(userRepository).existsByEmail("user1@gmail.com");
@@ -107,11 +105,11 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void create_shouldThrowException_whenRoleNotExist(){
+    void create_shouldThrowException_whenRoleNotExist() {
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
         when(roleRepository.findById(anyString())).thenReturn(Optional.empty());
 
-        AppException appException = assertThrows(AppException.class, ()-> userService.create(creationRequest));
+        AppException appException = assertThrows(AppException.class, () -> userService.create(creationRequest));
 
         assertThat(appException.getErrorCode()).isEqualTo(ErrorCode.ROLE_NOT_EXISTED);
         verify(roleRepository).findById("role1");
@@ -119,7 +117,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void create_shouldReturnUserResponse_whenValidRequest(){
+    void create_shouldReturnUserResponse_whenValidRequest() {
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
         when(roleRepository.findById("role1")).thenReturn(Optional.of(role));
         when(userMapper.toUser(any())).thenReturn(user);
@@ -138,7 +136,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void getById_shouldThrowException_whenUserNotExist(){
+    void getById_shouldThrowException_whenUserNotExist() {
         when(userRepository.findById(anyString())).thenReturn(Optional.empty());
 
         AppException appException = assertThrows(AppException.class, () -> userService.getById("not-exist"));
@@ -149,7 +147,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void getById_shouldReturnUserResponse_whenValidRequest(){
+    void getById_shouldReturnUserResponse_whenValidRequest() {
         when(userRepository.findById("user1")).thenReturn(Optional.of(user));
         when(userMapper.toUserResponse(any())).thenReturn(userResponse);
 
@@ -160,8 +158,8 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void getAll_shouldReturnPageUserResponse_whenValidRequest(){
-        Pageable pageable = PageRequest.of(0,10);
+    void getAll_shouldReturnPageUserResponse_whenValidRequest() {
+        Pageable pageable = PageRequest.of(0, 10);
         Page<User> users = new PageImpl<>(List.of(user));
         when(userRepository.findAll(pageable)).thenReturn(users);
         when(userMapper.toUserResponse(any())).thenReturn(userResponse);
@@ -174,11 +172,11 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void update_shouldThrowException_whenUserNotExist(){
+    void update_shouldThrowException_whenUserNotExist() {
         when(userRepository.findById(anyString())).thenReturn(Optional.empty());
 
-        AppException appException = assertThrows(AppException.class,
-                () -> userService.update("not-exist", updateRequest));
+        AppException appException =
+                assertThrows(AppException.class, () -> userService.update("not-exist", updateRequest));
 
         assertThat(appException.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_EXISTED);
         verify(userRepository).findById("not-exist");
@@ -186,13 +184,12 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void update_shouldThrowException_whenRoleNotExist(){
+    void update_shouldThrowException_whenRoleNotExist() {
         updateRequest.setRoleId("not-exist");
         when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(roleRepository.findById(anyString())).thenReturn(Optional.empty());
 
-        AppException appException = assertThrows(AppException.class,
-                () -> userService.update("user1", updateRequest));
+        AppException appException = assertThrows(AppException.class, () -> userService.update("user1", updateRequest));
 
         assertThat(appException.getErrorCode()).isEqualTo(ErrorCode.ROLE_NOT_EXISTED);
         verify(roleRepository).findById("not-exist");
@@ -200,7 +197,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void update_shouldEvictPermissionCache_whenRoleChanged(){
+    void update_shouldEvictPermissionCache_whenRoleChanged() {
         when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(roleRepository.findById(anyString())).thenReturn(Optional.of(role));
         when(userMapper.toUserResponse(any())).thenReturn(userResponse);
@@ -213,7 +210,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void update_shouldReturnUpdateNotChangeRole_whenRoleIsNull(){
+    void update_shouldReturnUpdateNotChangeRole_whenRoleIsNull() {
         updateRequest.setRoleId(null);
         when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(userMapper.toUserResponse(any())).thenReturn(userResponse);
@@ -229,7 +226,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void update_shouldReturnUpdateUser_whenValidRequest(){
+    void update_shouldReturnUpdateUser_whenValidRequest() {
         when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(roleRepository.findById(anyString())).thenReturn(Optional.of(role));
         when(userMapper.toUserResponse(any())).thenReturn(userResponse);
@@ -243,10 +240,10 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void delete_shouldThrowException_whenUserNotExist(){
+    void delete_shouldThrowException_whenUserNotExist() {
         when(userRepository.findById("not-exist")).thenReturn(Optional.empty());
 
-        AppException appException = assertThrows(AppException.class, ()-> userService.delete("not-exist"));
+        AppException appException = assertThrows(AppException.class, () -> userService.delete("not-exist"));
 
         assertThat(appException.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_EXISTED);
         verify(userRepository).findById("not-exist");
@@ -254,7 +251,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void delete_shouldSoftDelete_whenValidRequest(){
+    void delete_shouldSoftDelete_whenValidRequest() {
         when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenReturn(user);
 

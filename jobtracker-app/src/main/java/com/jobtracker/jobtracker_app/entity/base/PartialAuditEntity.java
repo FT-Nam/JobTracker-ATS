@@ -1,19 +1,21 @@
 package com.jobtracker.jobtracker_app.entity.base;
 
 import jakarta.persistence.*;
+
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PartialAuditEntity extends BaseEntity{
+public class PartialAuditEntity extends BaseEntity {
     @Column(name = "created_by")
     @CreatedBy
     String createdBy;

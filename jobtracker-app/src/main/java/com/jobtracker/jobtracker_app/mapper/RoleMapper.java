@@ -1,9 +1,10 @@
 package com.jobtracker.jobtracker_app.mapper;
 
+import org.mapstruct.*;
+
 import com.jobtracker.jobtracker_app.dto.request.RoleRequest;
 import com.jobtracker.jobtracker_app.dto.response.RoleResponse;
 import com.jobtracker.jobtracker_app.entity.Role;
-import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface RoleMapper {

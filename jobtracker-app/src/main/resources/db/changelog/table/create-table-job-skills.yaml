@@ -54,3 +54,6 @@ databaseChangeLog:
                   type: boolean
                   defaultValueBoolean: false
                   remarks: "Đã xóa (soft delete)"
+
+
+

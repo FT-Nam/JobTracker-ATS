@@ -44,3 +44,8 @@ databaseChangeLog:
             columns:
               - column:
                   name: last_used_at
+
+
+
+
+

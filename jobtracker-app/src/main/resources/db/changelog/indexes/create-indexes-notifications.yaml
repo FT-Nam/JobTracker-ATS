@@ -76,3 +76,8 @@ databaseChangeLog:
                   name: scheduled_at
               - column:
                   name: is_sent
+
+
+
+
+

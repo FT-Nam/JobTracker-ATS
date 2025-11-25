@@ -10,13 +10,17 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PermissionResponse {
+public class CompanyResponse {
     String id;
     String name;
-    String resource;
-    String action;
+    String website;
+    String industry;
+    String size;
+    String location;
     String description;
-    Boolean isActive;
+    String logoUrl;
+    Boolean isVerified;
+    LocalDateTime lastLoginAt;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;

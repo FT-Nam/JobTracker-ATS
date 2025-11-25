@@ -1,23 +1,23 @@
 package com.jobtracker.jobtracker_app.configuration;
 
+import java.util.List;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.jobtracker.jobtracker_app.entity.Permission;
 import com.jobtracker.jobtracker_app.entity.Role;
 import com.jobtracker.jobtracker_app.entity.User;
 import com.jobtracker.jobtracker_app.repository.PermissionRepository;
 import com.jobtracker.jobtracker_app.repository.RoleRepository;
 import com.jobtracker.jobtracker_app.repository.UserRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @Configuration
 @RequiredArgsConstructor
@@ -55,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
         admin.setLastName("User");
         admin.setRole(adminRole);
         userRepository.save(admin);
-        
+
         adminRole.setCreatedBy(admin.getEmail());
         roleRepository.save(adminRole);
 
@@ -77,5 +77,4 @@ public class DataInitializer implements CommandLineRunner {
 
         log.info("✅ Admin user created successfully: {}", admin.getEmail());
     }
-
 }

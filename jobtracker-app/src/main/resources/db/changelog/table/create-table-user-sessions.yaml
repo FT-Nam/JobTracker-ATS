@@ -72,3 +72,6 @@ databaseChangeLog:
                   type: timestamp
                   defaultValueComputed: CURRENT_TIMESTAMP
                   remarks: "Thời gian cập nhật"
+
+
+

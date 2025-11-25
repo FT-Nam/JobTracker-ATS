@@ -1,11 +1,13 @@
 package com.jobtracker.jobtracker_app.entity;
 
-import com.jobtracker.jobtracker_app.entity.base.FullAuditEntity;
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
+
+import com.jobtracker.jobtracker_app.entity.base.FullAuditEntity;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")

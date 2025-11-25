@@ -1,10 +1,11 @@
 package com.jobtracker.jobtracker_app.mapper;
 
+import org.mapstruct.*;
+
 import com.jobtracker.jobtracker_app.dto.request.UserCreationRequest;
 import com.jobtracker.jobtracker_app.dto.request.UserUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.response.UserResponse;
 import com.jobtracker.jobtracker_app.entity.User;
-import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {

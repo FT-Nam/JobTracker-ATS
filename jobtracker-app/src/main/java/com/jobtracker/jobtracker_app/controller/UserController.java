@@ -1,20 +1,23 @@
 package com.jobtracker.jobtracker_app.controller;
 
+import java.util.List;
+
+import jakarta.validation.Valid;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
+
 import com.jobtracker.jobtracker_app.dto.request.UserCreationRequest;
 import com.jobtracker.jobtracker_app.dto.request.UserUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.response.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.response.PaginationInfo;
 import com.jobtracker.jobtracker_app.dto.response.UserResponse;
 import com.jobtracker.jobtracker_app.serivce.UserService;
-import jakarta.validation.Valid;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,7 +27,7 @@ public class UserController {
     UserService userService;
 
     @PostMapping
-    public ApiResponse<UserResponse> create(@RequestBody @Valid UserCreationRequest request){
+    public ApiResponse<UserResponse> create(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .message("User create successfully")
                 .data(userService.create(request))
@@ -32,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping
-    public ApiResponse<List<UserResponse>> getAll(Pageable pageable){
+    public ApiResponse<List<UserResponse>> getAll(Pageable pageable) {
         Page<UserResponse> userResponses = userService.getAll(pageable);
         return ApiResponse.<List<UserResponse>>builder()
                 .data(userResponses.getContent())
@@ -45,14 +48,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<UserResponse> getById(@PathVariable String id){
-        return ApiResponse.<UserResponse>builder()
-                .data(userService.getById(id))
-                .build();
+    public ApiResponse<UserResponse> getById(@PathVariable String id) {
+        return ApiResponse.<UserResponse>builder().data(userService.getById(id)).build();
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<UserResponse> update(@PathVariable String id, @RequestBody @Valid UserUpdateRequest request){
+    public ApiResponse<UserResponse> update(@PathVariable String id, @RequestBody @Valid UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .message("User update successfully")
                 .data(userService.update(id, request))
@@ -60,10 +61,8 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> delete(@PathVariable String id){
+    public ApiResponse<Void> delete(@PathVariable String id) {
         userService.delete(id);
-        return ApiResponse.<Void>builder()
-                .message("User delete successfully")
-                .build();
+        return ApiResponse.<Void>builder().message("User delete successfully").build();
     }
 }

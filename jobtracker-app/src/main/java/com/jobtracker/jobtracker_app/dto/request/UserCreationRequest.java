@@ -1,6 +1,5 @@
 package com.jobtracker.jobtracker_app.dto.request;
 
-
 import jakarta.validation.constraints.*;
 
 import lombok.*;
@@ -41,4 +40,3 @@ public class UserCreationRequest {
     @NotNull(message = "Role ID không được để trống")
     String roleId;
 }
-

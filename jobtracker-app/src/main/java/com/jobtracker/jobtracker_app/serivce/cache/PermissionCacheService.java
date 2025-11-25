@@ -1,5 +1,12 @@
 package com.jobtracker.jobtracker_app.serivce.cache;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,15 +15,10 @@ import com.jobtracker.jobtracker_app.entity.User;
 import com.jobtracker.jobtracker_app.exception.AppException;
 import com.jobtracker.jobtracker_app.exception.ErrorCode;
 import com.jobtracker.jobtracker_app.repository.UserRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -43,11 +45,9 @@ public class PermissionCacheService {
             }
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        List<String> permissions = user.getRole().getPermissions()
-                .stream()
+        List<String> permissions = user.getRole().getPermissions().stream()
                 .map(Permission::getName)
                 .toList();
 

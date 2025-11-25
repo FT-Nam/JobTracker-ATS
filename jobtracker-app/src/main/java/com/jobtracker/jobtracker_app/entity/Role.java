@@ -1,12 +1,14 @@
 package com.jobtracker.jobtracker_app.entity;
 
-import com.jobtracker.jobtracker_app.entity.base.FullAuditEntity;
-import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.persistence.*;
+
+import com.jobtracker.jobtracker_app.entity.base.FullAuditEntity;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Entity
 @Table(name = "roles")
@@ -30,7 +32,8 @@ public class Role extends FullAuditEntity {
     List<User> users;
 
     @ManyToMany
-    @JoinTable(name = "roles_permissions",
+    @JoinTable(
+            name = "roles_permissions",
             joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id", referencedColumnName = "id"))
     List<Permission> permissions = new ArrayList<>();

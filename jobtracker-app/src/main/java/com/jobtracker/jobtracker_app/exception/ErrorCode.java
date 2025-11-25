@@ -1,8 +1,9 @@
 package com.jobtracker.jobtracker_app.exception;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -14,7 +15,6 @@ public enum ErrorCode {
     NAME_EXISTED("Name existed", HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED("Unauthenticated", HttpStatus.UNAUTHORIZED),
     INVALID_TOKEN("Invalid token", HttpStatus.UNAUTHORIZED);
-
 
     private final String message;
     private final HttpStatus httpStatus;

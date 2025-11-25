@@ -1,5 +1,17 @@
 package com.jobtracker.jobtracker_app.serivce.impl;
 
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.jobtracker.jobtracker_app.dto.request.AuthenticationRequest;
 import com.jobtracker.jobtracker_app.dto.request.LogoutRequest;
 import com.jobtracker.jobtracker_app.dto.request.RefreshRequest;
@@ -18,22 +30,11 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
@@ -60,17 +61,19 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthenticationResponse login(AuthenticationRequest request) throws JOSEException {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository
+                .findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
-        if(!authenticated){
+        if (!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
         AuthenticationResponse authenticationResponse = authenticationResponse(user);
 
-        checkAndCreateRefreshToken(user.getId(), authenticationResponse.getTokens().getRefreshToken());
+        checkAndCreateRefreshToken(
+                user.getId(), authenticationResponse.getTokens().getRefreshToken());
 
         return authenticationResponse;
     }
@@ -80,13 +83,12 @@ public class AuthServiceImpl implements AuthService {
         var signedJwt = verifyToken(request.getRefreshToken());
         String sub = signedJwt.getJWTClaimsSet().getSubject();
 
-
-        User user = userRepository.findById(sub)
-                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(sub).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         AuthenticationResponse authenticationResponse = authenticationResponse(user);
 
-        checkAndCreateRefreshToken(user.getId(), authenticationResponse.getTokens().getRefreshToken());
+        checkAndCreateRefreshToken(
+                user.getId(), authenticationResponse.getTokens().getRefreshToken());
 
         return authenticationResponse;
     }
@@ -100,10 +102,8 @@ public class AuthServiceImpl implements AuthService {
         Date expiryTime = signedJwt.getJWTClaimsSet().getExpirationTime();
         String key = CACHE_PREFIX + sub;
 
-        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
-                .id(jit)
-                .expiryTime(expiryTime)
-                .build();
+        InvalidatedToken invalidatedToken =
+                InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
         invalidatedRepository.save(invalidatedToken);
         redisTemplate.delete(key);
     }
@@ -117,7 +117,7 @@ public class AuthServiceImpl implements AuthService {
 
         var verify = signedJWT.verify(jwsVerifier);
 
-        if(!verify || expiryTime.before(new Date())){
+        if (!verify || expiryTime.before(new Date())) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
@@ -166,23 +166,16 @@ public class AuthServiceImpl implements AuthService {
                 .roleName(user.getRole().getName())
                 .build();
 
-        return AuthenticationResponse.builder()
-                .tokens(tokenInfo)
-                .user(userInfo)
-                .build();
+        return AuthenticationResponse.builder().tokens(tokenInfo).user(userInfo).build();
     }
 
-    private void checkAndCreateRefreshToken(String sub, String refreshToken){
+    private void checkAndCreateRefreshToken(String sub, String refreshToken) {
         String key = CACHE_PREFIX + sub;
 
         if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
             redisTemplate.delete(key);
         }
 
-        redisTemplate.opsForValue().set(
-                key,
-                refreshToken,
-                refreshableDuration,
-                TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(key, refreshToken, refreshableDuration, TimeUnit.SECONDS);
     }
 }

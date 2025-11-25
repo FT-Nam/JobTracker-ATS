@@ -2,6 +2,7 @@ package com.jobtracker.jobtracker_app.dto.request;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
 import lombok.*;
 
 @Getter

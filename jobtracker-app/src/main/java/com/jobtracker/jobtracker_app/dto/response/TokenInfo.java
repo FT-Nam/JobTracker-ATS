@@ -1,10 +1,9 @@
 package com.jobtracker.jobtracker_app.dto.response;
 
+import java.util.Date;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Builder

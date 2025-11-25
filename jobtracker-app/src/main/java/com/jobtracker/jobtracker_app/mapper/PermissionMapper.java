@@ -1,9 +1,10 @@
 package com.jobtracker.jobtracker_app.mapper;
 
+import org.mapstruct.*;
+
 import com.jobtracker.jobtracker_app.dto.request.PermissionRequest;
 import com.jobtracker.jobtracker_app.dto.response.PermissionResponse;
 import com.jobtracker.jobtracker_app.entity.Permission;
-import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface PermissionMapper {

@@ -1,5 +1,8 @@
 package com.jobtracker.jobtracker_app.configuration;
 
+import java.util.Objects;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -7,9 +10,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
-
-import javax.crypto.spec.SecretKeySpec;
-import java.util.Objects;
 
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
@@ -20,10 +20,9 @@ public class CustomJwtDecoder implements JwtDecoder {
 
     @Override
     public Jwt decode(String token) throws JwtException {
-        if(Objects.isNull(nimbusJwtDecoder)){
+        if (Objects.isNull(nimbusJwtDecoder)) {
             SecretKeySpec spec = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
-            nimbusJwtDecoder = NimbusJwtDecoder
-                    .withSecretKey(spec)
+            nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(spec)
                     .macAlgorithm(MacAlgorithm.HS512)
                     .build();
         }
