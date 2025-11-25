@@ -19,6 +19,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -35,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -50,6 +53,9 @@ public class UserControllerTest {
     private UserCreationRequest creationRequest;
     private UserUpdateRequest updateRequest;
     private Role role;
+
+    private static final String USER_CREATED_MESSAGE = "User create successfully";
+    private static final String USER_DELETED_MESSAGE = "User delete successfully";
 
     @BeforeEach
     void setup(){
@@ -88,7 +94,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = {"USER_CREATE"})
+    @WithMockUser
     void create_shouldReturnCreateUser() throws Exception {
         when(userService.create(any())).thenReturn(response);
 
@@ -97,14 +103,18 @@ public class UserControllerTest {
                 .content(objectMapper.writeValueAsString(creationRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.email", is("user1@gmail.com")))
-                .andExpect(jsonPath("$.message", is("User create successfully")));
+                .andExpect(jsonPath("$.message", is(USER_CREATED_MESSAGE)));
     }
 
     @Test
-    @WithMockUser(authorities = {"USER_READ"})
+    @WithMockUser
     void getAll_shouldReturnPageUser() throws Exception {
         Pageable pageable = PageRequest.of(0,10);
-        Page<UserResponse> page = new PageImpl<>(List.of(response));
+        Page<UserResponse> page = new PageImpl<>(
+                List.of(response),
+                pageable,
+                10
+        );
         when(userService.getAll(any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/user"))
@@ -113,7 +123,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = {"USER_READ"})
+    @WithMockUser
     void getById_shouldReturnUser() throws Exception {
         when(userService.getById(anyString())).thenReturn(response);
 
@@ -123,7 +133,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "USER_UPDATE")
+    @WithMockUser
     void update_shouldReturnUpdateUser() throws Exception {
         when(userService.update(anyString(), any(UserUpdateRequest.class)))
                 .thenReturn(updateResponse);
@@ -141,7 +151,7 @@ public class UserControllerTest {
     void delete_shouldReturnSuccessMessage() throws Exception {
         mockMvc.perform(delete("/user/user1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message", is("User delete successfully")));
+                .andExpect(jsonPath("$.message", is(USER_DELETED_MESSAGE)));
         verify(userService).delete("user1");
     }
 
