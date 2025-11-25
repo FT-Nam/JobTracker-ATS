@@ -2,6 +2,7 @@ package com.jobtracker.jobtracker_app.dto.response;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -19,7 +20,7 @@ public class ApiResponse<T> {
 
     String message;
     T data;
-    List<ValidationError> errors;
+    Map<String, String> errors;
 
     @Builder.Default
     LocalDateTime timestamp = LocalDateTime.now();
