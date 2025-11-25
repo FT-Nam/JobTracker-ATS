@@ -14,30 +14,30 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CompanyRequest {
-    @NotBlank(message = "Tên công ty không được để trống")
-    @Size(max = 255, message = "Tên công ty tối đa 255 ký tự")
+    @NotBlank(message = "Company name must not be blank")
+    @Size(max = 255, message = "Company name must not exceed 255 characters")
     String name;
 
-    @Size(max = 500, message = "Website tối đa 500 ký tự")
-    @Pattern(regexp = "^(https?://).*$", message = "Website phải bắt đầu bằng http:// hoặc https://")
+    @Size(max = 500, message = "Website URL must not exceed 500 characters")
+    @Pattern(regexp = "^(https?://).*$", message = "Website must start with http:// or https://")
     String website;
 
-    @Size(max = 100, message = "Lĩnh vực hoạt động tối đa 100 ký tự")
+    @Size(max = 100, message = "Industry must not exceed 100 characters")
     String industry;
 
-    @Size(max = 50, message = "Quy mô công ty tối đa 50 ký tự")
+    @Size(max = 50, message = "Company size must not exceed 50 characters")
     @Pattern(
             regexp = "STARTUP|SMALL|MEDIUM|LARGE|ENTERPRISE",
-            message = "Quy mô phải là một trong: STARTUP, SMALL, MEDIUM, LARGE, ENTERPRISE")
+            message = "Size must be one of: STARTUP, SMALL, MEDIUM, LARGE, ENTERPRISE")
     String size;
 
-    @Size(max = 255, message = "Địa chỉ công ty tối đa 255 ký tự")
+    @Size(max = 255, message = "Location must not exceed 255 characters")
     String location;
 
     String description;
 
-    @Size(max = 500, message = "URL logo tối đa 500 ký tự")
-    @Pattern(regexp = "^(https?://).*$", message = "URL logo phải bắt đầu bằng http:// hoặc https://")
+    @Size(max = 500, message = "Logo URL must not exceed 500 characters")
+    @Pattern(regexp = "^(https?://).*$", message = "Logo URL must start with http:// or https://")
     String logoUrl;
 
     Boolean isVerified;

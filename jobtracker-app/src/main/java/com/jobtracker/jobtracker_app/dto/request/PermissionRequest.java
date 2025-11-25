@@ -14,19 +14,19 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PermissionRequest {
 
-    @NotBlank(message = "Tên quyền không được để trống")
-    @Size(max = 50, message = "Tên quyền không được vượt quá 50 ký tự")
+    @NotBlank(message = "Permission name must not be blank")
+    @Size(max = 50, message = "Permission name must not exceed 50 characters")
     String name;
 
-    @NotBlank(message = "Resource không được để trống")
-    @Size(max = 100, message = "Resource không được vượt quá 100 ký tự")
+    @NotBlank(message = "Resource must not be blank")
+    @Size(max = 100, message = "Resource must not exceed 100 characters")
     String resource;
 
-    @NotBlank(message = "Action không được để trống")
-    @Size(max = 50, message = "Action không được vượt quá 50 ký tự")
+    @NotBlank(message = "Action must not be blank")
+    @Size(max = 50, message = "Action must not exceed 50 characters")
     String action;
 
-    @Size(max = 255, message = "Mô tả không được vượt quá 255 ký tự")
+    @Size(max = 255, message = "Description must not exceed 255 characters")
     String description;
 
     Boolean isActive;

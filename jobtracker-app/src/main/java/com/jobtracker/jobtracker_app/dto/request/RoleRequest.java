@@ -16,15 +16,15 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RoleRequest {
-    @NotBlank(message = "Tên vai trò không được để trống")
-    @Size(max = 50, message = "Tên vai trò không được vượt quá 50 ký tự")
+    @NotBlank(message = "Role name must not be blank")
+    @Size(max = 50, message = "Role name must not exceed 50 characters")
     String name;
 
-    @Size(max = 255, message = "Mô tả không được vượt quá 255 ký tự")
+    @Size(max = 255, message = "Description must not exceed 255 characters")
     String description;
 
-    @NotEmpty(message = "Vai trò phải có ít nhất 1 quyền")
-    List<@NotBlank(message = "ID quyền không hợp lệ") String> permissionIds;
+    @NotEmpty(message = "Role must include at least one permission")
+    List<@NotBlank(message = "Permission ID is invalid") String> permissionIds;
 
     Boolean isActive;
 }

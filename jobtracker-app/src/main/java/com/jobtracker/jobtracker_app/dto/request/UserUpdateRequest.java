@@ -11,17 +11,17 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserUpdateRequest {
-    @Size(max = 100, message = "Họ không được vượt quá 100 ký tự")
+    @Size(max = 100, message = "First name must not exceed 100 characters")
     String firstName;
 
-    @Size(max = 100, message = "Tên không được vượt quá 100 ký tự")
+    @Size(max = 100, message = "Last name must not exceed 100 characters")
     String lastName;
 
-    @Pattern(regexp = "^[0-9]{10,15}$", message = "Số điện thoại phải là số và có từ 10 đến 15 ký tự")
-    @Size(max = 20, message = "Số điện thoại không được vượt quá 20 ký tự")
+    @Pattern(regexp = "^[0-9]{10,15}$", message = "Phone number must contain 10 to 15 digits")
+    @Size(max = 20, message = "Phone number must not exceed 20 characters")
     String phone;
 
-    @Size(max = 500, message = "Đường dẫn ảnh đại diện không được vượt quá 500 ký tự")
+    @Size(max = 500, message = "Avatar URL must not exceed 500 characters")
     String avatarUrl;
 
     Boolean isActive;
