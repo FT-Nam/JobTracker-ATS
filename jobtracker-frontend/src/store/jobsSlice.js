@@ -255,3 +255,10 @@ export const jobsSlice = createSlice({
 
 export const { clearError, clearCurrentJob, setFilters, clearFilters, setPagination } = jobsSlice.actions;
 
+
+
+
+
+
+
+

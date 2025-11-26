@@ -5,7 +5,7 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/v1/auth/login', {
+      const response = await fetch('http://localhost:8080/api/v1/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -206,4 +206,11 @@ export const authSlice = createSlice({
 });
 
 export const { clearError, clearAuth } = authSlice.actions;
+
+
+
+
+
+
+
 

@@ -60,3 +60,10 @@ export const interviewsSlice = createSlice({
 
 export const { clearError } = interviewsSlice.actions;
 
+
+
+
+
+
+
+

@@ -42,3 +42,10 @@ const JobStatsChart = ({ data }) => {
 };
 
 export default JobStatsChart;
+
+
+
+
+
+
+

@@ -60,3 +60,10 @@ export const companiesSlice = createSlice({
 
 export const { clearError } = companiesSlice.actions;
 
+
+
+
+
+
+
+
