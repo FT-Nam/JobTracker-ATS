@@ -2,6 +2,9 @@ package com.jobtracker.jobtracker_app.controllers;
 
 import java.text.ParseException;
 
+import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
+import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
+import com.jobtracker.jobtracker_app.services.UserService;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +30,14 @@ import lombok.experimental.FieldDefaults;
 @RequestMapping("/auth")
 public class AuthController {
     AuthService authService;
+
+    @PostMapping("register")
+    public ApiResponse<UserResponse> register(@RequestBody @Valid UserCreationRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .message("Register has been successfully")
+                .data(authService.register(request))
+                .build();
+    }
 
     @PostMapping("/login")
     ApiResponse<AuthenticationResponse> login(@RequestBody @Valid AuthenticationRequest request) throws JOSEException {

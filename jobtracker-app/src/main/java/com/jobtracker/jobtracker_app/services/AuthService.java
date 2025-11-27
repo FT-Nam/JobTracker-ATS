@@ -7,10 +7,11 @@ import com.jobtracker.jobtracker_app.dto.requests.LogoutRequest;
 import com.jobtracker.jobtracker_app.dto.requests.RefreshRequest;
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
 import com.jobtracker.jobtracker_app.dto.responses.AuthenticationResponse;
+import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
 import com.nimbusds.jose.JOSEException;
 
 public interface AuthService {
-    void register(UserCreationRequest request);
+    UserResponse register(UserCreationRequest request);
 
     AuthenticationResponse login(AuthenticationRequest request) throws JOSEException;
 

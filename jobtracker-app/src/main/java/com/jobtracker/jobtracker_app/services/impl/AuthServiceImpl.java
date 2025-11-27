@@ -8,6 +8,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
+import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
+import com.jobtracker.jobtracker_app.entities.Role;
 import com.jobtracker.jobtracker_app.mappers.UserMapper;
 import com.jobtracker.jobtracker_app.repositories.RoleRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +53,7 @@ public class AuthServiceImpl implements AuthService {
     UserMapper userMapper;
 
     private static final String CACHE_PREFIX = "refresh_token:";
+    private static final String DEFAULT_ROLE = "USER";
 
     @NonFinal
     @Value("${jwt.signer-key}")
@@ -65,9 +68,16 @@ public class AuthServiceImpl implements AuthService {
     Long refreshableDuration;
 
     @Override
-    public void register(UserCreationRequest request) {
+    public UserResponse register(UserCreationRequest request) {
         User user = userMapper.toUser(request);
 
+        Role role = roleRepository.findByName(DEFAULT_ROLE)
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+
+        user.setRole(role);
+        user.setIsActive(true);
+
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
     @Override
