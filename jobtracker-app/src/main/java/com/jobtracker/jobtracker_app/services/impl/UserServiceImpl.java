@@ -1,8 +1,12 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
+import com.jobtracker.jobtracker_app.dto.requests.ChangePasswordRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,15 +36,13 @@ public class UserServiceImpl implements UserService {
     UserMapper userMapper;
     RoleRepository roleRepository;
     PermissionCacheService permissionCacheService;
+    PasswordEncoder passwordEncoder;
 
+    // ADMIN
     @Override
     @PreAuthorize("hasAuthority('USER_CREATE')")
     @Transactional
     public UserResponse create(UserCreationRequest request) {
-//        if (userRepository.existsByEmail(request.getEmail())) {
-//            throw new AppException(ErrorCode.EMAIL_EXISTED);
-//        }
-
         User user = userMapper.toUser(request);
 
         Role role = roleRepository
@@ -48,11 +50,10 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
         user.setRole(role);
 
-        user.setEmail(request.getEmail());
-
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
+    // ADMIN
     @Override
     @PreAuthorize("hasAuthority('USER_READ')")
     public UserResponse getById(String id) {
@@ -61,11 +62,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserResponse getProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String id = authentication.getName();
+        User user = userRepository.findById(id)
+                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return userMapper.toUserResponse(user);
+    }
+
+    // ADMIN
+    @Override
     @PreAuthorize("hasAuthority('USER_READ')")
     public Page<UserResponse> getAll(Pageable pageable) {
         return userRepository.findAll(pageable).map(userMapper::toUserResponse);
     }
 
+    // USER, ADMIN
     @Override
     @PreAuthorize("hasAuthority('USER_UPDATE')")
     @Transactional
@@ -86,12 +98,41 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
+    // USER
+    @Override
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
+    @Transactional
+    public void changePassword(String id, ChangePasswordRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        boolean authenticated = passwordEncoder.matches(request.getCurrentPassword(), user.getPassword());
+
+        if(!authenticated){
+            throw new AppException(ErrorCode.INCORRECT_CURRENT_PASSWORD);
+        }
+
+        user.setPassword(request.getNewPassword());
+    }
+
+    // ADMIN
     @Override
     @PreAuthorize("hasAuthority('USER_DELETE')")
     @Transactional
     public void delete(String id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         user.softDelete();
+        userRepository.save(user);
+    }
+
+    // ADMIN
+    @Override
+    @PreAuthorize("hasAuthority('USER_DELETE')")
+    @Transactional
+    public void restore(String id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        user.restore();
         userRepository.save(user);
     }
 }

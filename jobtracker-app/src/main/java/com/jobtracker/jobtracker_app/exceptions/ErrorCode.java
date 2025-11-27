@@ -17,7 +17,8 @@ public enum ErrorCode {
     FIELD_EXISTED(MessageKeys.FIELD_EXISTED, HttpStatus.BAD_REQUEST),
     NAME_EXISTED(MessageKeys.NAME_EXISTED, HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED(MessageKeys.UNAUTHENTICATED, HttpStatus.UNAUTHORIZED),
-    INVALID_TOKEN(MessageKeys.INVALID_TOKEN, HttpStatus.UNAUTHORIZED);
+    INVALID_TOKEN(MessageKeys.INVALID_TOKEN, HttpStatus.UNAUTHORIZED),
+    INCORRECT_CURRENT_PASSWORD(MessageKeys.INCORRECT_CURRENT_PASSWORD, HttpStatus.BAD_REQUEST);;
 
     private final String message;
     private final HttpStatus httpStatus;

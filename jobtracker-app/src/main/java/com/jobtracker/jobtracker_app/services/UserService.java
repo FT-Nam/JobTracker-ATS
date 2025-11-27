@@ -1,5 +1,6 @@
 package com.jobtracker.jobtracker_app.services;
 
+import com.jobtracker.jobtracker_app.dto.requests.ChangePasswordRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,9 +13,19 @@ public interface UserService {
 
     UserResponse getById(String id);
 
+    UserResponse getProfile();
+
+
     Page<UserResponse> getAll(Pageable pageable);
 
     UserResponse update(String id, UserUpdateRequest request);
 
+    void changePassword(String id, ChangePasswordRequest request);
+
     void delete(String id);
+
+    void restore(String id);
+
+    // Upload Avatar ...
+
 }

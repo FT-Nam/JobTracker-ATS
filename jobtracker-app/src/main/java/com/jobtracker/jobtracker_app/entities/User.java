@@ -44,7 +44,7 @@ public class User extends FullAuditEntity {
     Role role;
 
     @Column(name = "is_active")
-    Boolean isActive = true;
+    Boolean isActive = false;
 
     @Column(name = "email_verified")
     Boolean emailVerified = false;

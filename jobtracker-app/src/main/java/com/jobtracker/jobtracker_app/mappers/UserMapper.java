@@ -9,7 +9,6 @@ import com.jobtracker.jobtracker_app.entities.User;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    @Mapping(target = "email", ignore = true)
     User toUser(UserCreationRequest request);
 
     @Mapping(target = "roleName", source = "role.name")
