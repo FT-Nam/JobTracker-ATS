@@ -13,6 +13,8 @@ import com.jobtracker.jobtracker_app.dto.responses.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.PaginationInfo;
 import com.jobtracker.jobtracker_app.dto.responses.RoleResponse;
 import com.jobtracker.jobtracker_app.services.RoleService;
+import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
+import com.jobtracker.jobtracker_app.utils.MessageKeys;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +26,12 @@ import lombok.experimental.FieldDefaults;
 @RequestMapping("/role")
 public class RoleController {
     RoleService roleService;
+    LocalizationUtils localizationUtils;
 
     @PostMapping
     public ApiResponse<RoleResponse> create(@RequestBody @Valid RoleRequest request) {
         return ApiResponse.<RoleResponse>builder()
-                .message("Role create successfully")
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.ROLE_CREATE_SUCCESS))
                 .data(roleService.create(request))
                 .build();
     }
@@ -37,6 +40,7 @@ public class RoleController {
     public ApiResponse<List<RoleResponse>> getAll(Pageable pageable) {
         Page<RoleResponse> responses = roleService.getAll(pageable);
         return ApiResponse.<List<RoleResponse>>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.ROLE_LIST_SUCCESS))
                 .data(responses.getContent())
                 .paginationInfo(PaginationInfo.builder()
                         .page(responses.getNumber())
@@ -48,13 +52,16 @@ public class RoleController {
 
     @GetMapping("/{id}")
     public ApiResponse<RoleResponse> getById(@PathVariable String id) {
-        return ApiResponse.<RoleResponse>builder().data(roleService.getById(id)).build();
+        return ApiResponse.<RoleResponse>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.ROLE_DETAIL_SUCCESS))
+                .data(roleService.getById(id))
+                .build();
     }
 
     @PutMapping("/{id}")
     public ApiResponse<RoleResponse> update(@PathVariable String id, @RequestBody @Valid RoleRequest request) {
         return ApiResponse.<RoleResponse>builder()
-                .message("Role update successfully")
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.ROLE_UPDATE_SUCCESS))
                 .data(roleService.update(id, request))
                 .build();
     }
@@ -62,6 +69,8 @@ public class RoleController {
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable String id) {
         roleService.delete(id);
-        return ApiResponse.<Void>builder().message("Role delete successfully").build();
+        return ApiResponse.<Void>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.ROLE_DELETE_SUCCESS))
+                .build();
     }
 }

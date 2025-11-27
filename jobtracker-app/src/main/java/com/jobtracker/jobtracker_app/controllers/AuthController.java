@@ -5,6 +5,8 @@ import java.text.ParseException;
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
 import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
 import com.jobtracker.jobtracker_app.services.UserService;
+import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
+import com.jobtracker.jobtracker_app.utils.MessageKeys;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,11 +32,12 @@ import lombok.experimental.FieldDefaults;
 @RequestMapping("/auth")
 public class AuthController {
     AuthService authService;
+    LocalizationUtils localizationUtils;
 
     @PostMapping("register")
     public ApiResponse<UserResponse> register(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
-                .message("Register has been successfully")
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_REGISTER_SUCCESS))
                 .data(authService.register(request))
                 .build();
     }
@@ -42,7 +45,7 @@ public class AuthController {
     @PostMapping("/login")
     ApiResponse<AuthenticationResponse> login(@RequestBody @Valid AuthenticationRequest request) throws JOSEException {
         return ApiResponse.<AuthenticationResponse>builder()
-                .message("Login has been successfully")
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_LOGIN_SUCCESS))
                 .data(authService.login(request))
                 .build();
     }
@@ -51,7 +54,7 @@ public class AuthController {
     ApiResponse<AuthenticationResponse> refreshToken(@RequestBody @Valid RefreshRequest request)
             throws ParseException, JOSEException {
         return ApiResponse.<AuthenticationResponse>builder()
-                .message("Refresh token has been successfully")
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_REFRESH_SUCCESS))
                 .data(authService.refreshToken(request))
                 .build();
     }
@@ -60,7 +63,9 @@ public class AuthController {
     ApiResponse<Void> logout(@RequestBody @Valid LogoutRequest request) throws ParseException, JOSEException {
         authService.logout(request);
         return ApiResponse.<Void>builder()
-                .message("Logout has been successfully")
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_LOGOUT_SUCCESS))
                 .build();
     }
+
+    // login google, forgot password, reset password
 }

@@ -13,6 +13,8 @@ import com.jobtracker.jobtracker_app.dto.responses.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.PaginationInfo;
 import com.jobtracker.jobtracker_app.dto.responses.PermissionResponse;
 import com.jobtracker.jobtracker_app.services.PermissionService;
+import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
+import com.jobtracker.jobtracker_app.utils.MessageKeys;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +26,12 @@ import lombok.experimental.FieldDefaults;
 @RequestMapping("/permission")
 public class PermissionController {
     PermissionService permissionService;
+    LocalizationUtils localizationUtils;
 
     @PostMapping
     public ApiResponse<PermissionResponse> create(@RequestBody @Valid PermissionRequest request) {
         return ApiResponse.<PermissionResponse>builder()
-                .message("Permission create successfully")
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.PERMISSION_CREATE_SUCCESS))
                 .data(permissionService.create(request))
                 .build();
     }
@@ -37,6 +40,7 @@ public class PermissionController {
     public ApiResponse<List<PermissionResponse>> getAll(Pageable pageable) {
         Page<PermissionResponse> permissions = permissionService.getAll(pageable);
         return ApiResponse.<List<PermissionResponse>>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.PERMISSION_LIST_SUCCESS))
                 .data(permissions.getContent())
                 .paginationInfo(PaginationInfo.builder()
                         .page(permissions.getNumber())
@@ -49,6 +53,7 @@ public class PermissionController {
     @GetMapping("/{id}")
     public ApiResponse<PermissionResponse> getById(@PathVariable String id) {
         return ApiResponse.<PermissionResponse>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.PERMISSION_DETAIL_SUCCESS))
                 .data(permissionService.getById(id))
                 .build();
     }
@@ -57,7 +62,7 @@ public class PermissionController {
     public ApiResponse<PermissionResponse> update(
             @PathVariable String id, @RequestBody @Valid PermissionRequest request) {
         return ApiResponse.<PermissionResponse>builder()
-                .message("Permission update successfully")
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.PERMISSION_UPDATE_SUCCESS))
                 .data(permissionService.update(id, request))
                 .build();
     }
@@ -66,7 +71,7 @@ public class PermissionController {
     public ApiResponse<Void> delete(@PathVariable String id) {
         permissionService.delete(id);
         return ApiResponse.<Void>builder()
-                .message("Permission delete successfully")
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.PERMISSION_DELETE_SUCCESS))
                 .build();
     }
 }

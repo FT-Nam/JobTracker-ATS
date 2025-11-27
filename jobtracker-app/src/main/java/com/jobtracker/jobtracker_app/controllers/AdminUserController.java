@@ -5,6 +5,8 @@ import com.jobtracker.jobtracker_app.dto.responses.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.PaginationInfo;
 import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
 import com.jobtracker.jobtracker_app.services.UserService;
+import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
+import com.jobtracker.jobtracker_app.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +23,12 @@ import java.util.List;
 @RequestMapping("/admin/users")
 public class AdminUserController {
     UserService userService;
+    LocalizationUtils localizationUtils;
 
     @PostMapping
     public ApiResponse<UserResponse> create(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
-                .message("User create successfully")
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_CREATE_SUCCESS))
                 .data(userService.create(request))
                 .build();
     }
@@ -34,6 +37,7 @@ public class AdminUserController {
     public ApiResponse<List<UserResponse>> getAll(Pageable pageable) {
         Page<UserResponse> userResponses = userService.getAll(pageable);
         return ApiResponse.<List<UserResponse>>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_LIST_SUCCESS))
                 .data(userResponses.getContent())
                 .paginationInfo(PaginationInfo.builder()
                         .page(userResponses.getNumber())
@@ -45,18 +49,25 @@ public class AdminUserController {
 
     @GetMapping("/{id}")
     public ApiResponse<UserResponse> getById(@PathVariable String id) {
-        return ApiResponse.<UserResponse>builder().data(userService.getById(id)).build();
+        return ApiResponse.<UserResponse>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_DETAIL_SUCCESS))
+                .data(userService.getById(id))
+                .build();
     }
 
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable String id) {
         userService.delete(id);
-        return ApiResponse.<Void>builder().message("User delete successfully").build();
+        return ApiResponse.<Void>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_DELETE_SUCCESS))
+                .build();
     }
 
     @PatchMapping("/{id}/restore")
     public ApiResponse<Void> restore(@PathVariable String id) {
         userService.restore(id);
-        return ApiResponse.<Void>builder().message("User restored successfully").build();
+        return ApiResponse.<Void>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_RESTORE_SUCCESS))
+                .build();
     }
 }

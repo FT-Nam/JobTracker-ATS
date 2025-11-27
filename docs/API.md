@@ -395,6 +395,7 @@ Query hỗ trợ `role`, `status`, `search`, `createdFrom`.
 ```json
 {
   "success": true,
+  "message": "Users retrieved successfully",
   "data": [
     {
       "id": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
@@ -542,6 +543,7 @@ page=0&size=20&sort=createdAt,desc&status=APPLIED&company=Google&search=develope
 ```json
 {
   "success": true,
+  "message": "Roles retrieved successfully",
   "data": [
     {
         "id": 1,
@@ -1861,6 +1863,7 @@ Lấy thông tin chi tiết một role kèm metadata.
 ```json
 {
   "success": true,
+  "message": "Role retrieved successfully",
   "data": {
     "id": "34d9a2e3-1a30-4a1a-b1ad-4b6d2619f1ce",
     "name": "ADMIN",
@@ -1931,6 +1934,7 @@ Liệt kê toàn bộ permissions có thể gán cho roles.
 ```json
 {
   "success": true,
+  "message": "Permissions retrieved successfully",
   "data": [
     {
       "id": "5a12b2d5-0b42-4b3c-815a-7cf6fca39a8e",
