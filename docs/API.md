@@ -423,12 +423,68 @@ Query hỗ trợ `role`, `status`, `search`, `createdFrom`.
 }
 ```
 
-### 2. Get User Details
+### 2. Create User
+**POST** `/admin/users`
+
+Tạo user mới theo đầy đủ schema bảng `users`.
+
+#### Request Headers
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+#### Request Body
+```json
+{
+  "email": "new.user@jobtracker.com",
+  "password": "TempPassword123!",
+  "firstName": "New",
+  "lastName": "User",
+  "phone": "+12065551212",
+  "avatarUrl": "https://cdn.jobtracker.com/avatars/new_user.png",
+  "roleId": "34d9a2e3-1a30-4a1a-b1ad-4b6d2619f1ce",
+  "isActive": true,
+  "emailVerified": false,
+  "googleId": null
+}
+```
+
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "User created successfully",
+  "data": {
+    "id": "8b54b7f1-3f14-43a6-9a9a-5fefdc136d91",
+    "email": "new.user@jobtracker.com",
+    "firstName": "New",
+    "lastName": "User",
+    "phone": "+12065551212",
+    "avatarUrl": "https://cdn.jobtracker.com/avatars/new_user.png",
+    "roleId": "34d9a2e3-1a30-4a1a-b1ad-4b6d2619f1ce",
+    "isActive": true,
+    "emailVerified": false,
+    "googleId": null,
+    "lastLoginAt": null,
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "createdAt": "2024-01-20T08:00:00Z",
+    "updatedAt": "2024-01-20T08:00:00Z",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-20T08:00:00Z"
+}
+```
+
+> Server sẽ hash `password` theo chuẩn (BCrypt) trước khi lưu xuống cột `password`. Các trường audit (`createdBy`, `updatedBy`, `createdAt`, `updatedAt`) được populate tự động.
+
+### 3. Get User Details
 **GET** `/admin/users/{id}`
 
 Trả về thông tin đầy đủ của user kèm audit.
 
-### 3. Update User
+### 4. Update User
 **PUT** `/admin/users/{id}`
 
 ```json
@@ -441,7 +497,7 @@ Trả về thông tin đầy đủ của user kèm audit.
 }
 ```
 
-### 4. Deactivate / Soft Delete User
+### 5. Deactivate / Soft Delete User
 **DELETE** `/admin/users/{id}`
 
 ```json
@@ -453,7 +509,7 @@ Trả về thông tin đầy đủ của user kèm audit.
 }
 ```
 
-### 5. Restore User
+### 6. Restore User
 **PATCH** `/admin/users/{id}/restore`
 
 ```json
