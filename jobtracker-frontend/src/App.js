@@ -106,7 +106,7 @@ const AppContent = () => {
           pauseOnHover
           theme="light"
         />
-      </div>
+        </div>
     </Router>
   );
 };

@@ -1,5 +1,9 @@
 package com.jobtracker.jobtracker_app.exceptions;
 
+import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +18,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class GlobalException {
+    LocalizationUtils localizationUtils;
+
     @ExceptionHandler(exception = AppException.class)
     public ResponseEntity<ApiResponse> handlingAppException(AppException e) {
+        String message = localizationUtils.getLocalizedMessage(e.getErrorCode().getMessage());
         ApiResponse apiResponse = ApiResponse.builder()
                 .success(false)
-                .message(e.getErrorCode().getMessage())
+                .message(message)
                 .build();
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(apiResponse);
     }
@@ -38,8 +47,9 @@ public class GlobalException {
 
             switch (sqlState) {
                 case "23000":
+                    String message = localizationUtils.getLocalizedMessage(ErrorCode.FIELD_EXISTED.getMessage());
                     errorCode = ErrorCode.INVALID_INPUT;
-                    errors.put(fieldName, ErrorCode.FIELD_EXISTED.getMessage());
+                    errors.put(fieldName, message);
                     break;
                 default:
                     errorCode = ErrorCode.UNCATEGORIZED_ERROR;
@@ -51,7 +61,7 @@ public class GlobalException {
                     .body(ApiResponse.builder()
                             .success(false)
                             .errors(errors)
-                            .message(errorCode.getMessage())
+                            .message(localizationUtils.getLocalizedMessage(errorCode.getMessage()))
                             .build());
         }
 
@@ -60,7 +70,7 @@ public class GlobalException {
                 .status(errorCode.getHttpStatus())
                 .body(ApiResponse.builder()
                         .success(false)
-                        .message(errorCode.getMessage())
+                        .message(localizationUtils.getLocalizedMessage(errorCode.getMessage()))
                         .build());
     }
 
@@ -69,12 +79,12 @@ public class GlobalException {
         Map<String,String> errors = new HashMap<>();
 
         for(FieldError error : e.getBindingResult().getFieldErrors()){
-            errors.put(error.getField(), error.getDefaultMessage());
+            errors.put(error.getField(), localizationUtils.getLocalizedMessage(error.getDefaultMessage()));
         }
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .success(false)
-                .message(ErrorCode.INVALID_INPUT.getMessage())
+                .message(localizationUtils.getLocalizedMessage(ErrorCode.INVALID_INPUT.getMessage()))
                 .errors(errors)
                 .build();
 
