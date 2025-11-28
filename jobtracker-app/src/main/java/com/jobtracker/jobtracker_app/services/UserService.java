@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
+import org.springframework.data.repository.query.Param;
 
 public interface UserService {
     UserResponse create(UserCreationRequest request);
@@ -15,7 +16,8 @@ public interface UserService {
 
     UserResponse getProfile();
 
-    Page<UserResponse> getAll(Pageable pageable);
+    Page<UserResponse> getAll(String keyword, String roleId,
+                              Boolean isActive, Boolean emailVerified, Pageable pageable);
 
     UserResponse update(String id, UserUpdateRequest request);
 

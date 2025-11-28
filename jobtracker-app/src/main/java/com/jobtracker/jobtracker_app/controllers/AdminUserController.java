@@ -34,8 +34,15 @@ public class AdminUserController {
     }
 
     @GetMapping
-    public ApiResponse<List<UserResponse>> getAll(Pageable pageable) {
-        Page<UserResponse> userResponses = userService.getAll(pageable);
+    public ApiResponse<List<UserResponse>> getAll(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String roleId,
+            @RequestParam(required = false) Boolean isActive,
+            @RequestParam(required = false) Boolean emailVerified,
+            Pageable pageable) {
+
+        Page<UserResponse> userResponses = userService.getAll(keyword, roleId, isActive, emailVerified, pageable);
+
         return ApiResponse.<List<UserResponse>>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_LIST_SUCCESS))
                 .data(userResponses.getContent())

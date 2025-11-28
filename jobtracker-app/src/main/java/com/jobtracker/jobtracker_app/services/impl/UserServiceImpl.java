@@ -81,8 +81,10 @@ public class UserServiceImpl implements UserService {
     // ADMIN
     @Override
     @PreAuthorize("hasAuthority('USER_READ')")
-    public Page<UserResponse> getAll(Pageable pageable) {
-        return userRepository.findAll(pageable).map(userMapper::toUserResponse);
+    public Page<UserResponse> getAll(String keyword, String roleId,
+                                     Boolean isActive, Boolean emailVerified, Pageable pageable) {
+        return userRepository.findAllAndSearch(keyword, roleId, isActive, emailVerified, pageable)
+                .map(userMapper::toUserResponse);
     }
 
     // USER, ADMIN
