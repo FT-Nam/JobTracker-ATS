@@ -1,4 +1,4 @@
-﻿package com.jobtracker.jobtracker_app.controllers;
+package com.jobtracker.jobtracker_app.controllers;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
 import com.jobtracker.jobtracker_app.dto.responses.ApiResponse;

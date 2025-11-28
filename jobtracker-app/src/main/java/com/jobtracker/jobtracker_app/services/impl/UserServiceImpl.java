@@ -1,6 +1,7 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
 import com.jobtracker.jobtracker_app.dto.requests.ChangePasswordRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,7 +51,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
         user.setRole(role);
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        try{
+            user = userRepository.save(user);
+        } catch (DataIntegrityViolationException e){
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+
+        return userMapper.toUserResponse(user);
     }
 
     // ADMIN
@@ -61,10 +68,11 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserResponse(user);
     }
 
+    // USER
     @Override
+    @PreAuthorize("hasAuthority('USER_READ')")
     public UserResponse getProfile() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String id = authentication.getName();
+        String id = getAuthenticationId();
         User user = userRepository.findById(id)
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
         return userMapper.toUserResponse(user);
@@ -102,7 +110,30 @@ public class UserServiceImpl implements UserService {
     @Override
     @PreAuthorize("hasAuthority('USER_UPDATE')")
     @Transactional
-    public void changePassword(String id, ChangePasswordRequest request) {
+    public UserResponse updateProfile(UserUpdateRequest request) {
+        String id = getAuthenticationId();
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (request.getRoleId() != null) {
+            Role role = roleRepository
+                    .findById(request.getRoleId())
+                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+            user.setRole(role);
+
+            permissionCacheService.evict(user.getId());
+        }
+
+        userMapper.updateUser(user, request);
+
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    // USER
+    @Override
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
+        String id = getAuthenticationId();
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         boolean authenticated = passwordEncoder.matches(request.getCurrentPassword(), user.getPassword());
@@ -134,5 +165,10 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         user.restore();
         userRepository.save(user);
+    }
+
+    private String getAuthenticationId(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
     }
 }

@@ -45,10 +45,9 @@ public class UserProfileController {
                 .build();
     }
 
-    @PutMapping("/profile/{id}")
-    public ApiResponse<UserResponse> changePassword(@PathVariable String id,
-                                                    @RequestBody @Valid ChangePasswordRequest request) {
-        userService.changePassword(id, request);
+    @PutMapping("/change-password")
+    public ApiResponse<UserResponse> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
+        userService.changePassword(request);
 
         return ApiResponse.<UserResponse>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.PASSWORD_CHANGE_SUCCESS))

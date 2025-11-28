@@ -15,12 +15,13 @@ public interface UserService {
 
     UserResponse getProfile();
 
-
     Page<UserResponse> getAll(Pageable pageable);
 
     UserResponse update(String id, UserUpdateRequest request);
 
-    void changePassword(String id, ChangePasswordRequest request);
+    UserResponse updateProfile(UserUpdateRequest request);
+
+    void changePassword(ChangePasswordRequest request);
 
     void delete(String id);
 
