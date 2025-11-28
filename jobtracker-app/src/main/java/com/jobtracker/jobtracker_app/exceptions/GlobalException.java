@@ -33,47 +33,6 @@ public class GlobalException {
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(apiResponse);
     }
 
-    @ExceptionHandler(exception = DataIntegrityViolationException.class)
-    public ResponseEntity<ApiResponse> handlingDataIntegrityViolationException(
-            DataIntegrityViolationException e) {
-        Throwable cause = e.getCause();
-        if (cause instanceof ConstraintViolationException) {
-            ConstraintViolationException cve = (ConstraintViolationException) cause;
-            ErrorCode errorCode;
-            String constraint = cve.getConstraintName();
-            String sqlState = cve.getSQLException().getSQLState();
-            String fieldName = mapConstraintToField(constraint);
-            Map<String, String> errors = new HashMap<>();
-
-            switch (sqlState) {
-                case "23000":
-                    String message = localizationUtils.getLocalizedMessage(ErrorCode.FIELD_EXISTED.getMessage());
-                    errorCode = ErrorCode.INVALID_INPUT;
-                    errors.put(fieldName, message);
-                    break;
-                default:
-                    errorCode = ErrorCode.UNCATEGORIZED_ERROR;
-                    break;
-
-            }
-            return ResponseEntity
-                    .status(errorCode.getHttpStatus())
-                    .body(ApiResponse.builder()
-                            .success(false)
-                            .errors(errors)
-                            .message(localizationUtils.getLocalizedMessage(errorCode.getMessage()))
-                            .build());
-        }
-
-        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_ERROR;
-        return ResponseEntity
-                .status(errorCode.getHttpStatus())
-                .body(ApiResponse.builder()
-                        .success(false)
-                        .message(localizationUtils.getLocalizedMessage(errorCode.getMessage()))
-                        .build());
-    }
-
     @ExceptionHandler(exception = MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
         Map<String,String> errors = new HashMap<>();
@@ -92,13 +51,54 @@ public class GlobalException {
                 .body(apiResponse);
     }
 
-    private String mapConstraintToField(String constraint) {
-        if (constraint == null) return "unknown";
-
-        if (constraint.contains("email")) return "email";
-        if (constraint.contains("username")) return "username";
-
-        return "unknown";
-    }
+//    @ExceptionHandler(exception = DataIntegrityViolationException.class)
+//    public ResponseEntity<ApiResponse> handlingDataIntegrityViolationException(
+//            DataIntegrityViolationException e) {
+//        Throwable cause = e.getCause();
+//        if (cause instanceof ConstraintViolationException) {
+//            ConstraintViolationException cve = (ConstraintViolationException) cause;
+//            ErrorCode errorCode;
+//            String constraint = cve.getConstraintName();
+//            String sqlState = cve.getSQLException().getSQLState();
+//            String fieldName = mapConstraintToField(constraint);
+//            Map<String, String> errors = new HashMap<>();
+//
+//            switch (sqlState) {
+//                case "23000":
+//                    String message = localizationUtils.getLocalizedMessage(ErrorCode.FIELD_EXISTED.getMessage());
+//                    errorCode = ErrorCode.INVALID_INPUT;
+//                    errors.put(fieldName, message);
+//                    break;
+//                default:
+//                    errorCode = ErrorCode.UNCATEGORIZED_ERROR;
+//                    break;
+//
+//            }
+//            return ResponseEntity
+//                    .status(errorCode.getHttpStatus())
+//                    .body(ApiResponse.builder()
+//                            .success(false)
+//                            .errors(errors)
+//                            .message(localizationUtils.getLocalizedMessage(errorCode.getMessage()))
+//                            .build());
+//        }
+//
+//        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_ERROR;
+//        return ResponseEntity
+//                .status(errorCode.getHttpStatus())
+//                .body(ApiResponse.builder()
+//                        .success(false)
+//                        .message(localizationUtils.getLocalizedMessage(errorCode.getMessage()))
+//                        .build());
+//    }
+//
+//    private String mapConstraintToField(String constraint) {
+//        if (constraint == null) return "unknown";
+//
+//        if (constraint.contains("email")) return "email";
+//        if (constraint.contains("username")) return "username";
+//
+//        return "unknown";
+//    }
 
 }
