@@ -41,9 +41,7 @@ public class RoleServiceImpl implements RoleService {
     @PreAuthorize("hasAuthority('ROLE_CREATE')")
     @Transactional
     public RoleResponse create(RoleRequest request) {
-        if (roleRepository.existsByName(request.getName())) {
-            throw new AppException(ErrorCode.NAME_EXISTED);
-        }
+        validateNameUnique(request.getName(), null);
 
         Role role = roleMapper.toRole(request);
 
@@ -74,10 +72,7 @@ public class RoleServiceImpl implements RoleService {
     public RoleResponse update(String id, RoleRequest request) {
         Role role = roleRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
         if (request.getName() != null && !request.getName().equals(role.getName())) {
-            if (roleRepository.existsByName(request.getName())) {
-                throw new AppException(ErrorCode.NAME_EXISTED);
-            }
-            role.setName(request.getName());
+            validateNameUnique(request.getName(), id);
         }
 
         if (request.getPermissionIds() != null) {
@@ -101,5 +96,14 @@ public class RoleServiceImpl implements RoleService {
         Role role = roleRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
         role.softDelete();
         roleRepository.save(role);
+    }
+
+    private void validateNameUnique(String name, String excludeId) {
+        boolean exists = excludeId == null
+                ? roleRepository.existsByNameIgnoreCase(name)
+                : roleRepository.existsByNameIgnoreCaseAndIdNot(name, excludeId);
+        if (exists) {
+            throw new AppException(ErrorCode.NAME_EXISTED);
+        }
     }
 }

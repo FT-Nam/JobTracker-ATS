@@ -31,9 +31,7 @@ public class PermissionServiceImpl implements PermissionService {
     @PreAuthorize("hasAuthority('PERMISSION_CREATE')")
     @Transactional
     public PermissionResponse create(PermissionRequest request) {
-        if (permissionRepository.existsByName(request.getName())) {
-            throw new AppException(ErrorCode.NAME_EXISTED);
-        }
+        validateNameUnique(request.getName(), null);
 
         Permission permission = permissionMapper.toPermission(request);
 
@@ -64,10 +62,7 @@ public class PermissionServiceImpl implements PermissionService {
         Permission permission =
                 permissionRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PERMISSION_NOT_EXISTED));
         if (request.getName() != null && !request.getName().equals(permission.getName())) {
-            if (permissionRepository.existsByName(request.getName())) {
-                throw new AppException(ErrorCode.NAME_EXISTED);
-            }
-            permission.setName(request.getName());
+            validateNameUnique(request.getName(), id);
         }
 
         permissionMapper.updatePermission(permission, request);
@@ -82,5 +77,14 @@ public class PermissionServiceImpl implements PermissionService {
                 permissionRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PERMISSION_NOT_EXISTED));
         permission.softDelete();
         permissionRepository.save(permission);
+    }
+
+    private void validateNameUnique(String name, String excludeId) {
+        boolean exists = excludeId == null
+                ? permissionRepository.existsByNameIgnoreCase(name)
+                : permissionRepository.existsByNameIgnoreCaseAndIdNot(name, excludeId);
+        if (exists) {
+            throw new AppException(ErrorCode.NAME_EXISTED);
+        }
     }
 }

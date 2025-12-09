@@ -28,6 +28,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -46,18 +48,21 @@ public class UserServiceImpl implements UserService {
     public UserResponse create(UserCreationRequest request) {
         User user = userMapper.toUser(request);
 
+        boolean isUserExist = userRepository.existsByEmail(request.getEmail());
+        if(isUserExist){
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+
+        user.setEmail(request.getEmail());
+
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
         Role role = roleRepository
                 .findById(request.getRoleId())
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
         user.setRole(role);
 
-        try{
-            user = userRepository.save(user);
-        } catch (DataIntegrityViolationException e){
-            throw new AppException(ErrorCode.USER_EXISTED);
-        }
-
-        return userMapper.toUserResponse(user);
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
     // ADMIN
@@ -116,15 +121,6 @@ public class UserServiceImpl implements UserService {
         String id = getAuthenticationId();
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        if (request.getRoleId() != null) {
-            Role role = roleRepository
-                    .findById(request.getRoleId())
-                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
-            user.setRole(role);
-
-            permissionCacheService.evict(user.getId());
-        }
-
         userMapper.updateUser(user, request);
 
         return userMapper.toUserResponse(userRepository.save(user));
@@ -144,7 +140,9 @@ public class UserServiceImpl implements UserService {
             throw new AppException(ErrorCode.INCORRECT_CURRENT_PASSWORD);
         }
 
-        user.setPassword(request.getNewPassword());
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        userRepository.save(user);
     }
 
     // ADMIN

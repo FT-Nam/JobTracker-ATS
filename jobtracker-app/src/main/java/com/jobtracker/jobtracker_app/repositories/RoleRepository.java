@@ -7,6 +7,9 @@ import com.jobtracker.jobtracker_app.entities.Role;
 import java.util.Optional;
 
 public interface RoleRepository extends JpaRepository<Role, String> {
-    Boolean existsByName(String name);
     Optional<Role> findByName(String name);
+
+    boolean existsByNameIgnoreCase(String name);
+
+    boolean existsByNameIgnoreCaseAndIdNot(String name, String id);
 }

@@ -5,5 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.jobtracker.jobtracker_app.entities.Permission;
 
 public interface PermissionRepository extends JpaRepository<Permission, String> {
-    Boolean existsByName(String name);
+    boolean existsByNameIgnoreCase(String name);
+
+    boolean existsByNameIgnoreCaseAndIdNot(String name, String id);
 }
