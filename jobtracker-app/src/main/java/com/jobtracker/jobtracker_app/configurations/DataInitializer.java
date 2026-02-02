@@ -1,5 +1,6 @@
 package com.jobtracker.jobtracker_app.configurations;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
@@ -9,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jobtracker.jobtracker_app.entities.Permission;
 import com.jobtracker.jobtracker_app.entities.Role;
+import com.jobtracker.jobtracker_app.entities.RolePermission;
 import com.jobtracker.jobtracker_app.entities.User;
 import com.jobtracker.jobtracker_app.repositories.PermissionRepository;
+import com.jobtracker.jobtracker_app.repositories.RolePermissionRepository;
 import com.jobtracker.jobtracker_app.repositories.RoleRepository;
 import com.jobtracker.jobtracker_app.repositories.UserRepository;
 
@@ -27,6 +30,7 @@ public class DataInitializer implements CommandLineRunner {
     UserRepository userRepository;
     RoleRepository roleRepository;
     PermissionRepository permissionRepository;
+    RolePermissionRepository rolePermissionRepository;
     PasswordEncoder passwordEncoder;
 
     @Override
@@ -103,15 +107,19 @@ public class DataInitializer implements CommandLineRunner {
 
         permissionRepository.saveAll(permissions);
 
-        adminRole.setPermissions(permissions);
-
-        roleRepository.save(adminRole);
+        List<RolePermission> rolePermissions = permissions.stream()
+                .map(permission -> RolePermission.builder()
+                        .role(adminRole)
+                        .permission(permission)
+                        .build())
+                .toList();
+        rolePermissionRepository.saveAll(rolePermissions);
 
         log.info("✅ Admin user created successfully: {}", admin.getEmail());
     }
 
     private Permission createPermission(String name, String resource, String action, String description, String createdBy) {
-        Permission permission = new Permission(null, name, resource, action, description, true);
+        Permission permission = new Permission(null, name, resource, action, description, true, new ArrayList());
         permission.setCreatedBy(createdBy);
         return permission;
     }
