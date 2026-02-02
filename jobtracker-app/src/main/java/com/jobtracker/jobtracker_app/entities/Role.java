@@ -31,12 +31,8 @@ public class Role extends FullAuditEntity {
     @OneToMany(mappedBy = "role")
     List<User> users;
 
-    @ManyToMany
-    @JoinTable(
-            name = "roles_permissions",
-            joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id", referencedColumnName = "id"))
-    List<Permission> permissions = new ArrayList<>();
+    @OneToMany(mappedBy = "role")
+    List<RolePermission> rolePermissions = new ArrayList<>();
 
     @Column(name = "is_active")
     Boolean isActive = true;

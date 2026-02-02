@@ -7,6 +7,9 @@ import com.jobtracker.jobtracker_app.entities.base.FullAuditEntity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "permissions")
 @Getter
@@ -32,4 +35,7 @@ public class Permission extends FullAuditEntity {
 
     @Column(name = "is_active")
     Boolean isActive = true;
+
+    @OneToMany(mappedBy = "permission")
+    List<RolePermission> rolePermissions = new ArrayList<>();
 }

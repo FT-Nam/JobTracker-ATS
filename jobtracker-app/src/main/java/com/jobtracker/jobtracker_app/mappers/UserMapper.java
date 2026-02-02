@@ -11,6 +11,7 @@ import com.jobtracker.jobtracker_app.entities.User;
 public interface UserMapper {
     @Mapping(target = "email", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "role", ignore = true)
     User toUser(UserCreationRequest request);
 
     @Mapping(target = "roleName", source = "role.name")

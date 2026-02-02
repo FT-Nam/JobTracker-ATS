@@ -12,11 +12,13 @@ import com.jobtracker.jobtracker_app.dto.requests.RoleRequest;
 import com.jobtracker.jobtracker_app.dto.responses.RoleResponse;
 import com.jobtracker.jobtracker_app.entities.Permission;
 import com.jobtracker.jobtracker_app.entities.Role;
+import com.jobtracker.jobtracker_app.entities.RolePermission;
 import com.jobtracker.jobtracker_app.entities.User;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
 import com.jobtracker.jobtracker_app.mappers.RoleMapper;
 import com.jobtracker.jobtracker_app.repositories.PermissionRepository;
+import com.jobtracker.jobtracker_app.repositories.RolePermissionRepository;
 import com.jobtracker.jobtracker_app.repositories.RoleRepository;
 import com.jobtracker.jobtracker_app.repositories.UserRepository;
 import com.jobtracker.jobtracker_app.services.RoleService;
@@ -34,6 +36,7 @@ public class RoleServiceImpl implements RoleService {
     RoleRepository roleRepository;
     RoleMapper roleMapper;
     PermissionRepository permissionRepository;
+    RolePermissionRepository rolePermissionRepository;
     PermissionCacheService permissionCacheService;
     UserRepository userRepository;
 
@@ -44,12 +47,20 @@ public class RoleServiceImpl implements RoleService {
         validateNameUnique(request.getName(), null);
 
         Role role = roleMapper.toRole(request);
-
         role.setName(request.getName());
-        List<Permission> permissions = permissionRepository.findAllById(request.getPermissionIds());
-        role.setPermissions(permissions);
+        role = roleRepository.save(role);
 
-        return roleMapper.toRoleResponse(roleRepository.save(role));
+        List<Permission> permissions = permissionRepository.findAllById(request.getPermissionIds());
+        Role finalRole = role;
+        List<RolePermission> rolePermissions = permissions.stream()
+                .map(permission -> RolePermission.builder()
+                        .role(finalRole)
+                        .permission(permission)
+                        .build())
+                .toList();
+        rolePermissionRepository.saveAll(rolePermissions);
+
+        return roleMapper.toRoleResponse(role);
     }
 
     @Override
@@ -76,8 +87,18 @@ public class RoleServiceImpl implements RoleService {
         }
 
         if (request.getPermissionIds() != null) {
+            List<RolePermission> existingRolePermissions = rolePermissionRepository.findByRoleId(role.getId());
+            existingRolePermissions.forEach(RolePermission::softDelete);
+            rolePermissionRepository.saveAll(existingRolePermissions);
+
             List<Permission> permissions = permissionRepository.findAllById(request.getPermissionIds());
-            role.setPermissions(permissions);
+            List<RolePermission> newRolePermissions = permissions.stream()
+                    .map(permission -> RolePermission.builder()
+                            .role(role)
+                            .permission(permission)
+                            .build())
+                    .toList();
+            rolePermissionRepository.saveAll(newRolePermissions);
 
             List<String> userIds = userRepository.findAllByRoleId(role.getId()).stream()
                     .map(User::getId)

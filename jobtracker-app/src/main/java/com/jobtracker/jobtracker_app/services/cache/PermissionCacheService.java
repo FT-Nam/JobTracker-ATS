@@ -47,8 +47,9 @@ public class PermissionCacheService {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        List<String> permissions = user.getRole().getPermissions().stream()
-                .map(Permission::getName)
+        List<String> permissions = user.getRole().getRolePermissions().stream()
+                .filter(rp -> !rp.getIsDeleted())
+                .map(rp -> rp.getPermission().getName())
                 .toList();
 
         try {
