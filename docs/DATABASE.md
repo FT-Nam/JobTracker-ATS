@@ -745,7 +745,7 @@ CREATE TABLE attachments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 11. Notifications Table (Bảng thông báo)
+### 12. Notifications Table (Bảng thông báo)
 
 ```sql
 CREATE TABLE notifications (
@@ -786,7 +786,7 @@ CREATE TABLE notifications (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 12. User Sessions Table (Bảng phiên đăng nhập)
+### 13. User Sessions Table (Bảng phiên đăng nhập)
 
 ```sql
 CREATE TABLE user_sessions (
@@ -816,7 +816,7 @@ CREATE TABLE user_sessions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 13. Audit Logs Table (Bảng log audit)
+### 14. Audit Logs Table (Bảng log audit)
 
 ```sql
 CREATE TABLE audit_logs (
