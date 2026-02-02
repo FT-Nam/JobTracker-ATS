@@ -119,4 +119,101 @@ public class MessageKeys {
     public static final String NOTIFICATION_PRIORITY_DELETE_SUCCESS = "notification_priority.delete_success";
     public static final String NOTIFICATION_PRIORITY_LIST_SUCCESS = "notification_priority.list_success";
     public static final String NOTIFICATION_PRIORITY_DETAIL_SUCCESS = "notification_priority.detail_success";
+
+    // COMPANY
+    public static final String COMPANY_NOT_EXISTED = "company.not_existed";
+    public static final String COMPANY_CREATE_SUCCESS = "company.create_success";
+    public static final String COMPANY_UPDATE_SUCCESS = "company.update_success";
+    public static final String COMPANY_DELETE_SUCCESS = "company.delete_success";
+    public static final String COMPANY_LIST_SUCCESS = "company.list_success";
+    public static final String COMPANY_DETAIL_SUCCESS = "company.detail_success";
+
+    // SKILL
+    public static final String SKILL_NOT_EXISTED = "skill.not_existed";
+    public static final String SKILL_CREATE_SUCCESS = "skill.create_success";
+    public static final String SKILL_UPDATE_SUCCESS = "skill.update_success";
+    public static final String SKILL_DELETE_SUCCESS = "skill.delete_success";
+    public static final String SKILL_LIST_SUCCESS = "skill.list_success";
+    public static final String SKILL_DETAIL_SUCCESS = "skill.detail_success";
+
+    // JOB
+    public static final String JOB_NOT_EXISTED = "job.not_existed";
+    public static final String JOB_CREATE_SUCCESS = "job.create_success";
+    public static final String JOB_UPDATE_SUCCESS = "job.update_success";
+    public static final String JOB_DELETE_SUCCESS = "job.delete_success";
+    public static final String JOB_LIST_SUCCESS = "job.list_success";
+    public static final String JOB_DETAIL_SUCCESS = "job.detail_success";
+
+    // JOB SKILL
+    public static final String JOB_SKILL_NOT_EXISTED = "job_skill.not_existed";
+    public static final String JOB_SKILL_CREATE_SUCCESS = "job_skill.create_success";
+    public static final String JOB_SKILL_UPDATE_SUCCESS = "job_skill.update_success";
+    public static final String JOB_SKILL_DELETE_SUCCESS = "job_skill.delete_success";
+    public static final String JOB_SKILL_LIST_SUCCESS = "job_skill.list_success";
+    public static final String JOB_SKILL_DETAIL_SUCCESS = "job_skill.detail_success";
+
+    // USER SKILL
+    public static final String USER_SKILL_NOT_EXISTED = "user_skill.not_existed";
+    public static final String USER_SKILL_CREATE_SUCCESS = "user_skill.create_success";
+    public static final String USER_SKILL_UPDATE_SUCCESS = "user_skill.update_success";
+    public static final String USER_SKILL_DELETE_SUCCESS = "user_skill.delete_success";
+    public static final String USER_SKILL_LIST_SUCCESS = "user_skill.list_success";
+    public static final String USER_SKILL_DETAIL_SUCCESS = "user_skill.detail_success";
+
+    // INTERVIEW
+    public static final String INTERVIEW_NOT_EXISTED = "interview.not_existed";
+    public static final String INTERVIEW_CREATE_SUCCESS = "interview.create_success";
+    public static final String INTERVIEW_UPDATE_SUCCESS = "interview.update_success";
+    public static final String INTERVIEW_DELETE_SUCCESS = "interview.delete_success";
+    public static final String INTERVIEW_LIST_SUCCESS = "interview.list_success";
+    public static final String INTERVIEW_DETAIL_SUCCESS = "interview.detail_success";
+
+    // JOB RESUME
+    public static final String JOB_RESUME_NOT_EXISTED = "job_resume.not_existed";
+    public static final String JOB_RESUME_CREATE_SUCCESS = "job_resume.create_success";
+    public static final String JOB_RESUME_UPDATE_SUCCESS = "job_resume.update_success";
+    public static final String JOB_RESUME_DELETE_SUCCESS = "job_resume.delete_success";
+    public static final String JOB_RESUME_LIST_SUCCESS = "job_resume.list_success";
+    public static final String JOB_RESUME_DETAIL_SUCCESS = "job_resume.detail_success";
+
+    // RESUME
+    public static final String RESUME_NOT_EXISTED = "resume.not_existed";
+    public static final String RESUME_CREATE_SUCCESS = "resume.create_success";
+    public static final String RESUME_UPDATE_SUCCESS = "resume.update_success";
+    public static final String RESUME_DELETE_SUCCESS = "resume.delete_success";
+    public static final String RESUME_LIST_SUCCESS = "resume.list_success";
+    public static final String RESUME_DETAIL_SUCCESS = "resume.detail_success";
+
+    // ATTACHMENT
+    public static final String ATTACHMENT_NOT_EXISTED = "attachment.not_existed";
+    public static final String ATTACHMENT_CREATE_SUCCESS = "attachment.create_success";
+    public static final String ATTACHMENT_UPDATE_SUCCESS = "attachment.update_success";
+    public static final String ATTACHMENT_DELETE_SUCCESS = "attachment.delete_success";
+    public static final String ATTACHMENT_LIST_SUCCESS = "attachment.list_success";
+    public static final String ATTACHMENT_DETAIL_SUCCESS = "attachment.detail_success";
+
+    // NOTIFICATION
+    public static final String NOTIFICATION_NOT_EXISTED = "notification.not_existed";
+    public static final String NOTIFICATION_CREATE_SUCCESS = "notification.create_success";
+    public static final String NOTIFICATION_UPDATE_SUCCESS = "notification.update_success";
+    public static final String NOTIFICATION_DELETE_SUCCESS = "notification.delete_success";
+    public static final String NOTIFICATION_LIST_SUCCESS = "notification.list_success";
+    public static final String NOTIFICATION_DETAIL_SUCCESS = "notification.detail_success";
+
+    // USER SESSION
+    public static final String USER_SESSION_NOT_EXISTED = "user_session.not_existed";
+    public static final String USER_SESSION_CREATE_SUCCESS = "user_session.create_success";
+    public static final String USER_SESSION_UPDATE_SUCCESS = "user_session.update_success";
+    public static final String USER_SESSION_DELETE_SUCCESS = "user_session.delete_success";
+    public static final String USER_SESSION_LIST_SUCCESS = "user_session.list_success";
+    public static final String USER_SESSION_DETAIL_SUCCESS = "user_session.detail_success";
+
+    // AUDIT LOG
+    public static final String AUDIT_LOG_NOT_EXISTED = "audit_log.not_existed";
+    public static final String AUDIT_LOG_CREATE_SUCCESS = "audit_log.create_success";
+    public static final String AUDIT_LOG_UPDATE_SUCCESS = "audit_log.update_success";
+    public static final String AUDIT_LOG_DELETE_SUCCESS = "audit_log.delete_success";
+    public static final String AUDIT_LOG_LIST_SUCCESS = "audit_log.list_success";
+    public static final String AUDIT_LOG_DETAIL_SUCCESS = "audit_log.detail_success";
+
 }
