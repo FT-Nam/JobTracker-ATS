@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 public class JobSkillResponse {
     String skillId;
     String name;
+    String category;
     Boolean isRequired;
     String proficiencyLevel;
 }

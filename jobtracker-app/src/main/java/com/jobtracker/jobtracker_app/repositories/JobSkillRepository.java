@@ -13,7 +13,7 @@ public interface JobSkillRepository extends JpaRepository<JobSkill, String> {
     @Query("SELECT js FROM job_skills js " +
             "JOIN FETCH js.skill s " +
             "WHERE js.job.id =: jobId " +
-            "AND js.isDelete = false " +
+            "AND js.isDeleted = false " +
             "ORDER BY s.name ASC"
     )
     List<JobSkill> findByJobIdWithSkill(@Param("jobId") String jobId);
