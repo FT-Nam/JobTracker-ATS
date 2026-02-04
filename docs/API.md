@@ -2041,6 +2041,22 @@ Cập nhật danh sách permission cho role cụ thể.
     "6df6adf7-02f0-4d66-92bb-59f32b2b7a25"
   ]
 }
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Role permissions updated successfully",
+  "data": {
+    "roleId": "34d9a2e3-1a30-4a1a-b1ad-4b6d2619f1ce",
+    "permissionIds": [
+      "5a12b2d5-0b42-4b3c-815a-7cf6fca39a8e",
+      "6df6adf7-02f0-4d66-92bb-59f32b2b7a25"
+    ],
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
 ```
 
 ### 11. Get Role Permissions
@@ -2091,22 +2107,6 @@ Cập nhật danh sách permission cho role cụ thể.
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Role permissions updated successfully",
-  "data": {
-    "roleId": "34d9a2e3-1a30-4a1a-b1ad-4b6d2619f1ce",
-    "permissionIds": [
-      "5a12b2d5-0b42-4b3c-815a-7cf6fca39a8e",
-      "6df6adf7-02f0-4d66-92bb-59f32b2b7a25"
-    ],
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
 ```
 
 ## 🎯 Skills Management APIs
