@@ -19,6 +19,8 @@ public class MessageKeys {
     public static final String ROLE_DELETE_SUCCESS = "role.delete_success";
     public static final String ROLE_LIST_SUCCESS = "role.list_success";
     public static final String ROLE_DETAIL_SUCCESS = "role.detail_success";
+    public static final String ROLE_NOT_ACTIVE = "role.not_active";
+
 
     // PERMISSION
     public static final String PERMISSION_NOT_EXISTED = "permission_not_existed";
@@ -27,6 +29,14 @@ public class MessageKeys {
     public static final String PERMISSION_DELETE_SUCCESS = "permission.delete_success";
     public static final String PERMISSION_LIST_SUCCESS = "permission.list_success";
     public static final String PERMISSION_DETAIL_SUCCESS = "permission.detail_success";
+    public static final String PERMISSION_NOT_ACTIVE = "permission.not_active";
+
+    // ROLE PERMISSION
+    public static final String ROLE_PERMISSION_EXISTED = "roles_permissions.existed";
+    public static final String ROLE_PERMISSIONS_RETRIEVED_SUCCESS = "role.permissions_retrieved_success";
+    public static final String ROLE_PERMISSIONS_UPDATE_SUCCESS = "role.permissions_update_success";
+    public static final String ROLE_PERMISSION_ADD_SUCCESS = "role.permission_add_success";
+    public static final String ROLE_PERMISSION_REMOVE_SUCCESS = "role.permission_remove_success";
 
     // FIELD
     public static final String FIELD_EXISTED = "field_existed";

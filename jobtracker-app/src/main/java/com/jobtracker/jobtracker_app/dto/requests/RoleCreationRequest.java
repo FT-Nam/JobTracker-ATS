@@ -15,16 +15,13 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RoleRequest {
+public class RoleCreationRequest {
     @NotBlank(message = "Role name must not be blank")
     @Size(max = 50, message = "Role name must not exceed 50 characters")
     String name;
 
     @Size(max = 255, message = "Description must not exceed 255 characters")
     String description;
-
-    @NotEmpty(message = "Role must include at least one permission")
-    List<@NotBlank(message = "Permission ID is invalid") String> permissionIds;
 
     Boolean isActive;
 }

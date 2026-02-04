@@ -2,13 +2,18 @@ package com.jobtracker.jobtracker_app.services.impl;
 
 import java.util.List;
 
+import com.jobtracker.jobtracker_app.dto.requests.RoleCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.RolePermissionRequest;
+import com.jobtracker.jobtracker_app.dto.requests.RolePermissionsRequest;
+import com.jobtracker.jobtracker_app.dto.requests.RoleUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.responses.RolePermissionsResponse;
+import com.jobtracker.jobtracker_app.dto.responses.RolePermissionsUpdateResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jobtracker.jobtracker_app.dto.requests.RoleRequest;
 import com.jobtracker.jobtracker_app.dto.responses.RoleResponse;
 import com.jobtracker.jobtracker_app.entities.Permission;
 import com.jobtracker.jobtracker_app.entities.Role;
@@ -43,25 +48,18 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @PreAuthorize("hasAuthority('ROLE_CREATE')")
     @Transactional
-    public RoleResponse create(RoleRequest request) {
-        validateNameUnique(request.getName(), null);
+    public RoleResponse create(RoleCreationRequest request) {
+
+        String name = request.getName().trim().toUpperCase();
+
+        validateNameUnique(name, null);
 
         Role role = roleMapper.toRole(request);
-        role.setName(request.getName());
-        role = roleRepository.save(role);
+        role.setName(name);
 
-        List<Permission> permissions = permissionRepository.findAllById(request.getPermissionIds());
-        Role finalRole = role;
-        List<RolePermission> rolePermissions = permissions.stream()
-                .map(permission -> RolePermission.builder()
-                        .role(finalRole)
-                        .permission(permission)
-                        .build())
-                .toList();
-        rolePermissionRepository.saveAll(rolePermissions);
-
-        return roleMapper.toRoleResponse(role);
+        return roleMapper.toRoleResponse(roleRepository.save(role));
     }
+
 
     @Override
     @PreAuthorize("hasAuthority('ROLE_READ')")
@@ -80,34 +78,13 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @PreAuthorize("hasAuthority('ROLE_UPDATE')")
     @Transactional
-    public RoleResponse update(String id, RoleRequest request) {
-        Role role = roleRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
-        if (request.getName() != null && !request.getName().equals(role.getName())) {
-            validateNameUnique(request.getName(), id);
-        }
-
-        if (request.getPermissionIds() != null) {
-            List<RolePermission> existingRolePermissions = rolePermissionRepository.findByRoleId(role.getId());
-            existingRolePermissions.forEach(RolePermission::softDelete);
-            rolePermissionRepository.saveAll(existingRolePermissions);
-
-            List<Permission> permissions = permissionRepository.findAllById(request.getPermissionIds());
-            List<RolePermission> newRolePermissions = permissions.stream()
-                    .map(permission -> RolePermission.builder()
-                            .role(role)
-                            .permission(permission)
-                            .build())
-                    .toList();
-            rolePermissionRepository.saveAll(newRolePermissions);
-
-            List<String> userIds = userRepository.findAllByRoleId(role.getId()).stream()
-                    .map(User::getId)
-                    .toList();
-            userIds.forEach(permissionCacheService::evict);
-        }
+    public RoleResponse update(String id, RoleUpdateRequest request) {
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
         roleMapper.updateRole(role, request);
-        return roleMapper.toRoleResponse(roleRepository.save(role));
+
+        return roleMapper.toRoleResponse(role);
     }
 
     @Override
@@ -118,6 +95,95 @@ public class RoleServiceImpl implements RoleService {
         role.softDelete();
         roleRepository.save(role);
     }
+
+    @Override
+    @Transactional
+    public void addPermissionToRole(String roleId, RolePermissionRequest request) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+
+        if(!role.getIsActive()){
+            throw new AppException(ErrorCode.ROLE_NOT_ACTIVE);
+        }
+
+        Permission permission = permissionRepository.findById(request.getPermissionId())
+                .orElseThrow(() -> new AppException(ErrorCode.PERMISSION_NOT_EXISTED));
+
+        if (!permission.getIsActive()) {
+            throw new AppException(ErrorCode.PERMISSION_NOT_ACTIVE);
+        }
+
+        if (rolePermissionRepository.existsByRoleAndPermission(role, permission)) {
+            throw new AppException(ErrorCode.ROLE_PERMISSION_EXISTED);
+        }
+
+
+        RolePermission rolePermission = RolePermission.builder()
+                .role(role)
+                .permission(permission)
+                .build();
+
+        rolePermissionRepository.save(rolePermission);
+    }
+
+    @Override
+    @Transactional
+    public void removePermissionFromRole(String roleId, String permissionId) {
+        Role role = roleRepository.getReferenceById(roleId);
+        Permission permission = permissionRepository.getReferenceById(permissionId);
+
+        rolePermissionRepository.deleteByRoleAndPermission(role, permission);
+    }
+
+    @Override
+    public Page<RolePermissionsResponse> getRolePermissions(String roleId, Pageable pageable) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+
+        if(!role.getIsActive()){
+            throw new AppException(ErrorCode.ROLE_NOT_ACTIVE);
+        }
+
+        return rolePermissionRepository.findByRole(role, pageable).map(roleMapper::toRolePermissionResponse);
+    }
+
+    @Override
+    @Transactional
+    public RolePermissionsUpdateResponse updateRolePermissions(String roleId, RolePermissionsRequest request) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+
+        if (!role.getIsActive()) {
+            throw new AppException(ErrorCode.ROLE_NOT_ACTIVE);
+        }
+
+        List<String> ids = request.getPermissionIds();
+
+        List<Permission> permissions =
+                permissionRepository.findAllByIdAndIsActiveTrue(ids);
+
+        if (permissions.size() != ids.size()) {
+            throw new AppException(ErrorCode.PERMISSION_NOT_ACTIVE);
+        }
+
+        rolePermissionRepository.deleteByRole(role);
+
+        List<RolePermission> rolePermissions = permissions.stream()
+                .map(p -> RolePermission.builder()
+                        .role(role)
+                        .permission(p)
+                        .build())
+                .toList();
+
+        rolePermissionRepository.saveAll(rolePermissions);
+
+        return RolePermissionsUpdateResponse.builder()
+                .roleId(role.getId())
+                .permissionIds(ids)
+                .updatedAt(role.getUpdatedAt())
+                .build();
+    }
+
 
     private void validateNameUnique(String name, String excludeId) {
         boolean exists = excludeId == null

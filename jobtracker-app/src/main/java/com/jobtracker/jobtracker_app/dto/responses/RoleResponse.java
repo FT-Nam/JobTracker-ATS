@@ -1,6 +1,7 @@
 package com.jobtracker.jobtracker_app.dto.responses;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 import lombok.*;
@@ -16,6 +17,7 @@ public class RoleResponse {
     String name;
     String description;
     Set<String> permissionIds;
+    List<RolePermissionsResponse> permissions;
     Boolean isActive;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
