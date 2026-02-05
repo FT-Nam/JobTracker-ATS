@@ -43,19 +43,17 @@ Authorization: Bearer <oauth2_access_token>
   "success": true,
   "message": "User registered successfully",
   "data": {
-    "id": 1,
+    "id": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
     "email": "user@example.com",
     "firstName": "John",
     "lastName": "Doe",
     "phone": "+1234567890",
-    "role": {
-      "id": 1,
-      "name": "USER",
-      "displayName": "User",
-      "description": "Regular user with basic permissions"
-    },
+    "avatarUrl": null,
+    "roleName": "USER",
     "isActive": true,
     "emailVerified": false,
+    "googleId": null,
+    "lastLoginAt": null,
     "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
@@ -101,22 +99,18 @@ Authorization: Bearer <oauth2_access_token>
   "message": "Login successful",
   "data": {
     "user": {
-      "id": 1,
+      "id": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
       "email": "user@example.com",
       "firstName": "John",
       "lastName": "Doe",
-      "role": {
-        "id": 1,
-        "name": "USER",
-        "displayName": "User"
-      },
+      "roleName": "USER",
       "avatarUrl": null
     },
     "tokens": {
       "accessToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
       "refreshToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "expiresIn": 3600,
-      "tokenType": "Bearer"
+      "expiresIn": "2024-01-15T11:30:00Z",
+      "refreshExpiresIn": "2024-02-15T10:30:00Z"
     }
   },
   "timestamp": "2024-01-15T10:30:00Z"
@@ -142,18 +136,19 @@ Authorization: Bearer <oauth2_access_token>
   "message": "Google login successful",
   "data": {
     "user": {
-      "id": 1,
+      "id": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
       "email": "user@gmail.com",
       "firstName": "John",
       "lastName": "Doe",
-      "role": "USER",
+      "roleName": "USER",
       "avatarUrl": "https://lh3.googleusercontent.com/...",
       "googleId": "123456789"
     },
     "tokens": {
       "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
       "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "expiresIn": 3600
+      "expiresIn": "2024-01-15T11:30:00Z",
+      "refreshExpiresIn": "2024-02-15T10:30:00Z"
     }
   },
   "timestamp": "2024-01-15T10:30:00Z"
@@ -178,8 +173,20 @@ Làm mới access token bằng refresh token.
   "success": true,
   "message": "Token refreshed successfully",
   "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expiresIn": 3600
+    "user": {
+      "id": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+      "email": "user@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "roleName": "USER",
+      "avatarUrl": null
+    },
+    "tokens": {
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "expiresIn": "2024-01-15T11:30:00Z",
+      "refreshExpiresIn": "2024-02-15T10:30:00Z"
+    }
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -268,19 +275,22 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Profile retrieved successfully",
   "data": {
-    "id": 1,
+    "id": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
     "email": "user@example.com",
     "firstName": "John",
     "lastName": "Doe",
     "phone": "+1234567890",
     "avatarUrl": "https://dropbox.com/avatar.jpg",
-    "role": "USER",
+    "roleName": "USER",
     "isActive": true,
     "emailVerified": true,
     "googleId": null,
     "lastLoginAt": "2024-01-15T09:00:00Z",
     "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": null,
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -311,15 +321,17 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Profile updated successfully",
   "data": {
-    "id": 1,
+    "id": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
     "email": "user@example.com",
     "firstName": "John",
     "lastName": "Doe",
     "phone": "+1234567890",
     "avatarUrl": "https://dropbox.com/avatar.jpg",
-    "role": "USER",
+    "roleName": "USER",
     "isActive": true,
     "emailVerified": true,
+    "googleId": null,
+    "lastLoginAt": "2024-01-15T09:00:00Z",
     "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
@@ -468,17 +480,13 @@ Content-Type: application/json
     "emailVerified": false,
     "googleId": null,
     "lastLoginAt": null,
-    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "createdAt": "2024-01-20T08:00:00Z",
-    "updatedAt": "2024-01-20T08:00:00Z",
-    "deletedAt": null
+    "createdAt": "2024-01-20T08:00:00Z"
   },
   "timestamp": "2024-01-20T08:00:00Z"
 }
 ```
 
-> Server sẽ hash `password` theo chuẩn (BCrypt) trước khi lưu xuống cột `password`. Các trường audit (`createdBy`, `updatedBy`, `createdAt`, `updatedAt`) được populate tự động.
+> Server sẽ hash `password` theo chuẩn (BCrypt) trước khi lưu xuống cột `password`. Trường audit `createdAt` được populate tự động.
 
 ### 3. Get User Details
 **GET** `/admin/users/{id}`
@@ -545,11 +553,7 @@ Trả về thông tin đầy đủ của user kèm audit.
     "emailVerified": true,
     "googleId": null,
     "lastLoginAt": "2024-01-15T09:00:00Z",
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z",
-    "createdBy": null,
-    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "deletedAt": null
+    "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -602,91 +606,38 @@ page=0&size=20&sort=createdAt,desc&status=APPLIED&company=Google&search=develope
 ```json
 {
   "success": true,
-  "message": "Roles retrieved successfully",
+  "message": "Jobs retrieved successfully",
   "data": [
     {
-        "id": 1,
-        "title": "Senior Java Developer",
-        "position": "Backend Developer",
-        "company": {
-          "id": 1,
-          "name": "Google",
-          "website": "https://google.com",
-          "industry": "Technology",
-          "size": "LARGE",
-          "location": "Mountain View, CA",
-          "logoUrl": "https://google.com/logo.png"
-        },
-        "jobType": {
-          "id": 1,
-          "name": "FULL_TIME",
-          "displayName": "Full Time",
-          "description": "Full-time employment"
-        },
-        "location": "Mountain View, CA",
-        "salaryMin": 120000,
-        "salaryMax": 180000,
-        "currency": "USD",
-        "status": {
-          "id": 2,
-          "name": "APPLIED",
-          "displayName": "Applied",
-          "description": "Application submitted",
-          "color": "#3B82F6"
-        },
-        "applicationDate": "2024-01-10",
-        "deadlineDate": "2024-01-25",
-        "interviewDate": null,
-        "offerDate": null,
-        "jobDescription": "We are looking for a senior Java developer...",
-        "requirements": "5+ years of Java experience...",
-        "benefits": "Health insurance, 401k, stock options...",
-        "jobUrl": "https://careers.google.com/jobs/123",
-        "notes": "Applied through referral",
-        "priority": {
-          "id": 3,
-          "name": "HIGH",
-          "displayName": "High",
-          "level": 3,
-          "color": "#F59E0B"
-        },
-        "isRemote": false,
-        "experienceLevel": {
-          "id": 4,
-          "name": "SENIOR",
-          "displayName": "Senior",
-          "minYears": 5,
-          "maxYears": 8
-        },
-        "skills": [
-          {
-            "id": 1,
-            "name": "Java",
-            "category": "PROGRAMMING",
-            "isRequired": true,
-            "proficiencyLevel": "ADVANCED"
-          },
-          {
-            "id": 2,
-            "name": "Spring Boot",
-            "category": "FRAMEWORK",
-            "isRequired": true,
-            "proficiencyLevel": "ADVANCED"
-          }
-        ],
-        "resumes": [
-          {
-            "id": 1,
-            "name": "John_Doe_Resume_2024.pdf",
-            "isPrimary": true
-          }
-        ],
-        "createdAt": "2024-01-10T09:00:00Z",
-        "updatedAt": "2024-01-10T09:00:00Z",
-        "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-        "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-        "deletedAt": null
-      }
+      "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+      "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+      "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+      "title": "Senior Java Developer",
+      "position": "Backend Developer",
+      "jobTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+      "location": "Mountain View, CA",
+      "salaryMin": 120000,
+      "salaryMax": 180000,
+      "currency": "USD",
+      "statusId": "s2",
+      "applicationDate": "2024-01-10",
+      "deadlineDate": "2024-01-25",
+      "interviewDate": null,
+      "offerDate": null,
+      "jobDescription": "We are looking for a senior Java developer...",
+      "requirements": "5+ years of Java experience...",
+      "benefits": "Health insurance, 401k, stock options...",
+      "jobUrl": "https://careers.google.com/jobs/123",
+      "notes": "Applied through referral",
+      "priorityId": "p3",
+      "isRemote": false,
+      "experienceLevelId": "e4",
+      "createdAt": "2024-01-10T09:00:00Z",
+      "updatedAt": "2024-01-10T09:00:00Z",
+      "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+      "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+      "deletedAt": null
+    }
   ],
   "timestamp": "2024-01-15T10:30:00Z",
   "paginationInfo": {
@@ -805,11 +756,7 @@ Authorization: Bearer <access_token>
     "priorityId": "p3",
     "isRemote": false,
     "experienceLevelId": "e4",
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z",
-    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "deletedAt": null
+    "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -845,12 +792,10 @@ Authorization: Bearer <access_token>
     "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "title": "Senior Java Developer - Updated",
     "position": "Backend Developer",
-    "statusId": "s3",
+    "status": "INTERVIEW",
     "interviewDate": "2024-01-20",
     "notes": "Updated notes after phone screening",
-    "updatedAt": "2024-01-15T10:30:00Z",
-    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be"
+    "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -902,7 +847,7 @@ Authorization: Bearer <access_token>
   "message": "Job status updated successfully",
   "data": {
     "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-    "statusId": "s4",
+    "status": "OFFER",
     "offerDate": "2024-01-25",
     "notes": "Received offer with $150k base salary",
     "updatedAt": "2024-01-15T10:30:00Z"
@@ -922,11 +867,15 @@ Authorization: Bearer <access_token>
   "message": "Job skills retrieved successfully",
   "data": [
     {
+      "id": "f8g9h0i1-2j3k-4l5m-6n7o-p8q9r0s1t2u3",
+      "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
       "skillId": "a3e6e84c-5f21-4c4d-8d7d-4a38e9ab6f52",
       "name": "Java",
       "category": "PROGRAMMING",
       "isRequired": true,
-      "proficiencyLevel": "ADVANCED"
+      "proficiencyLevel": "ADVANCED",
+      "createdAt": "2024-01-10T10:30:00Z",
+      "updatedAt": "2024-01-10T10:30:00Z"
     }
   ],
   "timestamp": "2024-01-15T10:30:00Z"
@@ -953,11 +902,8 @@ Authorization: Bearer <access_token>
     "id": "f8g9h0i1-2j3k-4l5m-6n7o-p8q9r0s1t2u3",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
-    "skill": {
-      "id": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
-      "name": "Spring Boot",
-      "category": "FRAMEWORK"
-    },
+    "name": "Spring Boot",
+    "category": "FRAMEWORK",
     "isRequired": true,
     "proficiencyLevel": "INTERMEDIATE",
     "createdAt": "2024-01-15T10:30:00Z"
@@ -985,13 +931,11 @@ Authorization: Bearer <access_token>
     "id": "f8g9h0i1-2j3k-4l5m-6n7o-p8q9r0s1t2u3",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
-    "skill": {
-      "id": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
-      "name": "Spring Boot",
-      "category": "FRAMEWORK"
-    },
+    "name": "Spring Boot",
+    "category": "FRAMEWORK",
     "isRequired": false,
     "proficiencyLevel": "ADVANCED",
+    "createdAt": "2024-01-10T10:30:00Z",
     "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
@@ -1031,10 +975,7 @@ Authorization: Bearer <access_token>
     "id": "g9h0i1j2-3k4l-5m6n-7o8p-q9r0s1t2u3v4",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "resumeId": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
-    "resume": {
-      "id": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
-      "name": "John_Doe_Resume_2024.pdf"
-    },
+    "resumeName": "John_Doe_Resume_2024.pdf",
     "isPrimary": true,
     "createdAt": "2024-01-15T10:30:00Z"
   },
@@ -1060,10 +1001,7 @@ Authorization: Bearer <access_token>
     "id": "g9h0i1j2-3k4l-5m6n-7o8p-q9r0s1t2u3v4",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "resumeId": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
-    "resume": {
-      "id": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
-      "name": "John_Doe_Resume_2024.pdf"
-    },
+    "resumeName": "John_Doe_Resume_2024.pdf",
     "isPrimary": true,
     "updatedAt": "2024-01-15T10:30:00Z"
   },
@@ -1106,7 +1044,7 @@ page=0&size=20&sort=name,asc&industry=Technology&search=Google
   "success": true,
   "data": [
     {
-      "id": 1,
+      "id": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
       "name": "Google",
       "website": "https://google.com",
       "industry": "Technology",
@@ -1160,7 +1098,7 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Company created successfully",
   "data": {
-    "id": 2,
+    "id": "c2f9a8e3-4b5c-6d7e-8f90-2345678901bc",
     "name": "New Tech Company",
     "website": "https://newtech.com",
     "industry": "Technology",
@@ -1169,11 +1107,7 @@ Authorization: Bearer <access_token>
     "description": "A innovative technology company...",
     "logoUrl": null,
     "isVerified": false,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z",
-    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "deletedAt": null
+    "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -1190,7 +1124,7 @@ Trả về thông tin chi tiết cùng metadata audit.
   "success": true,
   "message": "Company retrieved successfully",
   "data": {
-    "id": 1,
+    "id": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
     "name": "Google",
     "website": "https://google.com",
     "industry": "Technology",
@@ -1230,7 +1164,7 @@ Trả về thông tin chi tiết cùng metadata audit.
   "success": true,
   "message": "Company updated successfully",
   "data": {
-    "id": 1,
+    "id": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
     "name": "Google",
     "website": "https://newtech.com",
     "industry": "Technology",
@@ -1239,11 +1173,7 @@ Trả về thông tin chi tiết cùng metadata audit.
     "description": "Updated description",
     "logoUrl": "https://google.com/logo.png",
     "isVerified": true,
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z",
-    "createdBy": null,
-    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "deletedAt": null
+    "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -1281,7 +1211,7 @@ Authorization: Bearer <access_token>
   "message": "Job statuses retrieved successfully",
   "data": [
     {
-      "id": 1,
+      "id": "s1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
       "name": "SAVED",
       "displayName": "Saved",
       "description": "Job saved but not yet applied",
@@ -1290,7 +1220,7 @@ Authorization: Bearer <access_token>
       "isActive": true
     },
     {
-      "id": 2,
+      "id": "s2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
       "name": "APPLIED",
       "displayName": "Applied",
       "description": "Application submitted",
@@ -1323,15 +1253,14 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Job status created successfully",
   "data": {
-    "id": 7,
+    "id": "s7g8h9i0-1j2k-3l4m-5n6o-p7q8r9s0t1u2",
     "name": "ON_HOLD",
     "displayName": "On Hold",
     "description": "Application paused",
     "color": "#FBBF24",
     "sortOrder": 7,
     "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
+    "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -1356,7 +1285,7 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Job status updated successfully",
   "data": {
-    "id": 7,
+    "id": "s7g8h9i0-1j2k-3l4m-5n6o-p7q8r9s0t1u2",
     "name": "ON_HOLD",
     "displayName": "On Hold",
     "description": "Paused by company",
@@ -1399,14 +1328,14 @@ Authorization: Bearer <access_token>
   "message": "Job types retrieved successfully",
   "data": [
     {
-      "id": 1,
+      "id": "jt1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
       "name": "FULL_TIME",
       "displayName": "Full Time",
       "description": "Full-time employment",
       "isActive": true
     },
     {
-      "id": 2,
+      "id": "jt2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
       "name": "PART_TIME",
       "displayName": "Part Time",
       "description": "Part-time employment",
@@ -1435,13 +1364,12 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Job type created successfully",
   "data": {
-    "id": 5,
+    "id": "jt5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
     "name": "APPRENTICESHIP",
     "displayName": "Apprenticeship",
     "description": "Apprenticeship program",
     "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
+    "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -1465,7 +1393,7 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Job type updated successfully",
   "data": {
-    "id": 5,
+    "id": "jt5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
     "name": "APPRENTICESHIP",
     "displayName": "Apprenticeship",
     "description": "On-the-job apprenticeship",
@@ -1505,7 +1433,7 @@ Authorization: Bearer <access_token>
   "message": "Priorities retrieved successfully",
   "data": [
     {
-      "id": 1,
+      "id": "p1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
       "name": "LOW",
       "displayName": "Low",
       "level": 1,
@@ -1514,7 +1442,7 @@ Authorization: Bearer <access_token>
       "isActive": true
     },
     {
-      "id": 2,
+      "id": "p2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
       "name": "MEDIUM",
       "displayName": "Medium",
       "level": 2,
@@ -1547,15 +1475,14 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Priority created successfully",
   "data": {
-    "id": 5,
+    "id": "p5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
     "name": "BLOCKER",
     "displayName": "Blocker",
     "level": 5,
     "color": "#DC2626",
     "description": "Must act immediately",
     "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
+    "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -1581,7 +1508,7 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Priority updated successfully",
   "data": {
-    "id": 5,
+    "id": "p5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
     "name": "BLOCKER",
     "displayName": "Blocker",
     "level": 5,
@@ -1623,7 +1550,7 @@ Authorization: Bearer <access_token>
   "message": "Experience levels retrieved successfully",
   "data": [
     {
-      "id": 1,
+      "id": "el1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
       "name": "ENTRY",
       "displayName": "Entry Level",
       "minYears": 0,
@@ -1632,7 +1559,7 @@ Authorization: Bearer <access_token>
       "isActive": true
     },
     {
-      "id": 2,
+      "id": "el2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
       "name": "JUNIOR",
       "displayName": "Junior",
       "minYears": 1,
@@ -1665,15 +1592,14 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Experience level created successfully",
   "data": {
-    "id": 5,
+    "id": "el5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
     "name": "STAFF",
     "displayName": "Staff",
     "minYears": 8,
     "maxYears": 12,
     "description": "Staff engineer level",
     "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
+    "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -1699,7 +1625,7 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Experience level updated successfully",
   "data": {
-    "id": 5,
+    "id": "el5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
     "name": "STAFF",
     "displayName": "Staff",
     "minYears": 8,
@@ -1741,14 +1667,14 @@ Authorization: Bearer <access_token>
   "message": "Interview types retrieved successfully",
   "data": [
     {
-      "id": 1,
+      "id": "it1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
       "name": "PHONE",
       "displayName": "Phone Interview",
       "description": "Phone-based interview",
       "isActive": true
     },
     {
-      "id": 2,
+      "id": "it2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
       "name": "VIDEO",
       "displayName": "Video Interview",
       "description": "Video call interview",
@@ -1777,13 +1703,12 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Interview type created successfully",
   "data": {
-    "id": 5,
+    "id": "it5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
     "name": "PAIR_PROGRAMMING",
     "displayName": "Pair Programming",
     "description": "Live coding with interviewer",
     "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
+    "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -1807,7 +1732,7 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Interview type updated successfully",
   "data": {
-    "id": 5,
+    "id": "it5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
     "name": "PAIR_PROGRAMMING",
     "displayName": "Pair Programming",
     "description": "Live pair programming session",
@@ -1847,7 +1772,7 @@ Authorization: Bearer <access_token>
   "message": "Interview statuses retrieved successfully",
   "data": [
     {
-      "id": 1,
+      "id": "is1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
       "name": "SCHEDULED",
       "displayName": "Scheduled",
       "description": "Interview scheduled",
@@ -1855,7 +1780,7 @@ Authorization: Bearer <access_token>
       "isActive": true
     },
     {
-      "id": 2,
+      "id": "is2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
       "name": "COMPLETED",
       "displayName": "Completed",
       "description": "Interview completed",
@@ -1886,14 +1811,13 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Interview status created successfully",
   "data": {
-    "id": 5,
+    "id": "is5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
     "name": "NO_SHOW",
     "displayName": "No Show",
     "description": "Candidate did not attend",
     "color": "#F87171",
     "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
+    "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -1918,7 +1842,7 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Interview status updated successfully",
   "data": {
-    "id": 5,
+    "id": "is5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
     "name": "NO_SHOW",
     "displayName": "No Show",
     "description": "Candidate did not attend",
@@ -1959,7 +1883,7 @@ Authorization: Bearer <access_token>
   "message": "Interview results retrieved successfully",
   "data": [
     {
-      "id": 1,
+      "id": "ir1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
       "name": "PASSED",
       "displayName": "Passed",
       "description": "Interview passed",
@@ -1967,7 +1891,7 @@ Authorization: Bearer <access_token>
       "isActive": true
     },
     {
-      "id": 2,
+      "id": "ir2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
       "name": "FAILED",
       "displayName": "Failed",
       "description": "Interview failed",
@@ -1998,14 +1922,13 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Interview result created successfully",
   "data": {
-    "id": 5,
+    "id": "ir5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
     "name": "ON_HOLD",
     "displayName": "On Hold",
     "description": "Awaiting leadership decision",
     "color": "#FBBF24",
     "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
+    "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -2030,7 +1953,7 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Interview result updated successfully",
   "data": {
-    "id": 5,
+    "id": "ir5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
     "name": "ON_HOLD",
     "displayName": "On Hold",
     "description": "Pending leadership decision",
@@ -2385,7 +2308,7 @@ Lấy thông tin chi tiết một role kèm metadata.
     "isActive": true,
     "permissions": [
       {
-        "id": "5a12b2d5-0b42-4b3c-815a-7cf6fca39a8e",
+        "permissionId": "5a12b2d5-0b42-4b3c-815a-7cf6fca39a8e",
         "name": "JOB_READ",
         "resource": "JOB",
         "action": "READ"
@@ -2555,6 +2478,7 @@ Cập nhật danh sách permission cho role cụ thể.
     "6df6adf7-02f0-4d66-92bb-59f32b2b7a25"
   ]
 }
+```
 
 #### Response (200 OK)
 ```json
@@ -2649,18 +2573,19 @@ page=0&size=50&sort=name,asc&category=PROGRAMMING&search=Java
   "success": true,
   "data": [
     {
-      "id": 1,
+      "id": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
       "name": "Java",
       "category": "PROGRAMMING",
       "description": "Object-oriented programming language",
       "isActive": true,
       "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z",
       "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
       "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
       "deletedAt": null
     },
     {
-      "id": 2,
+      "id": "c8f69b7f-6d6f-5ef9-0b4g-7c2bf3e153c6",
       "name": "Spring Boot",
       "category": "FRAMEWORK",
       "description": "Java framework for building web applications",
@@ -2690,12 +2615,13 @@ page=0&size=50&sort=name,asc&category=PROGRAMMING&search=Java
   "success": true,
   "message": "Skill retrieved successfully",
   "data": {
-    "id": 1,
+    "id": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
     "name": "Java",
     "category": "PROGRAMMING",
     "description": "Object-oriented programming language",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z",
     "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
     "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
     "deletedAt": null
@@ -2722,15 +2648,12 @@ page=0&size=50&sort=name,asc&category=PROGRAMMING&search=Java
   "success": true,
   "message": "Skill created successfully",
   "data": {
-    "id": 3,
+    "id": "c8f69b7f-6d6f-5ef9-0b4g-7c2bf3e153c6",
     "name": "Kubernetes",
     "category": "TOOL",
     "description": "Container orchestration",
     "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "deletedAt": null
+    "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -2753,7 +2676,7 @@ page=0&size=50&sort=name,asc&category=PROGRAMMING&search=Java
   "success": true,
   "message": "Skill updated successfully",
   "data": {
-    "id": 3,
+    "id": "c8f69b7f-6d6f-5ef9-0b4g-7c2bf3e153c6",
     "name": "Kubernetes",
     "category": "TOOL",
     "description": "Managed Kubernetes platform",
@@ -2798,13 +2721,10 @@ Authorization: Bearer <access_token>
   "message": "User skills retrieved successfully",
   "data": [
     {
-      "id": 1,
-      "skill": {
-        "id": 1,
-        "name": "Java",
-        "category": "PROGRAMMING",
-        "description": "Object-oriented programming language"
-      },
+      "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+      "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
+      "skillName": "Java",
+      "skillCategory": "PROGRAMMING",
       "proficiencyLevel": "ADVANCED",
       "yearsOfExperience": 5.0,
       "isVerified": false,
@@ -2829,7 +2749,7 @@ Authorization: Bearer <access_token>
 #### Request Body
 ```json
 {
-  "skillId": 1,
+  "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
   "proficiencyLevel": "ADVANCED",
   "yearsOfExperience": 5.0
 }
@@ -2841,12 +2761,10 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "User skill added successfully",
   "data": {
-    "id": 1,
-    "skill": {
-      "id": 1,
-      "name": "Java",
-      "category": "PROGRAMMING"
-    },
+    "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
+    "skillName": "Java",
+    "skillCategory": "PROGRAMMING",
     "proficiencyLevel": "ADVANCED",
     "yearsOfExperience": 5.0,
     "isVerified": false,
@@ -2874,17 +2792,13 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "User skill updated successfully",
   "data": {
-    "id": 1,
-    "skill": {
-      "id": 1,
-      "name": "Java",
-      "category": "PROGRAMMING",
-      "description": "Object-oriented programming language"
-    },
+    "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
+    "skillName": "Java",
+    "skillCategory": "PROGRAMMING",
     "proficiencyLevel": "EXPERT",
     "yearsOfExperience": 6.5,
     "isVerified": true,
-    "createdAt": "2024-01-01T00:00:00Z",
     "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
@@ -2967,17 +2881,20 @@ isDefault: true
   "success": true,
   "message": "Resume uploaded successfully",
   "data": {
-    "id": 1,
+    "id": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
+    "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
     "name": "John_Doe_Resume_2024.pdf",
     "originalFilename": "John_Doe_Resume_2024.pdf",
+    "filePath": "/resumes/user_1/resume_1.pdf",
     "fileSize": 1024000,
     "fileType": "application/pdf",
     "version": "1.0",
     "isDefault": true,
     "description": "Updated resume for 2024",
-    "tags": ["senior", "java", "backend"],
+    "tags": "senior,java,backend",
     "isActive": true,
-    "uploadedAt": "2024-01-15T10:30:00Z"
+    "uploadedAt": "2024-01-15T10:30:00Z",
+    "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -3055,7 +2972,7 @@ Trả về metadata đầy đủ (name, tags, version, audit).
   "success": true,
   "message": "Resume updated successfully",
   "data": {
-    "id": 1,
+    "id": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
     "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
     "name": "John_Doe_Resume_2025.pdf",
     "originalFilename": "John_Doe_Resume_2024.pdf",
@@ -3068,11 +2985,7 @@ Trả về metadata đầy đủ (name, tags, version, audit).
     "tags": "lead,manager",
     "isActive": true,
     "uploadedAt": "2024-01-10T09:00:00Z",
-    "createdAt": "2024-01-10T09:00:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z",
-    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "deletedAt": null
+    "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -3110,17 +3023,17 @@ Authorization: Bearer <access_token>
   "message": "Interviews retrieved successfully",
   "data": [
     {
-      "id": "i1",
+      "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
       "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
       "roundNumber": 1,
-      "interviewTypeId": "it1",
+      "interviewTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
       "scheduledDate": "2024-01-20T14:00:00Z",
       "actualDate": null,
       "durationMinutes": 60,
       "interviewerName": "Jane Smith",
       "interviewerEmail": "jane.smith@google.com",
       "interviewerPosition": "Senior Engineer",
-      "statusId": "is1",
+      "statusId": "b2c3d4e5-6f7g-8h9i-0j1k-l2m3n4o5p6q7",
       "resultId": null,
       "feedback": null,
       "notes": "Technical interview",
@@ -3128,7 +3041,10 @@ Authorization: Bearer <access_token>
       "answersGiven": null,
       "rating": null,
       "createdAt": "2024-01-15T10:30:00Z",
-      "updatedAt": "2024-01-15T10:30:00Z"
+      "updatedAt": "2024-01-15T10:30:00Z",
+      "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+      "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+      "deletedAt": null
     }
   ],
   "timestamp": "2024-01-15T10:30:00Z"
@@ -3165,23 +3081,28 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Interview created successfully",
   "data": {
-    "id": "i1",
+    "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "roundNumber": 1,
-    "interviewTypeId": "it1",
+    "interviewTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
     "scheduledDate": "2024-01-20T14:00:00Z",
     "actualDate": null,
     "durationMinutes": 60,
     "interviewerName": "Jane Smith",
     "interviewerEmail": "jane.smith@google.com",
     "interviewerPosition": "Senior Engineer",
-    "statusId": "is1",
+    "statusId": "b2c3d4e5-6f7g-8h9i-0j1k-l2m3n4o5p6q7",
     "resultId": null,
     "feedback": null,
     "notes": "Technical interview",
     "questionsAsked": null,
     "answersGiven": null,
     "rating": null,
-    "createdAt": "2024-01-15T10:30:00Z"
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -3217,16 +3138,28 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Interview updated successfully",
   "data": {
-    "id": 1,
+    "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "roundNumber": 1,
+    "interviewTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "scheduledDate": "2024-01-20T14:00:00Z",
     "actualDate": "2024-01-20T14:30:00Z",
-    "status": "COMPLETED",
-    "result": "PASSED",
+    "durationMinutes": 60,
+    "interviewerName": "Jane Smith",
+    "interviewerEmail": "jane.smith@google.com",
+    "interviewerPosition": "Senior Engineer",
+    "statusId": "b2c3d4e5-6f7g-8h9i-0j1k-l2m3n4o5p6q7",
+    "resultId": "c3d4e5f6-7g8h-9i0j-1k2l-m3n4o5p6q7r8",
     "feedback": "Great technical skills, good communication",
     "notes": "Interview went well, waiting for next round",
     "questionsAsked": "What is your experience with Spring Boot?",
     "answersGiven": "I have 3 years of experience with Spring Boot...",
     "rating": 4,
-    "updatedAt": "2024-01-15T10:30:00Z"
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -3243,31 +3176,24 @@ Trả về đầy đủ thông tin của một interview (bao gồm audit, feedb
   "success": true,
   "message": "Interview retrieved successfully",
   "data": {
-    "id": 1,
+    "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "roundNumber": 1,
     "interviewTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
-    "interviewStatusId": "b2c3d4e5-6f7g-8h9i-0j1k-l2m3n4o5p6q7",
-    "interviewResultId": "c3d4e5f6-7g8h-9i0j-1k2l-m3n4o5p6q7r8",
     "scheduledDate": "2024-01-20T14:00:00Z",
     "actualDate": "2024-01-20T14:30:00Z",
     "durationMinutes": 60,
     "interviewerName": "Jane Smith",
     "interviewerEmail": "jane.smith@google.com",
     "interviewerPosition": "Senior Engineer",
-    "location": "Google HQ, Building 43",
-    "status": "COMPLETED",
-    "result": "PASSED",
+    "statusId": "b2c3d4e5-6f7g-8h9i-0j1k-l2m3n4o5p6q7",
+    "resultId": "c3d4e5f6-7g8h-9i0j-1k2l-m3n4o5p6q7r8",
     "feedback": "Great technical skills, good communication",
     "notes": "Interview went well, waiting for next round",
     "questionsAsked": "What is your experience with Spring Boot?",
     "answersGiven": "I have 3 years of experience with Spring Boot...",
     "rating": 4,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-20T15:00:00Z",
-    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "deletedAt": null
+    "updatedAt": "2024-01-20T15:00:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -3321,13 +3247,13 @@ Authorization: Bearer <access_token>
     },
     "recentActivity": [
       {
-        "id": 1,
+        "id": "act1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
         "type": "JOB_CREATED",
         "message": "Created new job application for Google",
         "createdAt": "2024-01-15T10:30:00Z"
       },
       {
-        "id": 2,
+        "id": "act2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
         "type": "INTERVIEW_SCHEDULED",
         "message": "Interview scheduled for Microsoft",
         "createdAt": "2024-01-15T09:00:00Z"
@@ -3335,7 +3261,7 @@ Authorization: Bearer <access_token>
     ],
     "upcomingDeadlines": [
       {
-        "id": 1,
+        "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
         "title": "Senior Java Developer",
         "company": "Google",
         "deadlineDate": "2024-01-25",
@@ -3344,13 +3270,13 @@ Authorization: Bearer <access_token>
     ],
     "topSkills": [
       {
-        "skillId": "1",
+        "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
         "skillName": "Java",
         "count": 15,
         "percentage": 60.0
       },
       {
-        "skillId": "2",
+        "skillId": "c8f69b7f-6d6f-5ef9-0b4g-7c2bf3e153c6",
         "skillName": "Spring Boot",
         "count": 12,
         "percentage": 48.0
@@ -3464,20 +3390,20 @@ page=0&size=20&isRead=false&type=DEADLINE_REMINDER
   "success": true,
   "data": [
     {
-      "id": 1,
-      "jobId": 1,
-      "type": "DEADLINE_REMINDER",
+      "id": "n1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+      "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+      "typeId": "c9d0c7f4-4d1c-4a53-8a51-4f53c9a9f5d0",
       "title": "Deadline Reminder",
       "message": "Google application deadline is in 3 days",
       "isRead": false,
       "isSent": true,
       "sentAt": "2024-01-15T10:00:00Z",
-      "priority": "HIGH",
-      "metadata": {
-        "deadlineDate": "2024-01-18",
-        "companyName": "Google"
-      },
-      "createdAt": "2024-01-15T10:00:00Z"
+      "scheduledAt": null,
+      "priorityId": "0da2f18c-4c3d-4d2c-b3f5-2d933515d96e",
+      "metadata": "{\"deadlineDate\":\"2024-01-18\",\"companyName\":\"Google\"}",
+      "createdAt": "2024-01-15T10:00:00Z",
+      "updatedAt": "2024-01-15T10:00:00Z"
     }
   ],
   "timestamp": "2024-01-15T10:30:00Z",
@@ -3506,7 +3432,7 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Notification marked as read",
   "data": {
-    "id": 1,
+    "id": "n1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
     "isRead": true,
     "updatedAt": "2024-01-15T10:30:00Z"
   },
@@ -3561,11 +3487,11 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Notification created successfully",
   "data": {
-    "id": 2,
+    "id": "n2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
     "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-    "notificationTypeId": "c9d0c7f4-4d1c-4a53-8a51-4f53c9a9f5d0",
-    "notificationPriorityId": "0da2f18c-4c3d-4d2c-b3f5-2d933515d96e",
+    "typeId": "c9d0c7f4-4d1c-4a53-8a51-4f53c9a9f5d0",
+    "priorityId": "0da2f18c-4c3d-4d2c-b3f5-2d933515d96e",
     "title": "Custom Reminder",
     "message": "Follow up with recruiter tomorrow",
     "isRead": false,
@@ -3574,10 +3500,7 @@ Authorization: Bearer <access_token>
     "sentAt": null,
     "metadata": "{\"channel\":\"EMAIL\"}",
     "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z",
-    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "deletedAt": null
+    "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -3594,11 +3517,11 @@ Trả về đầy đủ metadata (job, user, template data).
   "success": true,
   "message": "Notification retrieved successfully",
   "data": {
-    "id": 1,
+    "id": "n1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
     "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-    "notificationTypeId": "c9d0c7f4-4d1c-4a53-8a51-4f53c9a9f5d0",
-    "notificationPriorityId": "0da2f18c-4c3d-4d2c-b3f5-2d933515d96e",
+    "typeId": "c9d0c7f4-4d1c-4a53-8a51-4f53c9a9f5d0",
+    "priorityId": "0da2f18c-4c3d-4d2c-b3f5-2d933515d96e",
     "title": "Deadline Reminder",
     "message": "Google application deadline is in 3 days",
     "isRead": false,
@@ -3607,10 +3530,7 @@ Trả về đầy đủ metadata (job, user, template data).
     "scheduledAt": null,
     "metadata": "{\"deadlineDate\":\"2024-01-18\",\"companyName\":\"Google\"}",
     "createdAt": "2024-01-15T10:00:00Z",
-    "updatedAt": "2024-01-15T10:00:00Z",
-    "createdBy": null,
-    "updatedBy": null,
-    "deletedAt": null
+    "updatedAt": "2024-01-15T10:00:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -3776,15 +3696,19 @@ description: "Official job description"
   "success": true,
   "message": "Attachment uploaded successfully",
   "data": {
-    "id": 1,
+    "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
     "filename": "job_description.pdf",
     "originalFilename": "Google_Job_Description.pdf",
+    "filePath": "/attachments/job_1/job_description.pdf",
     "fileSize": 512000,
     "fileType": "application/pdf",
     "attachmentType": "JOB_DESCRIPTION",
     "description": "Official job description",
     "isPublic": false,
-    "uploadedAt": "2024-01-15T10:30:00Z"
+    "uploadedAt": "2024-01-15T10:30:00Z",
+    "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -3976,3 +3900,6 @@ X-XSS-Protection: 1; mode=block
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 Content-Security-Policy: default-src 'self'
 ```
+
+```
+
