@@ -714,24 +714,17 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Job retrieved successfully",
   "data": {
-    "id": 1,
+    "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
     "title": "Senior Java Developer",
     "position": "Backend Developer",
-    "company": {
-      "id": 1,
-      "name": "Google",
-      "website": "https://google.com",
-      "industry": "Technology",
-      "size": "LARGE",
-      "location": "Mountain View, CA",
-      "logoUrl": "https://google.com/logo.png"
-    },
-    "jobType": "FULL_TIME",
+    "jobTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
     "location": "Mountain View, CA",
     "salaryMin": 120000,
     "salaryMax": 180000,
     "currency": "USD",
-    "status": "APPLIED",
+    "statusId": "s2",
     "applicationDate": "2024-01-10",
     "deadlineDate": "2024-01-25",
     "interviewDate": null,
@@ -741,58 +734,14 @@ Authorization: Bearer <access_token>
     "benefits": "Health insurance, 401k, stock options...",
     "jobUrl": "https://careers.google.com/jobs/123",
     "notes": "Applied through referral",
-    "priority": "HIGH",
+    "priorityId": "p3",
     "isRemote": false,
-    "experienceLevel": "SENIOR",
-    "skills": [
-      {
-        "id": 1,
-        "name": "Java",
-        "category": "PROGRAMMING",
-        "isRequired": true,
-        "proficiencyLevel": "ADVANCED"
-      }
-    ],
-    "resumes": [
-      {
-        "id": 1,
-        "name": "John_Doe_Resume_2024.pdf",
-        "isPrimary": true
-      }
-    ],
-    "interviews": [
-      {
-        "id": 1,
-        "roundNumber": 1,
-        "interviewType": "PHONE",
-        "scheduledDate": "2024-01-20T14:00:00Z",
-        "actualDate": null,
-        "durationMinutes": 60,
-        "interviewerName": "Jane Smith",
-        "interviewerEmail": "jane.smith@google.com",
-        "interviewerPosition": "Senior Engineer",
-        "status": "SCHEDULED",
-        "result": null,
-        "feedback": null,
-        "notes": "Technical interview",
-        "questionsAsked": null,
-        "answersGiven": null,
-        "rating": null
-      }
-    ],
-    "attachments": [
-      {
-        "id": 1,
-        "filename": "job_description.pdf",
-        "originalFilename": "Google_Job_Description.pdf",
-        "fileType": "application/pdf",
-        "attachmentType": "JOB_DESCRIPTION",
-        "description": "Official job description from Google",
-        "uploadedAt": "2024-01-10T09:00:00Z"
-      }
-    ],
+    "experienceLevelId": "e4",
     "createdAt": "2024-01-10T09:00:00Z",
-    "updatedAt": "2024-01-10T09:00:00Z"
+    "updatedAt": "2024-01-10T09:00:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -840,26 +789,27 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Job created successfully",
   "data": {
-    "id": 1,
+    "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
     "title": "Senior Java Developer",
     "position": "Backend Developer",
-    "company": {
-      "id": 1,
-      "name": "Google",
-      "website": "https://google.com"
-    },
-    "jobType": "FULL_TIME",
+    "jobTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
     "location": "Mountain View, CA",
     "salaryMin": 120000,
     "salaryMax": 180000,
     "currency": "USD",
-    "status": "SAVED",
+    "statusId": "s1",
     "applicationDate": "2024-01-10",
     "deadlineDate": "2024-01-25",
-    "priority": "HIGH",
+    "priorityId": "p3",
     "isRemote": false,
-    "experienceLevel": "SENIOR",
-    "createdAt": "2024-01-15T10:30:00Z"
+    "experienceLevelId": "e4",
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -892,13 +842,15 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Job updated successfully",
   "data": {
-    "id": 1,
+    "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "title": "Senior Java Developer - Updated",
     "position": "Backend Developer",
-    "status": "INTERVIEW",
+    "statusId": "s3",
     "interviewDate": "2024-01-20",
     "notes": "Updated notes after phone screening",
-    "updatedAt": "2024-01-15T10:30:00Z"
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
@@ -949,8 +901,8 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Job status updated successfully",
   "data": {
-    "id": 1,
-    "status": "OFFER",
+    "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "statusId": "s4",
     "offerDate": "2024-01-25",
     "notes": "Received offer with $150k base salary",
     "updatedAt": "2024-01-15T10:30:00Z"
@@ -3158,17 +3110,18 @@ Authorization: Bearer <access_token>
   "message": "Interviews retrieved successfully",
   "data": [
     {
-      "id": 1,
+      "id": "i1",
+      "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
       "roundNumber": 1,
-      "interviewType": "PHONE",
+      "interviewTypeId": "it1",
       "scheduledDate": "2024-01-20T14:00:00Z",
       "actualDate": null,
       "durationMinutes": 60,
       "interviewerName": "Jane Smith",
       "interviewerEmail": "jane.smith@google.com",
       "interviewerPosition": "Senior Engineer",
-      "status": "SCHEDULED",
-      "result": null,
+      "statusId": "is1",
+      "resultId": null,
       "feedback": null,
       "notes": "Technical interview",
       "questionsAsked": null,
@@ -3212,17 +3165,17 @@ Authorization: Bearer <access_token>
   "success": true,
   "message": "Interview created successfully",
   "data": {
-    "id": 1,
+    "id": "i1",
     "roundNumber": 1,
-    "interviewType": "PHONE",
+    "interviewTypeId": "it1",
     "scheduledDate": "2024-01-20T14:00:00Z",
     "actualDate": null,
     "durationMinutes": 60,
     "interviewerName": "Jane Smith",
     "interviewerEmail": "jane.smith@google.com",
     "interviewerPosition": "Senior Engineer",
-    "status": "SCHEDULED",
-    "result": null,
+    "statusId": "is1",
+    "resultId": null,
     "feedback": null,
     "notes": "Technical interview",
     "questionsAsked": null,
@@ -3391,12 +3344,14 @@ Authorization: Bearer <access_token>
     ],
     "topSkills": [
       {
-        "skill": "Java",
+        "skillId": "1",
+        "skillName": "Java",
         "count": 15,
         "percentage": 60.0
       },
       {
-        "skill": "Spring Boot",
+        "skillId": "2",
+        "skillName": "Spring Boot",
         "count": 12,
         "percentage": 48.0
       }
