@@ -8,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity(name = "jobs")
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor

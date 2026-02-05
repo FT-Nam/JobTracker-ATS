@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
-@Entity(name = "user_sessions")
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor

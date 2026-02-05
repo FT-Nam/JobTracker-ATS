@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Entity(name = "job_resumes")
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor

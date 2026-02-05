@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
-@Entity(name = "notifications")
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor

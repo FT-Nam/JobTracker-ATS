@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 
-@Entity(name = "user_skills")
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor

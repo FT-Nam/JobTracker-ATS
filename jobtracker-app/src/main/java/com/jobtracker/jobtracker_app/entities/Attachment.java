@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
-@Entity(name = "attachments")
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor

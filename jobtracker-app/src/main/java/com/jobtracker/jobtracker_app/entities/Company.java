@@ -7,7 +7,7 @@ import com.jobtracker.jobtracker_app.entities.base.FullAuditEntity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Entity(name = "companies")
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
