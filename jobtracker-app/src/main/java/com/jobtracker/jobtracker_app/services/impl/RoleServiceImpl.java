@@ -18,7 +18,6 @@ import com.jobtracker.jobtracker_app.dto.responses.RoleResponse;
 import com.jobtracker.jobtracker_app.entities.Permission;
 import com.jobtracker.jobtracker_app.entities.Role;
 import com.jobtracker.jobtracker_app.entities.RolePermission;
-import com.jobtracker.jobtracker_app.entities.User;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
 import com.jobtracker.jobtracker_app.mappers.RoleMapper;
@@ -160,7 +159,7 @@ public class RoleServiceImpl implements RoleService {
         List<String> ids = request.getPermissionIds();
 
         List<Permission> permissions =
-                permissionRepository.findAllByIdAndIsActiveTrue(ids);
+                permissionRepository.findAllByIdInAndIsActiveTrue(ids);
 
         if (permissions.size() != ids.size()) {
             throw new AppException(ErrorCode.PERMISSION_NOT_ACTIVE);
