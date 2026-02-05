@@ -1,9 +1,13 @@
 package com.jobtracker.jobtracker_app.controllers;
 
-import com.jobtracker.jobtracker_app.dto.requests.JobRequest;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateStatusRequest;
 import com.jobtracker.jobtracker_app.dto.responses.ApiResponse;
-import com.jobtracker.jobtracker_app.dto.responses.JobResponse;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobResponse;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateResponse;
 import com.jobtracker.jobtracker_app.dto.responses.PaginationInfo;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateStatusResponse;
 import com.jobtracker.jobtracker_app.services.JobService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
@@ -26,7 +30,7 @@ public class JobController {
     LocalizationUtils localizationUtils;
 
     @PostMapping
-    public ApiResponse<JobResponse> create(@RequestBody @Valid JobRequest request) {
+    public ApiResponse<JobResponse> create(@RequestBody @Valid JobCreationRequest request) {
         return ApiResponse.<JobResponse>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_CREATE_SUCCESS))
                 .data(jobService.create(request))
@@ -56,10 +60,18 @@ public class JobController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<JobResponse> update(@PathVariable String id, @RequestBody @Valid JobRequest request) {
-        return ApiResponse.<JobResponse>builder()
+    public ApiResponse<JobUpdateResponse> update(@PathVariable String id, @RequestBody @Valid JobUpdateRequest request) {
+        return ApiResponse.<JobUpdateResponse>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_UPDATE_SUCCESS))
                 .data(jobService.update(id, request))
+                .build();
+    }
+
+    @PatchMapping("/{id}/status")
+    public ApiResponse<JobUpdateStatusResponse> update(@PathVariable String id, @RequestBody @Valid JobUpdateStatusRequest request) {
+        return ApiResponse.<JobUpdateStatusResponse>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_UPDATE_SUCCESS))
+                .data(jobService.updateStatus(id, request))
                 .build();
     }
 

@@ -1,4 +1,4 @@
-package com.jobtracker.jobtracker_app.dto.requests;
+package com.jobtracker.jobtracker_app.dto.requests.job;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

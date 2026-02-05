@@ -5,8 +5,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-import com.jobtracker.jobtracker_app.dto.requests.JobStatusRequest;
-import com.jobtracker.jobtracker_app.dto.responses.JobStatusResponse;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobStatusRequest;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobStatusResponse;
 import com.jobtracker.jobtracker_app.entities.JobStatus;
 
 @Mapper(componentModel = "spring")

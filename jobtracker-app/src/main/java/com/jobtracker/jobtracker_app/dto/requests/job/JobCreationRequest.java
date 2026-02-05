@@ -1,4 +1,4 @@
-package com.jobtracker.jobtracker_app.dto.requests;
+package com.jobtracker.jobtracker_app.dto.requests.job;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class JobRequest {
+public class JobCreationRequest {
     @NotBlank(message = "job.user_id.not_blank")
     String userId;
 

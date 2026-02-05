@@ -1,8 +1,12 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
-import com.jobtracker.jobtracker_app.dto.requests.JobRequest;
-import com.jobtracker.jobtracker_app.dto.responses.JobResponse;
-import com.jobtracker.jobtracker_app.dto.responses.JobSkillResponse;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateStatusRequest;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobResponse;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobSkillResponse;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateResponse;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateStatusResponse;
 import com.jobtracker.jobtracker_app.entities.*;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
@@ -38,7 +42,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
-    public JobResponse create(JobRequest request) {
+    public JobResponse create(JobCreationRequest request) {
         Job job = jobMapper.toJob(request);
         
         job.setUser(userRepository.findById(request.getUserId())
@@ -74,50 +78,33 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
-    public JobResponse update(String id, JobRequest request) {
+    public JobUpdateResponse update(String id, JobUpdateRequest request) {
         Job job = jobRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
 
         jobMapper.updateJob(job, request);
-        
-        if (request.getUserId() != null) {
-            job.setUser(userRepository.findById(request.getUserId())
-                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
-        }
-        if (request.getCompanyId() != null) {
-            job.setCompany(companyRepository.findById(request.getCompanyId())
-                    .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED)));
-        }
-        if (request.getJobTypeId() != null) {
-            job.setJobType(jobTypeRepository.findById(request.getJobTypeId())
-                    .orElseThrow(() -> new AppException(ErrorCode.JOB_TYPE_NOT_EXISTED)));
-        }
-        if (request.getStatusId() != null) {
-            job.setStatus(jobStatusRepository.findById(request.getStatusId())
+
+        if (request.getStatus() != null) {
+            job.setStatus(jobStatusRepository.findByName(request.getStatus())
                     .orElseThrow(() -> new AppException(ErrorCode.JOB_STATUS_NOT_EXISTED)));
         }
-        if (request.getPriorityId() != null) {
-            job.setPriority(priorityRepository.findById(request.getPriorityId())
-                    .orElseThrow(() -> new AppException(ErrorCode.PRIORITY_NOT_EXISTED)));
-        }
-        if (request.getExperienceLevelId() != null) {
-            job.setExperienceLevel(experienceLevelRepository.findById(request.getExperienceLevelId())
-                    .orElseThrow(() -> new AppException(ErrorCode.EXPERIENCE_LEVEL_NOT_EXISTED)));
-        }
 
-        return jobMapper.toJobResponse(jobRepository.save(job));
+        return jobMapper.toJobUpdateResponse(jobRepository.save(job));
     }
 
     @Override
-    public JobResponse updateStatus(String id, String statusId) {
+    public JobUpdateStatusResponse updateStatus(String id, JobUpdateStatusRequest request) {
         Job job = jobRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
 
-        if(statusId != null){
-            job.setStatus(jobStatusRepository.findById(statusId)
+        jobMapper.updateStatusJob(job,request);
+
+        if(request.getStatus() != null){
+            job.setStatus(jobStatusRepository.findByName(request.getStatus())
                     .orElseThrow(()-> new AppException(ErrorCode.JOB_STATUS_NOT_EXISTED)));
         }
-        return jobMapper.toJobResponse(jobRepository.save(job));
+
+        return jobMapper.toJobUpdateStatusResponse(jobRepository.save(job));
     }
 
     @Override

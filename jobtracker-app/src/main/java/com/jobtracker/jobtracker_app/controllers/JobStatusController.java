@@ -8,9 +8,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import com.jobtracker.jobtracker_app.dto.requests.JobStatusRequest;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobStatusRequest;
 import com.jobtracker.jobtracker_app.dto.responses.ApiResponse;
-import com.jobtracker.jobtracker_app.dto.responses.JobStatusResponse;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobStatusResponse;
 import com.jobtracker.jobtracker_app.dto.responses.PaginationInfo;
 import com.jobtracker.jobtracker_app.services.JobStatusService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
