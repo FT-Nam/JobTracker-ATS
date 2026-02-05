@@ -558,6 +558,7 @@ Trả về thông tin đầy đủ của user kèm audit.
 ### 5. Deactivate / Soft Delete User
 **DELETE** `/admin/users/{id}`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
@@ -570,6 +571,7 @@ Trả về thông tin đầy đủ của user kèm audit.
 ### 6. Restore User
 **PATCH** `/admin/users/{id}/restore`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
@@ -941,13 +943,31 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Job status updated successfully",
+  "data": {
+    "id": 1,
+    "status": "OFFER",
+    "offerDate": "2024-01-25",
+    "notes": "Received offer with $150k base salary",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### 7. Manage Job Skills
 
 **GET** `/jobs/{jobId}/skills`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
+  "message": "Job skills retrieved successfully",
   "data": [
     {
       "skillId": "a3e6e84c-5f21-4c4d-8d7d-4a38e9ab6f52",
@@ -1028,6 +1048,7 @@ Authorization: Bearer <access_token>
 
 **DELETE** `/jobs/{jobId}/skills/{skillId}`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
@@ -1100,27 +1121,12 @@ Authorization: Bearer <access_token>
 
 **DELETE** `/jobs/{jobId}/resumes/{resumeId}`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
   "message": "Resume unlinked from job",
   "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Job status updated successfully",
-  "data": {
-    "id": 1,
-    "status": "OFFER",
-    "offerDate": "2024-01-25",
-    "notes": "Received offer with $150k base salary",
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
@@ -1193,6 +1199,31 @@ Authorization: Bearer <access_token>
   "size": "MEDIUM",
   "location": "San Francisco, CA",
   "description": "A innovative technology company..."
+}
+```
+
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Company created successfully",
+  "data": {
+    "id": 2,
+    "name": "New Tech Company",
+    "website": "https://newtech.com",
+    "industry": "Technology",
+    "size": "MEDIUM",
+    "location": "San Francisco, CA",
+    "description": "A innovative technology company...",
+    "logoUrl": null,
+    "isVerified": false,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -1269,32 +1300,12 @@ Trả về thông tin chi tiết cùng metadata audit.
 ### 5. Delete Company (Soft Delete)
 **DELETE** `/companies/{id}`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
   "message": "Company deleted successfully",
   "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "Company created successfully",
-  "data": {
-    "id": 2,
-    "name": "New Tech Company",
-    "website": "https://newtech.com",
-    "industry": "Technology",
-    "size": "MEDIUM",
-    "location": "San Francisco, CA",
-    "description": "A innovative technology company...",
-    "logoUrl": null,
-    "isVerified": false,
-    "createdAt": "2024-01-15T10:30:00Z"
-  },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
@@ -1343,6 +1354,7 @@ Authorization: Bearer <access_token>
 ### Create Job Status
 **POST** `/lookup/job-statuses`
 
+#### Request Body
 ```json
 {
   "name": "ON_HOLD",
@@ -1353,15 +1365,55 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Job status created successfully",
+  "data": {
+    "id": 7,
+    "name": "ON_HOLD",
+    "displayName": "On Hold",
+    "description": "Application paused",
+    "color": "#FBBF24",
+    "sortOrder": 7,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### Update Job Status
 **PUT** `/lookup/job-statuses/{id}`
 
+#### Request Body
 ```json
 {
   "displayName": "On Hold",
   "description": "Paused by company",
   "color": "#FBBF24",
   "isActive": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Job status updated successfully",
+  "data": {
+    "id": 7,
+    "name": "ON_HOLD",
+    "displayName": "On Hold",
+    "description": "Paused by company",
+    "color": "#FBBF24",
+    "sortOrder": 7,
+    "isActive": true,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -1416,6 +1468,7 @@ Authorization: Bearer <access_token>
 ### Create Job Type
 **POST** `/lookup/job-types`
 
+#### Request Body
 ```json
 {
   "name": "APPRENTICESHIP",
@@ -1424,14 +1477,50 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Job type created successfully",
+  "data": {
+    "id": 5,
+    "name": "APPRENTICESHIP",
+    "displayName": "Apprenticeship",
+    "description": "Apprenticeship program",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### Update Job Type
 **PUT** `/lookup/job-types/{id}`
 
+#### Request Body
 ```json
 {
   "displayName": "Apprenticeship",
   "description": "On-the-job apprenticeship",
   "isActive": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Job type updated successfully",
+  "data": {
+    "id": 5,
+    "name": "APPRENTICESHIP",
+    "displayName": "Apprenticeship",
+    "description": "On-the-job apprenticeship",
+    "isActive": true,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -1489,6 +1578,7 @@ Authorization: Bearer <access_token>
 ### Create Priority
 **POST** `/lookup/priorities`
 
+#### Request Body
 ```json
 {
   "name": "BLOCKER",
@@ -1499,9 +1589,30 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Priority created successfully",
+  "data": {
+    "id": 5,
+    "name": "BLOCKER",
+    "displayName": "Blocker",
+    "level": 5,
+    "color": "#DC2626",
+    "description": "Must act immediately",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### Update Priority
 **PUT** `/lookup/priorities/{id}`
 
+#### Request Body
 ```json
 {
   "displayName": "Blocker",
@@ -1509,6 +1620,25 @@ Authorization: Bearer <access_token>
   "color": "#DC2626",
   "description": "Highest urgency",
   "isActive": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Priority updated successfully",
+  "data": {
+    "id": 5,
+    "name": "BLOCKER",
+    "displayName": "Blocker",
+    "level": 5,
+    "color": "#DC2626",
+    "description": "Highest urgency",
+    "isActive": true,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -1566,6 +1696,7 @@ Authorization: Bearer <access_token>
 ### Create Experience Level
 **POST** `/lookup/experience-levels`
 
+#### Request Body
 ```json
 {
   "name": "STAFF",
@@ -1576,9 +1707,30 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Experience level created successfully",
+  "data": {
+    "id": 5,
+    "name": "STAFF",
+    "displayName": "Staff",
+    "minYears": 8,
+    "maxYears": 12,
+    "description": "Staff engineer level",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### Update Experience Level
 **PUT** `/lookup/experience-levels/{id}`
 
+#### Request Body
 ```json
 {
   "displayName": "Staff",
@@ -1586,6 +1738,25 @@ Authorization: Bearer <access_token>
   "maxYears": 12,
   "description": "Staff / Principal track",
   "isActive": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Experience level updated successfully",
+  "data": {
+    "id": 5,
+    "name": "STAFF",
+    "displayName": "Staff",
+    "minYears": 8,
+    "maxYears": 12,
+    "description": "Staff / Principal track",
+    "isActive": true,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -1639,6 +1810,7 @@ Authorization: Bearer <access_token>
 ### Create Interview Type
 **POST** `/lookup/interview-types`
 
+#### Request Body
 ```json
 {
   "name": "PAIR_PROGRAMMING",
@@ -1647,14 +1819,50 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Interview type created successfully",
+  "data": {
+    "id": 5,
+    "name": "PAIR_PROGRAMMING",
+    "displayName": "Pair Programming",
+    "description": "Live coding with interviewer",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### Update Interview Type
 **PUT** `/lookup/interview-types/{id}`
 
+#### Request Body
 ```json
 {
   "displayName": "Pair Programming",
   "description": "Live pair programming session",
   "isActive": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Interview type updated successfully",
+  "data": {
+    "id": 5,
+    "name": "PAIR_PROGRAMMING",
+    "displayName": "Pair Programming",
+    "description": "Live pair programming session",
+    "isActive": true,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -1710,6 +1918,7 @@ Authorization: Bearer <access_token>
 ### Create Interview Status
 **POST** `/lookup/interview-statuses`
 
+#### Request Body
 ```json
 {
   "name": "NO_SHOW",
@@ -1719,15 +1928,53 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Interview status created successfully",
+  "data": {
+    "id": 5,
+    "name": "NO_SHOW",
+    "displayName": "No Show",
+    "description": "Candidate did not attend",
+    "color": "#F87171",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### Update Interview Status
 **PUT** `/lookup/interview-statuses/{id}`
 
+#### Request Body
 ```json
 {
   "displayName": "No Show",
   "description": "Candidate did not attend",
   "color": "#F87171",
   "isActive": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Interview status updated successfully",
+  "data": {
+    "id": 5,
+    "name": "NO_SHOW",
+    "displayName": "No Show",
+    "description": "Candidate did not attend",
+    "color": "#F87171",
+    "isActive": true,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -1783,6 +2030,7 @@ Authorization: Bearer <access_token>
 ### Create Interview Result
 **POST** `/lookup/interview-results`
 
+#### Request Body
 ```json
 {
   "name": "ON_HOLD",
@@ -1792,15 +2040,53 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Interview result created successfully",
+  "data": {
+    "id": 5,
+    "name": "ON_HOLD",
+    "displayName": "On Hold",
+    "description": "Awaiting leadership decision",
+    "color": "#FBBF24",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### Update Interview Result
 **PUT** `/lookup/interview-results/{id}`
 
+#### Request Body
 ```json
 {
   "displayName": "On Hold",
   "description": "Pending leadership decision",
   "color": "#FBBF24",
   "isActive": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Interview result updated successfully",
+  "data": {
+    "id": 5,
+    "name": "ON_HOLD",
+    "displayName": "On Hold",
+    "description": "Pending leadership decision",
+    "color": "#FBBF24",
+    "isActive": true,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -1856,6 +2142,7 @@ Authorization: Bearer <access_token>
 ### Create Notification Type
 **POST** `/lookup/notification-types`
 
+#### Request Body
 ```json
 {
   "name": "CUSTOM",
@@ -1866,15 +2153,53 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Notification type created successfully",
+  "data": {
+    "id": "d4e5f6g7-8h9i-0j1k-2l3m-n4o5p6q7r8s9",
+    "name": "CUSTOM",
+    "displayName": "Custom Message",
+    "description": "Manual notification",
+    "template": "{message}",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### Update Notification Type
 **PUT** `/lookup/notification-types/{id}`
 
+#### Request Body
 ```json
 {
   "displayName": "Custom Message",
   "description": "Manual notification template",
   "template": "{message}",
   "isActive": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Notification type updated successfully",
+  "data": {
+    "id": "d4e5f6g7-8h9i-0j1k-2l3m-n4o5p6q7r8s9",
+    "name": "CUSTOM",
+    "displayName": "Custom Message",
+    "description": "Manual notification template",
+    "template": "{message}",
+    "isActive": true,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -1932,6 +2257,7 @@ Authorization: Bearer <access_token>
 ### Create Notification Priority
 **POST** `/lookup/notification-priorities`
 
+#### Request Body
 ```json
 {
   "name": "CRITICAL",
@@ -1943,9 +2269,30 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Notification priority created successfully",
+  "data": {
+    "id": "e5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
+    "name": "CRITICAL",
+    "displayName": "Critical",
+    "level": 5,
+    "color": "#B91C1C",
+    "description": "Critical notifications",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### Update Notification Priority
 **PUT** `/lookup/notification-priorities/{id}`
 
+#### Request Body
 ```json
 {
   "displayName": "Critical",
@@ -1953,6 +2300,25 @@ Authorization: Bearer <access_token>
   "color": "#B91C1C",
   "description": "Critical notifications only",
   "isActive": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Notification priority updated successfully",
+  "data": {
+    "id": "e5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
+    "name": "CRITICAL",
+    "displayName": "Critical",
+    "level": 5,
+    "color": "#B91C1C",
+    "description": "Critical notifications only",
+    "isActive": true,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -2258,9 +2624,11 @@ Cập nhật danh sách permission cho role cụ thể.
 ### 11. Get Role Permissions
 **GET** `/admin/roles/{roleId}/permissions`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
+  "message": "Role permissions retrieved successfully",
   "data": [
     {
       "permissionId": "5a12b2d5-0b42-4b3c-815a-7cf6fca39a8e",
@@ -2276,13 +2644,14 @@ Cập nhật danh sách permission cho role cụ thể.
 ### 12. Add Single Permission to Role
 **POST** `/admin/roles/{roleId}/permissions`
 
+#### Request Body
 ```json
 {
   "permissionId": "6df6adf7-02f0-4d66-92bb-59f32b2b7a25"
 }
 ```
 
-#### Response
+#### Response (200 OK)
 ```json
 {
   "success": true,
@@ -2295,6 +2664,7 @@ Cập nhật danh sách permission cho role cụ thể.
 ### 13. Remove Permission from Role
 **DELETE** `/admin/roles/{roleId}/permissions/{permissionId}`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
@@ -2302,7 +2672,6 @@ Cập nhật danh sách permission cho role cụ thể.
   "data": null,
   "timestamp": "2024-01-15T10:30:00Z"
 }
-```
 ```
 
 ## 🎯 Skills Management APIs
@@ -2450,6 +2819,7 @@ page=0&size=50&sort=name,asc&category=PROGRAMMING&search=Java
 ### 5. Delete Skill
 **DELETE** `/skills/{id}`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
@@ -2513,6 +2883,27 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "User skill added successfully",
+  "data": {
+    "id": 1,
+    "skill": {
+      "id": 1,
+      "name": "Java",
+      "category": "PROGRAMMING"
+    },
+    "proficiencyLevel": "ADVANCED",
+    "yearsOfExperience": 5.0,
+    "isVerified": false,
+    "createdAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### 8. Update User Skill
 **PUT** `/users/skills/{id}`
 
@@ -2551,32 +2942,12 @@ Authorization: Bearer <access_token>
 ### 9. Delete User Skill
 **DELETE** `/users/skills/{id}`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
   "message": "User skill deleted successfully",
   "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "User skill added successfully",
-  "data": {
-    "id": 1,
-    "skill": {
-      "id": 1,
-      "name": "Java",
-      "category": "PROGRAMMING"
-    },
-    "proficiencyLevel": "ADVANCED",
-    "yearsOfExperience": 5.0,
-    "isVerified": false,
-    "createdAt": "2024-01-15T10:30:00Z"
-  },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
@@ -2758,6 +3129,7 @@ Trả về metadata đầy đủ (name, tags, version, audit).
 ### 6. Delete Resume
 **DELETE** `/resumes/{id}`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
@@ -2869,6 +3241,43 @@ Cập nhật thông tin interview.
 
 #### Request Headers
 ```
+Authorization: Bearer <access_token>
+```
+
+#### Request Body
+```json
+{
+  "actualDate": "2024-01-20T14:30:00Z",
+  "status": "COMPLETED",
+  "result": "PASSED",
+  "feedback": "Great technical skills, good communication",
+  "notes": "Interview went well, waiting for next round",
+  "questionsAsked": "What is your experience with Spring Boot?",
+  "answersGiven": "I have 3 years of experience with Spring Boot...",
+  "rating": 4
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Interview updated successfully",
+  "data": {
+    "id": 1,
+    "actualDate": "2024-01-20T14:30:00Z",
+    "status": "COMPLETED",
+    "result": "PASSED",
+    "feedback": "Great technical skills, good communication",
+    "notes": "Interview went well, waiting for next round",
+    "questionsAsked": "What is your experience with Spring Boot?",
+    "answersGiven": "I have 3 years of experience with Spring Boot...",
+    "rating": 4,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
 
 ### 4. Get Interview Details
 **GET** `/interviews/{id}`
@@ -2914,48 +3323,12 @@ Trả về đầy đủ thông tin của một interview (bao gồm audit, feedb
 ### 5. Delete Interview
 **DELETE** `/interviews/{id}`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
   "message": "Interview deleted successfully",
   "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-Authorization: Bearer <access_token>
-```
-
-#### Request Body
-```json
-{
-  "actualDate": "2024-01-20T14:30:00Z",
-  "status": "COMPLETED",
-  "result": "PASSED",
-  "feedback": "Great technical skills, good communication",
-  "notes": "Interview went well, waiting for next round",
-  "questionsAsked": "What is your experience with Spring Boot?",
-  "answersGiven": "I have 3 years of experience with Spring Boot...",
-  "rating": 4
-}
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Interview updated successfully",
-  "data": {
-    "id": 1,
-    "actualDate": "2024-01-20T14:30:00Z",
-    "status": "COMPLETED",
-    "result": "PASSED",
-    "feedback": "Great technical skills, good communication",
-    "notes": "Interview went well, waiting for next round",
-    "questionsAsked": "What is your experience with Spring Boot?",
-    "answersGiven": "I have 3 years of experience with Spring Boot...",
-    "rating": 4,
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
@@ -3291,6 +3664,7 @@ Trả về đầy đủ metadata (job, user, template data).
 ### 6. Delete Notification
 **DELETE** `/notifications/{id}`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
@@ -3411,6 +3785,7 @@ page=0&size=20&entityType=JOB&action=UPDATE&startDate=2024-01-01&endDate=2024-01
 ### 2. Delete Audit Log (Archive)
 **DELETE** `/audit-logs/{id}`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
@@ -3482,9 +3857,11 @@ Content-Length: 512000
 ### 3. List Job Attachments
 **GET** `/jobs/{jobId}/attachments`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
+  "message": "Job attachments retrieved successfully",
   "data": [
     {
       "id": "5f47e8b3-338f-4f1a-8e65-92dbd1dcb2f2",
@@ -3500,6 +3877,7 @@ Content-Length: 512000
 ### 4. Delete Attachment
 **DELETE** `/attachments/{id}`
 
+#### Response (200 OK)
 ```json
 {
   "success": true,
