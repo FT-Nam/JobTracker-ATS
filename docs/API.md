@@ -485,9 +485,38 @@ Content-Type: application/json
 
 Trả về thông tin đầy đủ của user kèm audit.
 
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "User retrieved successfully",
+  "data": {
+    "id": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "email": "user@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "phone": "+1234567890",
+    "avatarUrl": null,
+    "roleId": "34d9a2e3-1a30-4a1a-b1ad-4b6d2619f1ce",
+    "roleName": "USER",
+    "isActive": true,
+    "emailVerified": true,
+    "googleId": null,
+    "lastLoginAt": "2024-01-15T09:00:00Z",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": null,
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### 4. Update User
 **PUT** `/admin/users/{id}`
 
+#### Request Body
 ```json
 {
   "firstName": "Jane",
@@ -495,6 +524,34 @@ Trả về thông tin đầy đủ của user kèm audit.
   "phone": "+84123456789",
   "roleId": "781af566-48d8-4066-9fd7-78284b642df0",
   "isActive": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "User updated successfully",
+  "data": {
+    "id": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "email": "user@example.com",
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "phone": "+84123456789",
+    "avatarUrl": null,
+    "roleId": "781af566-48d8-4066-9fd7-78284b642df0",
+    "roleName": "HIRING_MANAGER",
+    "isActive": true,
+    "emailVerified": true,
+    "googleId": null,
+    "lastLoginAt": "2024-01-15T09:00:00Z",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": null,
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -906,6 +963,7 @@ Authorization: Bearer <access_token>
 
 **POST** `/jobs/{jobId}/skills`
 
+#### Request Body
 ```json
 {
   "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
@@ -914,12 +972,57 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Job skill added successfully",
+  "data": {
+    "id": "f8g9h0i1-2j3k-4l5m-6n7o-p8q9r0s1t2u3",
+    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
+    "skill": {
+      "id": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
+      "name": "Spring Boot",
+      "category": "FRAMEWORK"
+    },
+    "isRequired": true,
+    "proficiencyLevel": "INTERMEDIATE",
+    "createdAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 **PATCH** `/jobs/{jobId}/skills/{skillId}`
 
+#### Request Body
 ```json
 {
   "isRequired": false,
   "proficiencyLevel": "ADVANCED"
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Job skill updated successfully",
+  "data": {
+    "id": "f8g9h0i1-2j3k-4l5m-6n7o-p8q9r0s1t2u3",
+    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
+    "skill": {
+      "id": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
+      "name": "Spring Boot",
+      "category": "FRAMEWORK"
+    },
+    "isRequired": false,
+    "proficiencyLevel": "ADVANCED",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -938,6 +1041,7 @@ Authorization: Bearer <access_token>
 
 **POST** `/jobs/{jobId}/resumes`
 
+#### Request Body
 ```json
 {
   "resumeId": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
@@ -945,11 +1049,52 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Resume linked to job successfully",
+  "data": {
+    "id": "g9h0i1j2-3k4l-5m6n-7o8p-q9r0s1t2u3v4",
+    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "resumeId": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
+    "resume": {
+      "id": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
+      "name": "John_Doe_Resume_2024.pdf"
+    },
+    "isPrimary": true,
+    "createdAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 **PATCH** `/jobs/{jobId}/resumes/{resumeId}`
 
+#### Request Body
 ```json
 {
   "isPrimary": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Job resume updated successfully",
+  "data": {
+    "id": "g9h0i1j2-3k4l-5m6n-7o8p-q9r0s1t2u3v4",
+    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "resumeId": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
+    "resume": {
+      "id": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
+      "name": "John_Doe_Resume_2024.pdf"
+    },
+    "isPrimary": true,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -1056,9 +1201,35 @@ Authorization: Bearer <access_token>
 
 Trả về thông tin chi tiết cùng metadata audit.
 
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Company retrieved successfully",
+  "data": {
+    "id": 1,
+    "name": "Google",
+    "website": "https://google.com",
+    "industry": "Technology",
+    "size": "LARGE",
+    "location": "Mountain View, CA",
+    "description": "Google is a multinational technology company...",
+    "logoUrl": "https://google.com/logo.png",
+    "isVerified": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": null,
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### 4. Update Company
 **PUT** `/companies/{id}`
 
+#### Request Body
 ```json
 {
   "website": "https://newtech.com",
@@ -1067,6 +1238,31 @@ Trả về thông tin chi tiết cùng metadata audit.
   "location": "Remote",
   "description": "Updated description",
   "isVerified": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Company updated successfully",
+  "data": {
+    "id": 1,
+    "name": "Google",
+    "website": "https://newtech.com",
+    "industry": "Technology",
+    "size": "LARGE",
+    "location": "Remote",
+    "description": "Updated description",
+    "logoUrl": "https://google.com/logo.png",
+    "isVerified": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": null,
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -2167,9 +2363,30 @@ page=0&size=50&sort=name,asc&category=PROGRAMMING&search=Java
 ### 2. Get Skill by ID
 **GET** `/skills/{id}`
 
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Skill retrieved successfully",
+  "data": {
+    "id": 1,
+    "name": "Java",
+    "category": "PROGRAMMING",
+    "description": "Object-oriented programming language",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### 3. Create Skill
 **POST** `/skills`
 
+#### Request Body
 ```json
 {
   "name": "Kubernetes",
@@ -2178,13 +2395,55 @@ page=0&size=50&sort=name,asc&category=PROGRAMMING&search=Java
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Skill created successfully",
+  "data": {
+    "id": 3,
+    "name": "Kubernetes",
+    "category": "TOOL",
+    "description": "Container orchestration",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### 4. Update Skill
 **PUT** `/skills/{id}`
 
+#### Request Body
 ```json
 {
   "description": "Managed Kubernetes platform",
   "isActive": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Skill updated successfully",
+  "data": {
+    "id": 3,
+    "name": "Kubernetes",
+    "category": "TOOL",
+    "description": "Managed Kubernetes platform",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -2257,11 +2516,35 @@ Authorization: Bearer <access_token>
 ### 8. Update User Skill
 **PUT** `/users/skills/{id}`
 
+#### Request Body
 ```json
 {
   "proficiencyLevel": "EXPERT",
   "yearsOfExperience": 6.5,
   "isVerified": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "User skill updated successfully",
+  "data": {
+    "id": 1,
+    "skill": {
+      "id": 1,
+      "name": "Java",
+      "category": "PROGRAMMING",
+      "description": "Object-oriented programming language"
+    },
+    "proficiencyLevel": "EXPERT",
+    "yearsOfExperience": 6.5,
+    "isVerified": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -2401,15 +2684,74 @@ Content-Length: 1024000
 
 Trả về metadata đầy đủ (name, tags, version, audit).
 
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Resume retrieved successfully",
+  "data": {
+    "id": 1,
+    "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "name": "John_Doe_Resume_2024.pdf",
+    "originalFilename": "John_Doe_Resume_2024.pdf",
+    "filePath": "/resumes/user_1/resume_1.pdf",
+    "fileSize": 1024000,
+    "fileType": "application/pdf",
+    "version": "1.0",
+    "isDefault": true,
+    "description": "Updated resume for 2024",
+    "tags": "senior,java,backend",
+    "isActive": true,
+    "uploadedAt": "2024-01-10T09:00:00Z",
+    "createdAt": "2024-01-10T09:00:00Z",
+    "updatedAt": "2024-01-10T09:00:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### 5. Update Resume Metadata
 **PUT** `/resumes/{id}`
 
+#### Request Body
 ```json
 {
   "name": "John_Doe_Resume_2025.pdf",
   "description": "Updated for 2025 season",
   "tags": ["lead", "manager"],
   "isDefault": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Resume updated successfully",
+  "data": {
+    "id": 1,
+    "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "name": "John_Doe_Resume_2025.pdf",
+    "originalFilename": "John_Doe_Resume_2024.pdf",
+    "filePath": "/resumes/user_1/resume_1.pdf",
+    "fileSize": 1024000,
+    "fileType": "application/pdf",
+    "version": "1.0",
+    "isDefault": true,
+    "description": "Updated for 2025 season",
+    "tags": "lead,manager",
+    "isActive": true,
+    "uploadedAt": "2024-01-10T09:00:00Z",
+    "createdAt": "2024-01-10T09:00:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -2532,6 +2874,42 @@ Cập nhật thông tin interview.
 **GET** `/interviews/{id}`
 
 Trả về đầy đủ thông tin của một interview (bao gồm audit, feedback).
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Interview retrieved successfully",
+  "data": {
+    "id": 1,
+    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "roundNumber": 1,
+    "interviewTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "interviewStatusId": "b2c3d4e5-6f7g-8h9i-0j1k-l2m3n4o5p6q7",
+    "interviewResultId": "c3d4e5f6-7g8h-9i0j-1k2l-m3n4o5p6q7r8",
+    "scheduledDate": "2024-01-20T14:00:00Z",
+    "actualDate": "2024-01-20T14:30:00Z",
+    "durationMinutes": 60,
+    "interviewerName": "Jane Smith",
+    "interviewerEmail": "jane.smith@google.com",
+    "interviewerPosition": "Senior Engineer",
+    "location": "Google HQ, Building 43",
+    "status": "COMPLETED",
+    "result": "PASSED",
+    "feedback": "Great technical skills, good communication",
+    "notes": "Interview went well, waiting for next round",
+    "questionsAsked": "What is your experience with Spring Boot?",
+    "answersGiven": "I have 3 years of experience with Spring Boot...",
+    "rating": 4,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-20T15:00:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
 
 ### 5. Delete Interview
 **DELETE** `/interviews/{id}`
@@ -2833,6 +3211,7 @@ Authorization: Bearer <access_token>
 ### 4. Create Notification (Manual/Admin)
 **POST** `/notifications`
 
+#### Request Body
 ```json
 {
   "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
@@ -2848,10 +3227,66 @@ Authorization: Bearer <access_token>
 }
 ```
 
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Notification created successfully",
+  "data": {
+    "id": 2,
+    "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "notificationTypeId": "c9d0c7f4-4d1c-4a53-8a51-4f53c9a9f5d0",
+    "notificationPriorityId": "0da2f18c-4c3d-4d2c-b3f5-2d933515d96e",
+    "title": "Custom Reminder",
+    "message": "Follow up with recruiter tomorrow",
+    "isRead": false,
+    "isSent": false,
+    "scheduledAt": "2024-01-16T09:00:00Z",
+    "sentAt": null,
+    "metadata": "{\"channel\":\"EMAIL\"}",
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
 ### 5. Get Notification Details
 **GET** `/notifications/{id}`
 
 Trả về đầy đủ metadata (job, user, template data).
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Notification retrieved successfully",
+  "data": {
+    "id": 1,
+    "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "notificationTypeId": "c9d0c7f4-4d1c-4a53-8a51-4f53c9a9f5d0",
+    "notificationPriorityId": "0da2f18c-4c3d-4d2c-b3f5-2d933515d96e",
+    "title": "Deadline Reminder",
+    "message": "Google application deadline is in 3 days",
+    "isRead": false,
+    "isSent": true,
+    "sentAt": "2024-01-15T10:00:00Z",
+    "scheduledAt": null,
+    "metadata": "{\"deadlineDate\":\"2024-01-18\",\"companyName\":\"Google\"}",
+    "createdAt": "2024-01-15T10:00:00Z",
+    "updatedAt": "2024-01-15T10:00:00Z",
+    "createdBy": null,
+    "updatedBy": null,
+    "deletedAt": null
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
 
 ### 6. Delete Notification
 **DELETE** `/notifications/{id}`
