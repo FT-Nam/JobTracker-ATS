@@ -99,18 +99,12 @@ public class RoleServiceImpl implements RoleService {
     @Transactional
     public void addPermissionToRole(String roleId, RolePermissionRequest request) {
         Role role = roleRepository.findById(roleId)
+                .filter(Role::getIsActive)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
-        if(!role.getIsActive()){
-            throw new AppException(ErrorCode.ROLE_NOT_ACTIVE);
-        }
-
         Permission permission = permissionRepository.findById(request.getPermissionId())
+                .filter(Permission::getIsActive)
                 .orElseThrow(() -> new AppException(ErrorCode.PERMISSION_NOT_EXISTED));
-
-        if (!permission.getIsActive()) {
-            throw new AppException(ErrorCode.PERMISSION_NOT_ACTIVE);
-        }
 
         if (rolePermissionRepository.existsByRoleAndPermission(role, permission)) {
             throw new AppException(ErrorCode.ROLE_PERMISSION_EXISTED);
@@ -137,11 +131,8 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Page<RolePermissionsResponse> getRolePermissions(String roleId, Pageable pageable) {
         Role role = roleRepository.findById(roleId)
+                .filter(Role::getIsActive)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
-
-        if(!role.getIsActive()){
-            throw new AppException(ErrorCode.ROLE_NOT_ACTIVE);
-        }
 
         return rolePermissionRepository.findByRole(role, pageable).map(roleMapper::toRolePermissionResponse);
     }
@@ -150,11 +141,8 @@ public class RoleServiceImpl implements RoleService {
     @Transactional
     public RolePermissionsUpdateResponse updateRolePermissions(String roleId, RolePermissionsRequest request) {
         Role role = roleRepository.findById(roleId)
+                .filter(Role::getIsActive)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
-
-        if (!role.getIsActive()) {
-            throw new AppException(ErrorCode.ROLE_NOT_ACTIVE);
-        }
 
         List<String> ids = request.getPermissionIds();
 
@@ -162,7 +150,7 @@ public class RoleServiceImpl implements RoleService {
                 permissionRepository.findAllByIdInAndIsActiveTrue(ids);
 
         if (permissions.size() != ids.size()) {
-            throw new AppException(ErrorCode.PERMISSION_NOT_ACTIVE);
+            throw new AppException(ErrorCode.PERMISSION_NOT_EXISTED);
         }
 
         rolePermissionRepository.deleteByRole(role);
