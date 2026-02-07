@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,7 +70,9 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public Page<JobResponse> getAllJobByUser(String userId, Pageable pageable) {
+    public Page<JobResponse> getAllJobByUser(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
         return jobRepository.findAllByUserIdAndNotDeleted(userId,pageable).map(jobMapper::toJobResponse);
     }
 

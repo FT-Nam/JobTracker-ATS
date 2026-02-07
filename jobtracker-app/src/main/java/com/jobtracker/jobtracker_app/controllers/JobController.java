@@ -41,9 +41,9 @@ public class JobController {
                 .build();
     }
 
-    @GetMapping("/{id}")
-    public ApiResponse<List<JobResponse>> getAll(@PathVariable String userId, Pageable pageable) {
-        Page<JobResponse> jobs = jobService.getAllJobByUser(userId, pageable);
+    @GetMapping
+    public ApiResponse<List<JobResponse>> getAll(Pageable pageable) {
+        Page<JobResponse> jobs = jobService.getAllJobByUser(pageable);
         return ApiResponse.<List<JobResponse>>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_LIST_SUCCESS))
                 .data(jobs.getContent())
