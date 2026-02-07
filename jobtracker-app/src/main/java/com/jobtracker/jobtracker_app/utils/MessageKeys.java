@@ -156,6 +156,7 @@ public class MessageKeys {
 
     // JOB SKILL
     public static final String JOB_SKILL_NOT_EXISTED = "job_skill.not_existed";
+    public static final String JOB_SKILL_EXISTED = "job_skill.existed";
     public static final String JOB_SKILL_CREATE_SUCCESS = "job_skill.create_success";
     public static final String JOB_SKILL_UPDATE_SUCCESS = "job_skill.update_success";
     public static final String JOB_SKILL_DELETE_SUCCESS = "job_skill.delete_success";

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class JobSkillResponse {
+public class JobSkillCreationResponse {
     String id;
     String jobId;
     String skillId;
@@ -19,5 +19,4 @@ public class JobSkillResponse {
     Boolean isRequired;
     String proficiencyLevel;
     LocalDateTime createdAt;
-    LocalDateTime updatedAt;
 }

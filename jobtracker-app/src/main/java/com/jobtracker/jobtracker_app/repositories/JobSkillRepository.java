@@ -20,6 +20,11 @@ public interface JobSkillRepository extends JpaRepository<JobSkill, String> {
     )
     List<JobSkill> findByJobIdWithSkill(@Param("jobId") String jobId);
 
+    Optional<JobSkill> findByJobAndSkill(Job job, Skill skill);
+
+    void deleteByJobAndSkill(Job job, Skill skill);
+
+    boolean existsByJobAndSkill(Job job, Skill skill);
 }
 
 

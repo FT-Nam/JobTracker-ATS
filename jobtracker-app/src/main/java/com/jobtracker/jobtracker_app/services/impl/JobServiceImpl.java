@@ -1,12 +1,7 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
-import com.jobtracker.jobtracker_app.dto.requests.job.JobCreationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateStatusRequest;
-import com.jobtracker.jobtracker_app.dto.responses.job.JobResponse;
-import com.jobtracker.jobtracker_app.dto.responses.job.JobSkillResponse;
-import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateResponse;
-import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateStatusResponse;
+import com.jobtracker.jobtracker_app.dto.requests.job.*;
+import com.jobtracker.jobtracker_app.dto.responses.job.*;
 import com.jobtracker.jobtracker_app.entities.*;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
@@ -39,6 +34,7 @@ public class JobServiceImpl implements JobService {
     ExperienceLevelRepository experienceLevelRepository;
     JobSkillRepository jobSkillRepository;
     JobSkillMapper jobSkillMapper;
+    SkillRepository skillRepository;
 
     @Override
     @Transactional
@@ -66,20 +62,20 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public JobResponse getById(String id) {
-        Job job = jobRepository.findById(id)
+        Job job = jobRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
         return jobMapper.toJobResponse(job);
     }
 
     @Override
-    public Page<JobResponse> getAll(Pageable pageable) {
-        return jobRepository.findAll(pageable).map(jobMapper::toJobResponse);
+    public Page<JobResponse> getAllJobByUser(String userId, Pageable pageable) {
+        return jobRepository.findAllByUserIdAndNotDeleted(userId,pageable).map(jobMapper::toJobResponse);
     }
 
     @Override
     @Transactional
     public JobUpdateResponse update(String id, JobUpdateRequest request) {
-        Job job = jobRepository.findById(id)
+        Job job = jobRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
 
         jobMapper.updateJob(job, request);
@@ -94,7 +90,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public JobUpdateStatusResponse updateStatus(String id, JobUpdateStatusRequest request) {
-        Job job = jobRepository.findById(id)
+        Job job = jobRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
 
         jobMapper.updateStatusJob(job,request);
@@ -108,6 +104,16 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    @Transactional
+    public void delete(String id) {
+        Job job = jobRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
+
+        job.softDelete();
+        jobRepository.save(job);
+    }
+
+    @Override
     public List<JobSkillResponse> getJobSkills(String jobId) {
         return jobSkillRepository.findByJobIdWithSkill(jobId)
                 .stream().map(jobSkillMapper::toJobSkillResponse).toList();
@@ -115,12 +121,70 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
-    public void delete(String id) {
-        Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
+    public JobSkillCreationResponse addSkillToJob(JobSkillCreationRequest request, String jobId) {
+        Skill skill = skillRepository.findByIdAndDeletedAtIsNull(request.getSkillId())
+                .filter(Skill::getIsActive)
+                .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));
 
-        job.softDelete();
-        jobRepository.save(job);
+        Job job = jobRepository.findByIdAndDeletedAtIsNull(jobId)
+                .orElseThrow(()-> new AppException(ErrorCode.JOB_NOT_EXISTED));
+
+        if(jobSkillRepository.existsByJobAndSkill(job,skill)){
+            throw new AppException(ErrorCode.JOB_SKILL_EXISTED);
+        }
+
+        JobSkill jobSkill = jobSkillMapper.toJobSkill(request);
+        jobSkill.setSkill(skill);
+        jobSkill.setJob(job);
+
+        return jobSkillMapper.toJobSkillCreationResponse(jobSkillRepository.save(jobSkill));
+    }
+
+    @Override
+    @Transactional
+    public JobSkillResponse updateJobSkill(String jobId, String skillId, JobSkillUpdateRequest request) {
+        Skill skill = skillRepository.findByIdAndDeletedAtIsNull(skillId)
+                .filter(Skill::getIsActive)
+                .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));
+
+        Job job = jobRepository.findByIdAndDeletedAtIsNull(jobId)
+                .orElseThrow(()-> new AppException(ErrorCode.JOB_NOT_EXISTED));
+
+        JobSkill jobSkill = jobSkillRepository.findByJobAndSkill(job, skill)
+                .orElseThrow(()-> new AppException(ErrorCode.JOB_SKILL_NOT_EXISTED));
+
+        if(request.getIsRequired() != null){
+            jobSkill.setIsRequired(request.getIsRequired());
+        }
+
+        if(request.getProficiencyLevel() != null && !request.getProficiencyLevel().isBlank()){
+            jobSkill.setProficiencyLevel(request.getProficiencyLevel());
+        }
+
+        jobSkillRepository.save(jobSkill);
+
+        return jobSkillMapper.toJobSkillResponse(jobSkill);
+    }
+
+    @Override
+    @Transactional
+    public void deleteJobSkill(String jobId, String skillId) {
+        Skill skill = skillRepository.findByIdAndDeletedAtIsNull(skillId)
+                .filter(Skill::getIsActive)
+                .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));
+
+        Job job = jobRepository.findByIdAndDeletedAtIsNull(jobId)
+                .orElseThrow(()-> new AppException(ErrorCode.JOB_NOT_EXISTED));
+
+        if(!jobSkillRepository.existsByJobAndSkill(job,skill)){
+            throw new AppException(ErrorCode.JOB_SKILL_NOT_EXISTED);
+        }
+
+        JobSkill jobSkill = jobSkillRepository.findByJobAndSkill(job,skill)
+                        .orElseThrow(()-> new AppException(ErrorCode.JOB_SKILL_NOT_EXISTED));
+
+        jobSkill.softDelete();
+        jobSkillRepository.save(jobSkill);
     }
 }
 

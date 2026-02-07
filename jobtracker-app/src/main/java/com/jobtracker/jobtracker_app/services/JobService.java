@@ -1,12 +1,7 @@
 package com.jobtracker.jobtracker_app.services;
 
-import com.jobtracker.jobtracker_app.dto.requests.job.JobCreationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateStatusRequest;
-import com.jobtracker.jobtracker_app.dto.responses.job.JobResponse;
-import com.jobtracker.jobtracker_app.dto.responses.job.JobSkillResponse;
-import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateResponse;
-import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateStatusResponse;
+import com.jobtracker.jobtracker_app.dto.requests.job.*;
+import com.jobtracker.jobtracker_app.dto.responses.job.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,11 +10,14 @@ import java.util.List;
 public interface JobService {
     JobResponse create(JobCreationRequest request);
     JobResponse getById(String id);
-    Page<JobResponse> getAll(Pageable pageable);
+    Page<JobResponse> getAllJobByUser(String userId, Pageable pageable);
     JobUpdateResponse update(String id, JobUpdateRequest request);
     JobUpdateStatusResponse updateStatus(String id, JobUpdateStatusRequest request);
-    List<JobSkillResponse> getJobSkills(String jobId);
     void delete(String id);
+    List<JobSkillResponse> getJobSkills(String jobId);
+    JobSkillCreationResponse addSkillToJob(JobSkillCreationRequest request, String jobId);
+    JobSkillResponse updateJobSkill(String jobId, String skillId, JobSkillUpdateRequest request);
+    void deleteJobSkill(String jobId, String skillId);
 }
 
 

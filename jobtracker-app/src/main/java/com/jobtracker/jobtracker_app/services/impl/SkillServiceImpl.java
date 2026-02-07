@@ -33,20 +33,20 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public SkillResponse getById(String id) {
-        Skill skill = skillRepository.findById(id)
+        Skill skill = skillRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));
         return skillMapper.toSkillResponse(skill);
     }
 
     @Override
     public Page<SkillResponse> getAll(Pageable pageable) {
-        return skillRepository.findAll(pageable).map(skillMapper::toSkillResponse);
+        return skillRepository.findAllByDeletedAtIsNull(pageable).map(skillMapper::toSkillResponse);
     }
 
     @Override
     @Transactional
     public SkillResponse update(String id, SkillRequest request) {
-        Skill skill = skillRepository.findById(id)
+        Skill skill = skillRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));
 
         skillMapper.updateSkill(skill, request);
@@ -57,7 +57,7 @@ public class SkillServiceImpl implements SkillService {
     @Override
     @Transactional
     public void delete(String id) {
-        Skill skill = skillRepository.findById(id)
+        Skill skill = skillRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));
 
         skill.softDelete();

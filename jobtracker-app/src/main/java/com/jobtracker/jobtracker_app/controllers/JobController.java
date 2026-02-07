@@ -1,12 +1,16 @@
 package com.jobtracker.jobtracker_app.controllers;
 
 import com.jobtracker.jobtracker_app.dto.requests.job.JobCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobSkillCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobSkillUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateStatusRequest;
 import com.jobtracker.jobtracker_app.dto.responses.ApiResponse;
-import com.jobtracker.jobtracker_app.dto.responses.job.JobResponse;
-import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateResponse;
 import com.jobtracker.jobtracker_app.dto.responses.PaginationInfo;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobResponse;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobSkillCreationResponse;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobSkillResponse;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateResponse;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateStatusResponse;
 import com.jobtracker.jobtracker_app.services.JobService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
@@ -37,9 +41,9 @@ public class JobController {
                 .build();
     }
 
-    @GetMapping
-    public ApiResponse<List<JobResponse>> getAll(Pageable pageable) {
-        Page<JobResponse> jobs = jobService.getAll(pageable);
+    @GetMapping("/{id}")
+    public ApiResponse<List<JobResponse>> getAll(@PathVariable String userId, Pageable pageable) {
+        Page<JobResponse> jobs = jobService.getAllJobByUser(userId, pageable);
         return ApiResponse.<List<JobResponse>>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_LIST_SUCCESS))
                 .data(jobs.getContent())
@@ -80,6 +84,46 @@ public class JobController {
         jobService.delete(id);
         return ApiResponse.<Void>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_DELETE_SUCCESS))
+                .build();
+    }
+
+    // Job Skills Management
+    @GetMapping("/{jobId}/skills")
+    public ApiResponse<List<JobSkillResponse>> getJobSkills(@PathVariable String jobId) {
+        return ApiResponse.<List<JobSkillResponse>>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_SKILL_LIST_SUCCESS))
+                .data(jobService.getJobSkills(jobId))
+                .build();
+    }
+
+    @PostMapping("/{jobId}/skills")
+    public ApiResponse<JobSkillCreationResponse> addSkillToJob(
+            @PathVariable String jobId,
+            @RequestBody @Valid JobSkillCreationRequest request) {
+        return ApiResponse.<JobSkillCreationResponse>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_SKILL_CREATE_SUCCESS))
+                .data(jobService.addSkillToJob(request, jobId))
+                .build();
+    }
+
+    @PatchMapping("/{jobId}/skills/{skillId}")
+    public ApiResponse<JobSkillResponse> updateJobSkill(
+            @PathVariable String jobId,
+            @PathVariable String skillId,
+            @RequestBody @Valid JobSkillUpdateRequest request) {
+        return ApiResponse.<JobSkillResponse>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_SKILL_UPDATE_SUCCESS))
+                .data(jobService.updateJobSkill(jobId, skillId, request))
+                .build();
+    }
+
+    @DeleteMapping("/{jobId}/skills/{skillId}")
+    public ApiResponse<Void> deleteJobSkill(
+            @PathVariable String jobId,
+            @PathVariable String skillId) {
+        jobService.deleteJobSkill(jobId, skillId);
+        return ApiResponse.<Void>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_SKILL_DELETE_SUCCESS))
                 .build();
     }
 }

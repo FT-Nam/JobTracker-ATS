@@ -4,6 +4,7 @@ import com.jobtracker.jobtracker_app.dto.requests.job.JobCreationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateStatusRequest;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobResponse;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobSkillCreationResponse;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateResponse;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateStatusResponse;
 import com.jobtracker.jobtracker_app.entities.Job;
