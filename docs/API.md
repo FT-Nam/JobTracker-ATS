@@ -848,7 +848,6 @@ Authorization: Bearer <access_token>
   "data": {
     "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "jobStatus": "PUBLISHED",
-    "jobStatus": "PUBLISHED",
     "publishedAt": "2024-01-15T10:30:00Z",
     "expiresAt": "2024-02-15T23:59:59Z",
     "updatedAt": "2024-01-15T10:30:00Z"

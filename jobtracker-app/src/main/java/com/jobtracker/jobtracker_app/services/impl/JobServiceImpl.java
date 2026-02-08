@@ -3,6 +3,7 @@ package com.jobtracker.jobtracker_app.services.impl;
 import com.jobtracker.jobtracker_app.dto.requests.job.*;
 import com.jobtracker.jobtracker_app.dto.responses.job.*;
 import com.jobtracker.jobtracker_app.entities.*;
+import com.jobtracker.jobtracker_app.enums.JobStatus;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
 import com.jobtracker.jobtracker_app.mappers.JobMapper;
@@ -19,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -78,9 +80,24 @@ public class JobServiceImpl implements JobService {
         Job job = jobRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
 
-        jobMapper.updateStatusJob(job, request);
+        if(request.getJobStatus() != null){
+            if(job.getJobStatus() == JobStatus.DRAFT && request.getJobStatus() == JobStatus.PUBLISHED){
+                job.setJobStatus(JobStatus.PUBLISHED);
+                job.setPublishedAt(LocalDateTime.now());
+            }
+            else if(job.getJobStatus() == JobStatus.PUBLISHED && request.getJobStatus() == JobStatus.DRAFT){
+                job.setJobStatus(JobStatus.DRAFT);
+            }
+        }
 
-        return jobMapper.toJobUpdateStatusResponse(jobRepository.save(job));
+        jobRepository.save(job);
+
+        return JobUpdateStatusResponse.builder()
+                .jobStatus(job.getJobStatus())
+                .publishedAt(job.getPublishedAt())
+                .expiresAt(job.getExpiresAt())
+                .updatedAt(job.getUpdatedAt())
+                .build();
     }
 
     @Override

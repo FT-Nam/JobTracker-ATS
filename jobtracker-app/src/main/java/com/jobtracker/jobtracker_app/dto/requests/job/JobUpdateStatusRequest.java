@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @Builder
@@ -12,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class JobUpdateStatusRequest {
-    @NotNull(message = "job.job_status.not_null")
     JobStatus jobStatus;
+    LocalDate publishedAt;
+    LocalDate expiresAt;
 }

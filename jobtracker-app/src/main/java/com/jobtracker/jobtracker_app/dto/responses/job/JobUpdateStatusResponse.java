@@ -1,5 +1,6 @@
 package com.jobtracker.jobtracker_app.dto.responses.job;
 
+import com.jobtracker.jobtracker_app.enums.JobStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,8 +14,8 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class JobUpdateStatusResponse {
     String id;
-    String status;
-    LocalDate offerDate;
-    String notes;
+    JobStatus jobStatus;
+    LocalDateTime publishedAt;
+    LocalDateTime expiresAt;
     LocalDateTime updatedAt;
 }
