@@ -1,8 +1,14 @@
-# 🏗️ JobTracker Architecture Guide
+# 🏗️ JobTracker ATS Architecture Guide
 
 ## 📋 Tổng quan kiến trúc
 
-JobTracker sử dụng kiến trúc **Monolithic** với thiết kế modular, đảm bảo tính đơn giản trong phát triển và triển khai ban đầu, đồng thời có thể dễ dàng tách thành microservices trong tương lai.
+JobTracker ATS (Applicant Tracking System) sử dụng kiến trúc **Monolithic Multi-Tenant** với thiết kế modular, đảm bảo tính đơn giản trong phát triển và triển khai ban đầu, đồng thời có thể dễ dàng tách thành microservices trong tương lai.
+
+### 🎯 Kiến trúc Multi-Tenant
+- **Cô lập Tenant**: Mỗi company = 1 tenant, cô lập dữ liệu bằng `company_id`
+- **Database dùng chung**: Single database với tách biệt dữ liệu multi-tenant
+- **Bảo mật cấp hàng**: Tất cả truy vấn tự động lọc theo `company_id`
+- **Khả năng mở rộng**: Dễ dàng mở rộng cho nhiều SME/Startup
 
 ## 🎯 Kiến trúc tổng thể
 
@@ -10,7 +16,11 @@ JobTracker sử dụng kiến trúc **Monolithic** với thiết kế modular, �
 ┌─────────────────────────────────────────────────────────────┐
 │                    Frontend (React + JavaScript)            │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
-│  │   Auth      │ │   Jobs      │ │ Dashboard   │           │
+│  │   Auth      │ │   Jobs      │ │ Applications│           │
+│  │   Module    │ │   Module    │ │   Module    │           │
+│  └─────────────┘ └─────────────┘ └─────────────┘           │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│  │ Dashboard   │ │ Interviews  │ │ Comments   │           │
 │  │   Module    │ │   Module    │ │   Module    │           │
 │  └─────────────┘ └─────────────┘ └─────────────┘           │
 └─────────────────────────────────────────────────────────────┘
@@ -19,21 +29,27 @@ JobTracker sử dụng kiến trúc **Monolithic** với thiết kế modular, �
                               │ WebSocket
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                Backend (Spring Boot 3)                     │
+│         Backend (Spring Boot 3) - Multi-Tenant              │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
 │  │  Security   │ │   Business  │ │   Data      │           │
 │  │   Layer     │ │   Logic     │ │   Access    │           │
-│  │             │ │   Layer     │ │   Layer     │           │
+│  │(Multi-Tenant│ │   Layer     │ │   Layer     │           │
+│  │  Filter)    │ │             │ │(Company_ID) │           │
 │  └─────────────┘ └─────────────┘ └─────────────┘           │
 └─────────────────────────────────────────────────────────────┘
                               │
                               │ JPA/Hibernate
+                              │ (Auto-filter by company_id)
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    Database (MySQL 8.0)                    │
+│         Database (MySQL 8.0) - Multi-Tenant                │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
-│  │   Users     │ │    Jobs     │ │   Files     │           │
-│  │   Tables    │ │   Tables    │ │   Tables    │           │
+│  │ Companies   │ │   Jobs      │ │Applications │           │
+│  │  (Tenants)  │ │ (Postings)  │ │  (CORE ATS) │           │
+│  └─────────────┘ └─────────────┘ └─────────────┘           │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│  │   Users     │ │ Interviews  │ │  Comments  │           │
+│  │(HR/Recruiter│ │             │ │             │           │
 │  └─────────────┘ └─────────────┘ └─────────────┘           │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -48,116 +64,124 @@ JobTracker sử dụng kiến trúc **Monolithic** với thiết kế modular, �
 - **Spring Framework 6**: Dependency injection, AOP, MVC
 
 #### Data Layer
-- **Spring Data JPA**: ORM abstraction layer
-- **Hibernate 6**: JPA implementation với performance improvements
-- **MySQL 8.0**: Primary database với JSON support
-- **HikariCP**: Connection pooling (default trong Spring Boot 3)
+- **Spring Data JPA**: Lớp trừu tượng ORM
+- **Hibernate 6**: Triển khai JPA với cải thiện hiệu suất
+- **MySQL 8.0**: Database chính với hỗ trợ JSON
+- **HikariCP**: Pool kết nối (mặc định trong Spring Boot 3)
 
 #### Security
-- **Spring Security 6**: Authentication & Authorization
-- **OAuth2 Resource Server**: JWT token validation from Authorization Server
-- **OAuth2 Client**: Google login integration
-- **BCrypt**: Password hashing
-- **CORS**: Cross-origin resource sharing
+- **Spring Security 6**: Xác thực và Phân quyền
+- **OAuth2 Resource Server**: Xác thực JWT token từ Authorization Server
+- **OAuth2 Client**: Tích hợp đăng nhập Google
+- **BCrypt**: Băm mật khẩu
+- **CORS**: Chia sẻ tài nguyên đa nguồn gốc
+- **Bảo mật Multi-Tenant**: Cô lập dữ liệu theo công ty với `@Filter` và lọc `company_id`
+- **RBAC**: Kiểm soát truy cập dựa trên vai trò (COMPANY_ADMIN, RECRUITER, HIRING_MANAGER, INTERVIEWER)
 
 #### Validation & Processing
-- **Jakarta Validation**: Bean validation (JSR-380)
-- **Hibernate Validator**: Validation implementation
-- **MapStruct**: Entity ↔ DTO mapping
-- **Jackson**: JSON serialization/deserialization
+- **Jakarta Validation**: Xác thực Bean (JSR-380)
+- **Hibernate Validator**: Triển khai xác thực
+- **MapStruct**: Ánh xạ Entity ↔ DTO
+- **Jackson**: Tuần tự hóa/Giải tuần tự hóa JSON
 
 #### Communication
-- **Spring Web**: REST API endpoints
-- **Spring WebSocket**: Real-time notifications
-- **STOMP**: WebSocket sub-protocol
-- **Spring Mail**: Email notifications
-- **Thymeleaf**: Email templates
+- **Spring Web**: Điểm cuối REST API
+- **Spring WebSocket**: Thông báo thời gian thực
+- **STOMP**: Giao thức con WebSocket
+- **Brevo API**: Gửi email transactional (thay thế Spring Mail)
+- **Thymeleaf**: Mẫu email (optional, có thể dùng Brevo templates)
 
 #### External Integrations
-- **Dropbox API**: File storage service
-- **Google OAuth2**: Social login
-- **SMTP**: Email delivery
+- **Cloudinary API**: Dịch vụ lưu trữ file và quản lý media
+- **Google OAuth2**: Đăng nhập xã hội
+- **Brevo API**: Gửi email và quản lý email marketing
 
 #### Scheduling & Events
-- **Spring @Scheduled**: Cron jobs cho reminders
-- **ApplicationEventPublisher**: Event-driven architecture
-- **@Async**: Asynchronous processing
+- **Spring @Scheduled**: Cron jobs cho nhắc nhở
+- **ApplicationEventPublisher**: Kiến trúc hướng sự kiện
+- **@Async**: Xử lý bất đồng bộ
 
 #### Documentation & Monitoring
-- **SpringDoc OpenAPI 3**: API documentation
-- **Spring Boot Actuator**: Health checks, metrics
-- **SLF4J + Logback**: Logging framework
-- **Micrometer**: Application metrics
+- **SpringDoc OpenAPI 3**: Tài liệu API
+- **Spring Boot Actuator**: Kiểm tra sức khỏe, số liệu
+- **SLF4J + Logback**: Framework ghi log
+- **Micrometer**: Số liệu ứng dụng
 
 ### Frontend Stack
 
 #### Core Framework
-- **React 18**: UI library với Concurrent Features
-- **JavaScript ES6+**: Modern JavaScript features
-- **Create React App (CRA)**: Build tool và development server
-- **Webpack**: Module bundler (built-in CRA)
+- **React 18**: Thư viện UI với Concurrent Features
+- **JavaScript ES6+**: Tính năng JavaScript hiện đại
+- **Create React App (CRA)**: Công cụ build và development server
+- **Webpack**: Module bundler (tích hợp sẵn trong CRA)
 
 #### State Management
-- **Redux Toolkit**: Predictable state container
-- **RTK Query**: Data fetching và caching
-- **React Redux**: React bindings
+- **Redux Toolkit**: Container trạng thái dự đoán được
+- **RTK Query**: Lấy dữ liệu và caching
+- **React Redux**: Liên kết React
 
 #### Routing & Navigation
-- **React Router v6**: Client-side routing
-- **React Router DOM**: Browser routing
-- **Lazy Loading**: Code splitting cho performance
+- **React Router v6**: Định tuyến phía client
+- **React Router DOM**: Định tuyến trình duyệt
+- **Lazy Loading**: Tách code cho hiệu suất
 
 #### UI & Styling
-- **TailwindCSS**: Utility-first CSS framework
-- **shadcn/ui**: Pre-built component library
-- **Lucide React**: Icon library
-- **React Hook Form**: Form management
-- **Yup**: Schema validation
+- **TailwindCSS**: Framework CSS utility-first
+- **shadcn/ui**: Thư viện component có sẵn
+- **Lucide React**: Thư viện icon
+- **React Hook Form**: Quản lý form
+- **Yup**: Xác thực schema
 
 #### Data & Communication
 - **Axios**: HTTP client với interceptors
-- **React Query**: Server state management
-- **WebSocket**: Real-time communication
-- **React Toastify**: Toast notifications
+- **React Query**: Quản lý trạng thái server
+- **WebSocket**: Giao tiếp thời gian thực
+- **React Toastify**: Thông báo toast
 
 #### Charts & Visualization
-- **Recharts**: Chart library
-- **React Quill**: Rich text editor
-- **React Dropzone**: File upload
-- **dayjs**: Date manipulation
+- **Recharts**: Thư viện biểu đồ
+- **React Quill**: Trình soạn thảo văn bản phong phú
+- **React Dropzone**: Tải file lên
+- **dayjs**: Thao tác ngày tháng
 
 ### Database Design
 
 #### Primary Database: MySQL 8.0
-- **ACID Compliance**: Transactional integrity
-- **JSON Support**: Flexible data storage
-- **Full-text Search**: Advanced search capabilities
-- **Indexing**: Performance optimization
-- **Replication**: High availability
+- **ACID Compliance**: Tính toàn vẹn giao dịch
+- **JSON Support**: Lưu trữ dữ liệu linh hoạt
+- **Full-text Search**: Khả năng tìm kiếm nâng cao
+- **Indexing**: Tối ưu hiệu suất (đặc biệt composite indexes multi-tenant)
+- **Replication**: Tính khả dụng cao
+- **Kiến trúc Multi-Tenant**: Cô lập dữ liệu bằng `company_id` trong tất cả bảng nghiệp vụ
+- **UUID Primary Keys**: VARCHAR(36) cho tất cả primary keys (bảo mật & hệ thống phân tán)
 
 #### Connection Management
-- **HikariCP**: High-performance connection pool
-- **Connection Pool Size**: 10-20 connections
-- **Timeout Configuration**: 30s connection timeout
-- **Health Checks**: Connection validation
+- **HikariCP**: Pool kết nối hiệu suất cao
+- **Kích thước Pool**: 10-20 kết nối
+- **Cấu hình Timeout**: Timeout kết nối 30s
+- **Health Checks**: Xác thực kết nối
 
 ### External Services
 
-#### File Storage: Dropbox API
-- **REST API**: File upload/download
-- **OAuth2**: Secure authentication
-- **Webhooks**: File change notifications
-- **Sharing Links**: Public file access
+#### File Storage: Cloudinary
+- **REST API**: Tải lên/Tải xuống file và hình ảnh
+- **Image Transformation**: Tự động resize, crop, optimize hình ảnh
+- **Video Support**: Quản lý video files
+- **CDN Delivery**: Phân phối nội dung qua CDN
+- **API Key Authentication**: Xác thực bằng API key và secret
+- **Public/Private URLs**: Hỗ trợ cả public và private file access
 
-#### Email Service: SMTP
-- **Spring Mail**: Email abstraction
-- **Thymeleaf**: HTML email templates
-- **Async Processing**: Non-blocking email sending
-- **Retry Logic**: Failed email handling
+#### Email Service: Brevo (formerly Sendinblue)
+- **Brevo API**: REST API để gửi transactional emails
+- **Template Management**: Quản lý email templates trên Brevo dashboard
+- **Email Tracking**: Theo dõi email delivery, opens, clicks
+- **Async Processing**: Gửi email không chặn
+- **Retry Logic**: Xử lý email thất bại với retry mechanism
+- **SMTP Alternative**: Có thể dùng SMTP relay nếu cần
 
 #### Authentication: Google OAuth2
-- **OAuth2 Client**: Social login
-- **User Profile**: Google account integration
+- **OAuth2 Client**: Đăng nhập xã hội
+- **User Profile**: Tích hợp tài khoản Google
 - **Token Management**: Access/refresh tokens
 
 ## 🏛️ Kiến trúc Backend (Monolithic)
@@ -172,31 +196,63 @@ com.jobtracker
 │   └── WebSocketConfig.java
 ├── controller/             # REST Controllers
 │   ├── AuthController.java
-│   ├── JobController.java
+│   ├── JobController.java      # Job Postings (ATS)
+│   ├── ApplicationController.java ➕ # Applications (CORE ATS)
+│   ├── CommentController.java ➕
+│   ├── InterviewController.java
 │   ├── UserController.java
-│   └── FileController.java
+│   ├── CompanyController.java
+│   ├── FileController.java      # Attachments
+│   ├── NotificationController.java
+│   └── DashboardController.java
 ├── dto/                    # Data Transfer Objects
 │   ├── request/           # Request DTOs
 │   └── response/          # Response DTOs
 ├── entity/                 # JPA Entities
-│   ├── User.java
-│   ├── Job.java
-│   ├── Company.java
-│   └── Resume.java
+│   ├── User.java           # HR/Recruiter (multi-tenant với company_id)
+│   ├── Company.java        # Tenant (multi-tenant root)
+│   ├── Job.java            # Job Postings (ATS semantic)
+│   ├── Application.java    # Applications (CORE ATS entity) ➕
+│   ├── ApplicationStatusHistory.java ➕
+│   ├── Comment.java        # Comments on applications ➕
+│   ├── Interview.java      # Interviews (link to applications)
+│   ├── Attachment.java     # Attachments (link to applications)
+│   ├── Skill.java          # Skills
+│   ├── Role.java           # RBAC Roles
+│   └── Permission.java     # RBAC Permissions
 ├── repository/             # Data Access Layer
 │   ├── UserRepository.java
+│   ├── CompanyRepository.java
 │   ├── JobRepository.java
-│   └── CompanyRepository.java
+│   ├── ApplicationRepository.java ➕
+│   ├── ApplicationStatusHistoryRepository.java ➕
+│   ├── CommentRepository.java ➕
+│   ├── InterviewRepository.java
+│   ├── AttachmentRepository.java
+│   └── SkillRepository.java
 ├── service/                # Business Logic Layer
 │   ├── AuthService.java
-│   ├── JobService.java
-│   ├── UserService.java
-│   └── NotificationService.java
+│   ├── CompanyService.java      # Multi-tenant management
+│   ├── UserService.java         # HR/Recruiter management
+│   ├── JobService.java          # Job Postings (ATS)
+│   ├── ApplicationService.java ➕ # Applications (CORE ATS)
+│   ├── CommentService.java ➕
+│   ├── InterviewService.java
+│   ├── AttachmentService.java
+│   ├── CloudinaryService.java      # Cloudinary integration ➕
+│   ├── BrevoService.java           # Brevo email integration ➕
+│   ├── NotificationService.java
+│   └── DashboardService.java
 ├── security/               # Security Components
 │   ├── JwtTokenProvider.java
 │   ├── JwtAuthenticationFilter.java
-│   └── CustomUserDetailsService.java
+│   ├── CustomUserDetailsService.java
+│   ├── TenantFilter.java ➕        # Multi-tenant data filtering
+│   └── CompanySecurityContext.java ➕ # Company context holder
 ├── event/                  # Event Handling
+│   ├── ApplicationReceivedEvent.java ➕
+│   ├── ApplicationStatusChangedEvent.java ➕
+│   ├── InterviewScheduledEvent.java
 │   ├── JobDeadlineEvent.java
 │   └── EventListener.java
 ├── scheduler/              # Scheduled Tasks
@@ -213,111 +269,213 @@ com.jobtracker
 ### Layer Responsibilities
 
 #### 1. Controller Layer
-- **REST API endpoints**
-- **Request/Response mapping**
-- **Input validation**
-- **Error handling**
-- **Authentication checks**
+- **Điểm cuối REST API**
+- **Ánh xạ Request/Response**
+- **Xác thực đầu vào**
+- **Xử lý lỗi**
+- **Kiểm tra xác thực**
 
 #### 2. Service Layer
-- **Business logic implementation**
-- **Transaction management**
-- **External service integration**
-- **Event publishing**
-- **Data transformation**
+- **Triển khai logic nghiệp vụ**
+- **Quản lý giao dịch**
+- **Tích hợp dịch vụ bên ngoài**
+- **Xuất bản sự kiện**
+- **Chuyển đổi dữ liệu**
 
 #### 3. Repository Layer
-- **Data access abstraction**
-- **Custom queries**
-- **Pagination support**
+- **Trừu tượng truy cập dữ liệu**
+- **Truy vấn tùy chỉnh**
+- **Hỗ trợ phân trang**
 - **Specification pattern**
 
 #### 4. Entity Layer
-- **Database mapping**
-- **Relationships definition**
-- **Validation constraints**
-- **Audit fields**
+- **Ánh xạ database**
+- **Định nghĩa quan hệ**
+- **Ràng buộc xác thực**
+- **Trường audit**
+- **Trường multi-tenant**: `company_id` trong tất cả business entities
+- **Hibernate Filters**: Tự động lọc theo `company_id`
+
+## 📋 ATS Workflow Architecture
+
+### Application Lifecycle (CORE ATS)
+```
+1. Job Posting Created (DRAFT)
+   ↓
+2. Job Published (PUBLISHED) → Candidates can apply
+   ↓
+3. Application Received (NEW)
+   ↓
+4. Screening Phase (SCREENING) → HR reviews CV
+   ↓
+5. Interview Phase (INTERVIEWING) → Multiple interview rounds
+   ↓
+6. Offer Phase (OFFERED) → Job offer extended
+   ↓
+7. Final Status (HIRED or REJECTED)
+```
+
+### Các thành phần ATS chính
+- **Applications**: Entity cốt lõi - ứng viên ứng tuyển vào job postings
+- **Application Status History**: Dấu vết audit cho thay đổi trạng thái
+- **Comments**: Cộng tác nhóm về ứng viên
+- **Interviews**: Nhiều vòng phỏng vấn cho mỗi application
+- **Attachments**: CV, chứng chỉ, portfolio
+- **Notifications**: Cập nhật thời gian thực về trạng thái application
+
+### Luồng dữ liệu Multi-Tenant
+```
+User Login → Trích xuất company_id từ JWT → Đặt Tenant Context
+                ↓
+API Request → Tenant Filter → Tự động lọc theo company_id
+                ↓
+Database Query → WHERE company_id = :tenantId → Trả về dữ liệu cô lập
+```
 
 ## 🔄 Data Flow
 
-### 1. Authentication Flow
+### 1. Authentication Flow (Multi-Tenant)
 ```
-User Login → OAuth2 Authorization Server → JWT Token → Resource Server Validation
+User Login → OAuth2 Authorization Server → JWT Token (with company_id) → Resource Server Validation
                 ↓
-User Info ← OAuth2UserService ← Token Validation ← JWT Claims
+Extract company_id from JWT → Set Tenant Context → User Info
+                ↓
+OAuth2UserService ← Token Validation ← JWT Claims (company_id, role, permissions)
 ```
 
-### 2. Job Management Flow
+### 2. Job Posting Flow (ATS)
 ```
-Create Job → JobController → JobService → JobRepository → Database
+Create Job Posting → JobController → JobService → JobRepository → Database
+                ↓
+Publish Job → Event Publishing → NotificationService → Email/WebSocket
+```
+
+### 3. Application Workflow (CORE ATS) ➕
+```
+Candidate Applies → ApplicationController → ApplicationService → ApplicationRepository
+                ↓
+Status Update (NEW → SCREENING → INTERVIEWING → OFFERED → HIRED/REJECTED)
+                ↓
+ApplicationStatusHistory → Comments → Interviews → Attachments
                 ↓
 Event Publishing → NotificationService → Email/WebSocket
 ```
 
-### 3. File Upload Flow
+### 4. File Upload Flow (Attachments to Applications)
 ```
-Upload File → FileController → DropboxService → Dropbox API
+Upload Attachment → AttachmentController → AttachmentService → CloudinaryService → Cloudinary API
                 ↓
-File URL ← Database Update ← File Metadata
+Image Optimization → CDN URL Generation → Link to Application → ApplicationRepository → Database
+                ↓
+File URL (CDN) ← Database Update ← File Metadata (public_id, format, size)
 ```
 
 ## 🚀 Performance Considerations
 
-### Database Optimization
-- **Indexing Strategy**: Primary keys, foreign keys, search fields
-- **Query Optimization**: N+1 problem prevention
-- **Connection Pooling**: HikariCP configuration
-- **Caching**: Spring Cache với Redis (future)
+### Tối ưu Database
+- **Chiến lược Indexing**: Primary keys, foreign keys, các trường tìm kiếm
+- **Indexes Multi-Tenant**: Composite indexes trên `(company_id, ...)` cho tất cả truy vấn
+- **Tối ưu truy vấn**: Ngăn chặn vấn đề N+1, tự động lọc `company_id`
+- **Connection Pooling**: Cấu hình HikariCP
+- **Caching**: Spring Cache với Redis (tương lai) - caching theo tenant
 
-### Application Performance
-- **Lazy Loading**: JPA relationships
-- **Pagination**: Large dataset handling
-- **Async Processing**: Email, file upload
-- **Connection Pooling**: Database connections
+### Hiệu suất ứng dụng
+- **Lazy Loading**: Quan hệ JPA
+- **Pagination**: Xử lý dataset lớn
+- **Xử lý bất đồng bộ**: Email, tải file lên
+- **Connection Pooling**: Kết nối database
 
-### Frontend Performance
-- **Code Splitting**: Route-based splitting
-- **Lazy Loading**: Component lazy loading
+### Hiệu suất Frontend
+- **Code Splitting**: Tách dựa trên route
+- **Lazy Loading**: Tải component lười
 - **Memoization**: React.memo, useMemo
-- **Bundle Optimization**: CRA build optimization
+- **Tối ưu Bundle**: Tối ưu build CRA
+
+## 🏢 Multi-Tenant Architecture
+
+### Mô hình Tenant
+- **Company là Tenant**: Mỗi company = 1 tenant trong hệ thống
+- **Cô lập dữ liệu**: Tất cả dữ liệu nghiệp vụ được cô lập bằng `company_id`
+- **Database dùng chung**: Single database với bảo mật cấp hàng
+- **Tenant Context**: JWT token chứa `company_id`, tự động inject vào mọi request
+
+### Chiến lược cô lập dữ liệu
+- **Hibernate Filter**: `@FilterDef` và `@Filter` để tự động lọc theo `company_id`
+- **Repository Level**: Tất cả truy vấn tự động thêm `WHERE company_id = :tenantId`
+- **Service Level**: Xác thực user thuộc company trước khi truy cập dữ liệu
+- **Controller Level**: Trích xuất `company_id` từ JWT token hoặc user context
+
+### Multi-Tenant Implementation
+```java
+// Entity level - Auto filter
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = "string"))
+@Filter(name = "tenantFilter", condition = "company_id = :tenantId")
+@Entity
+public class Application {
+    @Column(name = "company_id", nullable = false)
+    private String companyId;
+}
+
+// Service level - Set tenant context
+@Service
+public class ApplicationService {
+    @Autowired
+    private TenantContext tenantContext;
+    
+    public List<Application> getAllApplications() {
+        String companyId = tenantContext.getCurrentCompanyId();
+        return applicationRepository.findByCompanyId(companyId);
+    }
+}
+```
+
+### Bảo mật Tenant
+- **JWT Claims**: `company_id` trong JWT token
+- **Xác thực Context**: Xác minh `company_id` của user khớp với request context
+- **Ngăn chặn Cross-Tenant**: Không cho phép truy cập dữ liệu của tenant khác
+- **Audit Trail**: Ghi log tất cả các nỗ lực truy cập cross-tenant
 
 ## 🔒 Security Architecture
 
-### Authentication
-- **JWT Tokens**: Stateless authentication
-- **Refresh Tokens**: Token renewal
-- **OAuth2**: Social login integration
+### Xác thực
+- **JWT Tokens**: Xác thực không trạng thái
+- **Refresh Tokens**: Gia hạn token
+- **OAuth2**: Tích hợp đăng nhập xã hội
 - **Password Hashing**: BCrypt
 
-### Authorization
-- **Role-based Access**: USER, ADMIN roles
-- **Method-level Security**: @PreAuthorize
-- **Resource-level Security**: User data isolation
+### Phân quyền
+- **Truy cập dựa trên vai trò**: Các vai trò COMPANY_ADMIN, RECRUITER, HIRING_MANAGER, INTERVIEWER
+- **Truy cập dựa trên quyền**: Quyền chi tiết (JOB_CREATE, APPLICATION_VIEW, etc.)
+- **Bảo mật cấp phương thức**: @PreAuthorize với company context
+- **Bảo mật cấp tài nguyên**: Cô lập dữ liệu multi-tenant (tự động lọc `company_id`)
+- **Cô lập Tenant**: Hibernate Filter để tự động lọc theo `company_id`
 
-### Data Protection
-- **Input Validation**: Jakarta Validation
-- **SQL Injection Prevention**: JPA/Hibernate
-- **XSS Protection**: Input sanitization
-- **CORS Configuration**: Cross-origin security
+### Bảo vệ dữ liệu
+- **Xác thực đầu vào**: Jakarta Validation
+- **Ngăn chặn SQL Injection**: JPA/Hibernate
+- **Bảo vệ XSS**: Làm sạch đầu vào
+- **Cấu hình CORS**: Bảo mật đa nguồn gốc
+- **Cô lập dữ liệu Multi-Tenant**: Tự động lọc `company_id` ở tất cả truy vấn
+- **Xác thực Tenant Context**: Xác minh user thuộc company trước khi truy cập dữ liệu
 
 ## 📊 Monitoring & Observability
 
-### Application Metrics
-- **Spring Boot Actuator**: Health checks, metrics
-- **Micrometer**: Application metrics
-- **Custom Metrics**: Business metrics
+### Số liệu ứng dụng
+- **Spring Boot Actuator**: Health checks, số liệu
+- **Micrometer**: Số liệu ứng dụng
+- **Custom Metrics**: Số liệu nghiệp vụ
 
-### Logging Strategy
-- **Structured Logging**: JSON format
+### Chiến lược ghi log
+- **Structured Logging**: Định dạng JSON
 - **Log Levels**: DEBUG, INFO, WARN, ERROR
-- **Correlation IDs**: Request tracing
-- **Audit Logging**: User actions
+- **Correlation IDs**: Theo dõi request
+- **Audit Logging**: Hành động của user
 
-### Error Handling
-- **Global Exception Handler**: Centralized error handling
-- **Custom Exceptions**: Business-specific errors
-- **Error Response Format**: Consistent error format
-- **Error Monitoring**: Exception tracking
+### Xử lý lỗi
+- **Global Exception Handler**: Xử lý lỗi tập trung
+- **Custom Exceptions**: Lỗi cụ thể nghiệp vụ
+- **Error Response Format**: Định dạng lỗi nhất quán
+- **Error Monitoring**: Theo dõi exception
 
 ## 🔄 Deployment Architecture
 
@@ -326,9 +484,11 @@ File URL ← Database Update ← File Metadata
 Developer Machine → Local MySQL → Spring Boot App → React Dev Server
 ```
 
-### Production Environment
+### Production Environment (Multi-Tenant)
 ```
-Load Balancer → Spring Boot App → MySQL Cluster → External Services
+Load Balancer → Spring Boot App (Multi-Tenant) → MySQL Cluster (Shared Database)
+                ↓
+Tenant Isolation Layer → Company-based Data Filtering → External Services
 ```
 
 ### Docker Architecture
@@ -343,37 +503,43 @@ Docker Compose:
 
 ## 🎯 Scalability Considerations
 
-### Horizontal Scaling
-- **Stateless Design**: JWT-based authentication
-- **Database Connection Pooling**: HikariCP
-- **Load Balancer Ready**: Multiple app instances
+### Mở rộng ngang
+- **Thiết kế không trạng thái**: Xác thực dựa trên JWT
+- **Sẵn sàng Multi-Tenant**: Không trạng thái với company context trong JWT
+- **Pool kết nối Database**: HikariCP
+- **Sẵn sàng Load Balancer**: Nhiều instance ứng dụng (shared database)
+- **Cô lập Tenant**: Mỗi request tự động lọc theo `company_id`
 
-### Vertical Scaling
-- **Memory Optimization**: JVM tuning
-- **Database Optimization**: Query optimization
-- **Caching Strategy**: Application-level caching
+### Mở rộng dọc
+- **Tối ưu bộ nhớ**: Điều chỉnh JVM
+- **Tối ưu Database**: Tối ưu truy vấn
+- **Chiến lược Caching**: Caching cấp ứng dụng
 
-### Future Microservices Migration
-- **Modular Design**: Clear service boundaries
-- **Event-driven Architecture**: Loose coupling
-- **API Gateway Ready**: RESTful APIs
-- **Database Per Service**: Service isolation
+### Di chuyển Microservices trong tương lai
+- **Thiết kế Modular**: Ranh giới service rõ ràng (Jobs, Applications, Interviews, etc.)
+- **Kiến trúc hướng sự kiện**: Ghép nối lỏng với ApplicationEvents
+- **Sẵn sàng API Gateway**: RESTful APIs với hỗ trợ multi-tenant
+- **Database Per Service**: Cô lập service (có thể tách Applications service riêng)
+- **Chiến lược Multi-Tenant**: Shared database → Database per tenant (mở rộng tương lai)
 
 ## 📈 Monitoring & Alerting
 
-### Application Health
+### Sức khỏe ứng dụng
 - **Health Endpoints**: /actuator/health
 - **Metrics Endpoints**: /actuator/metrics
-- **Custom Health Checks**: Database, external services
+- **Custom Health Checks**: Database, dịch vụ bên ngoài
 
-### Business Metrics
-- **User Registration Rate**: Daily active users
-- **Job Creation Rate**: Jobs per day
-- **Email Delivery Rate**: Notification success
-- **API Response Time**: Performance metrics
+### Số liệu nghiệp vụ
+- **Tỷ lệ đăng ký User**: Số user hoạt động hàng ngày mỗi company
+- **Tỷ lệ tạo Job Posting**: Số job postings mỗi ngày mỗi company
+- **Tỷ lệ Application**: Số applications nhận được mỗi job posting
+- **Số liệu Hiring Funnel**: Tỷ lệ chuyển đổi NEW → SCREENING → INTERVIEWING → OFFERED → HIRED
+- **Time-to-Hire**: Thời gian trung bình từ application đến hire
+- **Tỷ lệ gửi Email**: Thành công thông báo
+- **Thời gian phản hồi API**: Số liệu hiệu suất mỗi tenant
 
-### Error Tracking
-- **Exception Monitoring**: Error rates
-- **Failed Authentication**: Security monitoring
-- **Database Errors**: Data integrity
-- **External Service Failures**: Integration monitoring
+### Theo dõi lỗi
+- **Giám sát Exception**: Tỷ lệ lỗi
+- **Xác thực thất bại**: Giám sát bảo mật
+- **Lỗi Database**: Tính toàn vẹn dữ liệu
+- **Lỗi dịch vụ bên ngoài**: Giám sát tích hợp

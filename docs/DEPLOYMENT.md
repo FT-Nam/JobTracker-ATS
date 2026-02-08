@@ -1,8 +1,8 @@
-# 🚀 JobTracker Deployment Guide
+# 🚀 JobTracker ATS Deployment Guide
 
 ## 📋 Tổng quan Deployment
 
-JobTracker được thiết kế để deploy dễ dàng với Docker và Docker Compose, hỗ trợ cả môi trường development và production.
+JobTracker ATS được thiết kế để deploy dễ dàng với Docker và Docker Compose, hỗ trợ cả môi trường development và production cho kiến trúc **multi-tenant**.
 
 ## 🏗️ Kiến trúc Deployment
 
@@ -182,13 +182,12 @@ services:
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       JWT_SECRET: your-secret-key-here
-      DROPBOX_ACCESS_TOKEN: your-dropbox-token
+      CLOUDINARY_CLOUD_NAME: your-cloudinary-cloud-name
+      CLOUDINARY_API_KEY: your-cloudinary-api-key
+      CLOUDINARY_API_SECRET: your-cloudinary-api-secret
+      BREVO_API_KEY: your-brevo-api-key
       GOOGLE_CLIENT_ID: your-google-client-id
       GOOGLE_CLIENT_SECRET: your-google-client-secret
-      SMTP_HOST: smtp.gmail.com
-      SMTP_PORT: 587
-      SMTP_USERNAME: your-email@gmail.com
-      SMTP_PASSWORD: your-app-password
     ports:
       - "8080:8080"
     depends_on:
@@ -299,13 +298,12 @@ services:
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       JWT_SECRET: ${JWT_SECRET}
-      DROPBOX_ACCESS_TOKEN: ${DROPBOX_ACCESS_TOKEN}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      BREVO_API_KEY: ${BREVO_API_KEY}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_USERNAME: ${SMTP_USERNAME}
-      SMTP_PASSWORD: ${SMTP_PASSWORD}
     depends_on:
       mysql:
         condition: service_healthy
@@ -629,20 +627,6 @@ spring:
         min-idle: 5
         max-wait: 2000ms
   
-  mail:
-    host: ${SMTP_HOST}
-    port: ${SMTP_PORT:587}
-    username: ${SMTP_USERNAME}
-    password: ${SMTP_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-          ssl:
-            trust: ${SMTP_HOST}
-  
   security:
     oauth2:
       client:
@@ -681,7 +665,7 @@ app:
   
   notification:
     email:
-      from: ${SMTP_USERNAME}
+      from: noreply@jobtracker.com
       reply-to: noreply@jobtracker.com
     reminder:
       days-before: 3
@@ -729,20 +713,17 @@ MYSQL_PASSWORD=password
 # JWT
 JWT_SECRET=your-development-secret-key-here
 
-# Dropbox
-DROPBOX_ACCESS_TOKEN=your-dropbox-token
-DROPBOX_APP_KEY=your-dropbox-app-key
-DROPBOX_APP_SECRET=your-dropbox-app-secret
+# Cloudinary (File Storage)
+CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+
+# Brevo (Email Service)
+BREVO_API_KEY=your-brevo-api-key
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-
-# Email
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
 ```
 
 ### Production (.env.prod)
@@ -754,20 +735,17 @@ MYSQL_PASSWORD=super-secure-password
 # JWT
 JWT_SECRET=super-secure-jwt-secret-key-256-bits
 
-# Dropbox
-DROPBOX_ACCESS_TOKEN=production-dropbox-token
-DROPBOX_APP_KEY=production-dropbox-app-key
-DROPBOX_APP_SECRET=production-dropbox-app-secret
+# Cloudinary (File Storage)
+CLOUDINARY_CLOUD_NAME=production-cloudinary-cloud-name
+CLOUDINARY_API_KEY=production-cloudinary-api-key
+CLOUDINARY_API_SECRET=production-cloudinary-api-secret
+
+# Brevo (Email Service)
+BREVO_API_KEY=production-brevo-api-key
 
 # Google OAuth
 GOOGLE_CLIENT_ID=production-google-client-id
 GOOGLE_CLIENT_SECRET=production-google-client-secret
-
-# Email
-SMTP_HOST=smtp.sendgrid.net
-SMTP_PORT=587
-SMTP_USERNAME=apikey
-SMTP_PASSWORD=your-sendgrid-api-key
 ```
 
 ## 🚀 Deployment Scripts
@@ -832,7 +810,7 @@ echo "🔴 Redis: localhost:6379"
 #!/bin/bash
 # scripts/deploy-prod.sh
 
-echo "🚀 Deploying JobTracker to Production..."
+echo "🚀 Deploying JobTracker ATS to Production..."
 
 # Check if environment file exists
 if [ ! -f .env.prod ]; then
@@ -933,7 +911,7 @@ curl http://localhost:8080/actuator/health/custom
 #!/bin/bash
 # scripts/monitor.sh
 
-echo "📊 JobTracker Monitoring Dashboard"
+echo "📊 JobTracker ATS Monitoring Dashboard"
 echo "=================================="
 
 # Check Docker containers
@@ -1162,8 +1140,9 @@ jobs:
 - [ ] Monitor application logs
 - [ ] Check performance metrics
 - [ ] Verify SSL certificates
-- [ ] Test email notifications
-- [ ] Validate file uploads
+- [ ] Test email notifications (Brevo)
+- [ ] Validate file uploads (Cloudinary)
+- [ ] Test multi-tenant data isolation
 - [ ] Check WebSocket connections
 
 ## 🆘 Troubleshooting

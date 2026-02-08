@@ -1,8 +1,8 @@
-# 🔧 JobTracker Technical Specifications
+# 🔧 JobTracker ATS Technical Specifications
 
 ## 📋 Tổng quan kỹ thuật
 
-JobTracker được thiết kế với kiến trúc monolith hiện đại, sử dụng các công nghệ tiên tiến để đảm bảo hiệu suất, bảo mật và khả năng mở rộng.
+JobTracker ATS (Applicant Tracking System) được thiết kế với kiến trúc **monolith multi-tenant** hiện đại, sử dụng các công nghệ tiên tiến để đảm bảo hiệu suất, bảo mật và khả năng mở rộng cho nhiều SME/Startup.
 
 ## 🏗️ Kiến trúc hệ thống chi tiết
 
@@ -28,9 +28,11 @@ JobTracker được thiết kế với kiến trúc monolith hiện đại, sử
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-oauth2-client</artifactId>
     </dependency>
+    <!-- Brevo Email API (thay thế Spring Mail) -->
     <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-mail</artifactId>
+        <groupId>com.brevo</groupId>
+        <artifactId>sib-api-v3-sdk</artifactId>
+        <version>5.0.0</version>
     </dependency>
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -78,10 +80,16 @@ JobTracker được thiết kế với kiến trúc monolith hiện đại, sử
     </dependency>
     
     <!-- External APIs -->
+    <!-- Cloudinary SDK cho file storage -->
     <dependency>
-        <groupId>com.dropbox.core</groupId>
-        <artifactId>dropbox-core-sdk</artifactId>
-        <version>5.4.5</version>
+        <groupId>com.cloudinary</groupId>
+        <artifactId>cloudinary-http44</artifactId>
+        <version>1.38.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.cloudinary</groupId>
+        <artifactId>cloudinary-taglib</artifactId>
+        <version>1.38.0</version>
     </dependency>
     
     <!-- Documentation -->
@@ -114,23 +122,25 @@ JobTracker được thiết kế với kiến trúc monolith hiện đại, sử
 ```
 com.jobtracker
 ├── config/                     # Configuration classes
-│   ├── SecurityConfig.java     # Spring Security configuration
+│   ├── SecurityConfig.java     # Spring Security configuration (multi-tenant)
 │   ├── WebConfig.java          # Web MVC configuration
-│   ├── DatabaseConfig.java     # Database configuration
+│   ├── DatabaseConfig.java     # Database configuration (multi-tenant filters)
 │   ├── WebSocketConfig.java    # WebSocket configuration
-│   ├── MailConfig.java         # Email configuration
+│   ├── BrevoConfig.java        # Brevo email configuration ➕
+│   ├── CloudinaryConfig.java   # Cloudinary file storage configuration ➕
 │   └── SwaggerConfig.java      # OpenAPI configuration
 ├── controller/                 # REST Controllers
 │   ├── AuthController.java     # Authentication endpoints
-│   ├── UserController.java     # User management
-│   ├── JobController.java      # Job management
-│   ├── CompanyController.java  # Company management
-│   ├── SkillController.java    # Skills management
-│   ├── ResumeController.java   # Resume management
+│   ├── UserController.java     # User management (HR/Recruiter)
+│   ├── CompanyController.java  # Company management (Multi-tenant)
+│   ├── JobController.java      # Job Postings management (ATS)
+│   ├── ApplicationController.java ➕ # Applications management (CORE ATS)
+│   ├── CommentController.java ➕ # Comments management
 │   ├── InterviewController.java # Interview management
+│   ├── SkillController.java    # Skills management
 │   ├── NotificationController.java # Notifications
 │   ├── DashboardController.java # Dashboard analytics
-│   └── FileController.java     # File operations
+│   └── FileController.java     # File operations (Attachments)
 ├── dto/                        # Data Transfer Objects
 │   ├── request/               # Request DTOs
 │   │   ├── LoginRequest.java
@@ -145,47 +155,60 @@ com.jobtracker
 │       ├── DashboardResponse.java
 │       └── ApiResponse.java
 ├── entity/                     # JPA Entities
-│   ├── User.java              # User entity
-│   ├── Company.java           # Company entity
-│   ├── Job.java               # Job entity
+│   ├── User.java              # User entity (HR/Recruiter, multi-tenant)
+│   ├── Company.java           # Company entity (Tenant)
+│   ├── Job.java               # Job entity (Job Postings - ATS)
+│   ├── Application.java ➕     # Application entity (CORE ATS)
+│   ├── ApplicationStatusHistory.java ➕ # Application status history
+│   ├── Comment.java ➕         # Comment entity
+│   ├── Interview.java         # Interview entity (link to applications)
 │   ├── Skill.java             # Skill entity
-│   ├── UserSkill.java         # User-Skill relationship
 │   ├── JobSkill.java          # Job-Skill relationship
-│   ├── Interview.java         # Interview entity
-│   ├── Resume.java            # Resume entity
-│   ├── Attachment.java        # File attachment entity
-│   ├── Notification.java      # Notification entity
+│   ├── Attachment.java        # File attachment entity (link to applications)
+│   ├── Notification.java      # Notification entity (multi-tenant)
 │   ├── UserSession.java       # User session entity
-│   └── AuditLog.java          # Audit log entity
+│   ├── AuditLog.java          # Audit log entity (multi-tenant)
+│   ├── Role.java              # RBAC Role entity
+│   └── Permission.java        # RBAC Permission entity
 ├── repository/                 # Data Access Layer
-│   ├── UserRepository.java    # User data access
-│   ├── JobRepository.java     # Job data access
+│   ├── UserRepository.java    # User data access (multi-tenant)
 │   ├── CompanyRepository.java # Company data access
+│   ├── JobRepository.java     # Job data access (multi-tenant)
+│   ├── ApplicationRepository.java ➕ # Application data access (multi-tenant)
+│   ├── ApplicationStatusHistoryRepository.java ➕
+│   ├── CommentRepository.java ➕
+│   ├── InterviewRepository.java # Interview data access (multi-tenant)
 │   ├── SkillRepository.java   # Skill data access
-│   ├── InterviewRepository.java # Interview data access
-│   ├── ResumeRepository.java  # Resume data access
-│   └── NotificationRepository.java # Notification data access
+│   ├── AttachmentRepository.java # Attachment data access
+│   └── NotificationRepository.java # Notification data access (multi-tenant)
 ├── service/                    # Business Logic Layer
 │   ├── AuthService.java       # Authentication logic
-│   ├── UserService.java       # User management logic
-│   ├── JobService.java        # Job management logic
-│   ├── CompanyService.java    # Company management logic
-│   ├── SkillService.java      # Skill management logic
+│   ├── UserService.java       # User management logic (HR/Recruiter)
+│   ├── CompanyService.java    # Company management logic (Multi-tenant)
+│   ├── JobService.java        # Job Postings management logic (ATS)
+│   ├── ApplicationService.java ➕ # Application management logic (CORE ATS)
+│   ├── CommentService.java ➕  # Comment management logic
 │   ├── InterviewService.java  # Interview management logic
-│   ├── ResumeService.java     # Resume management logic
+│   ├── SkillService.java      # Skill management logic
+│   ├── AttachmentService.java # Attachment management logic
 │   ├── NotificationService.java # Notification logic
-│   ├── EmailService.java      # Email sending logic
-│   ├── FileService.java       # File operations logic
-│   └── DashboardService.java  # Analytics logic
+│   ├── BrevoService.java ➕    # Brevo email sending logic
+│   ├── CloudinaryService.java ➕ # Cloudinary file operations logic
+│   ├── DashboardService.java  # Analytics logic
+│   └── TenantService.java ➕   # Multi-tenant context management
 ├── security/                   # Security Components
-│   ├── JwtTokenProvider.java  # JWT token handling
+│   ├── JwtTokenProvider.java  # JWT token handling (với company_id)
 │   ├── JwtAuthenticationFilter.java # JWT filter
 │   ├── CustomUserDetailsService.java # User details service
 │   ├── PasswordEncoderConfig.java # Password encoding
-│   └── OAuth2UserService.java # OAuth2 user service
+│   ├── OAuth2UserService.java # OAuth2 user service
+│   ├── TenantFilter.java ➕   # Multi-tenant data filtering
+│   └── CompanySecurityContext.java ➕ # Company context holder
 ├── event/                      # Event Handling
+│   ├── ApplicationReceivedEvent.java ➕ # Application received event
+│   ├── ApplicationStatusChangedEvent.java ➕ # Application status change event
+│   ├── InterviewScheduledEvent.java # Interview scheduled event
 │   ├── JobDeadlineEvent.java  # Job deadline event
-│   ├── InterviewReminderEvent.java # Interview reminder event
 │   └── EventListener.java     # Event listeners
 ├── scheduler/                  # Scheduled Tasks
 │   ├── ReminderScheduler.java # Reminder scheduling
@@ -199,7 +222,8 @@ com.jobtracker
 │   ├── DateUtils.java         # Date utilities
 │   ├── ValidationUtils.java   # Validation utilities
 │   ├── FileUtils.java         # File utilities
-│   └── EmailUtils.java        # Email utilities
+│   ├── EmailUtils.java        # Email utilities
+│   └── TenantUtils.java ➕    # Multi-tenant utilities
 ├── mapper/                     # MapStruct Mappers
 │   ├── UserMapper.java        # User entity-DTO mapping
 │   ├── JobMapper.java         # Job entity-DTO mapping
@@ -249,13 +273,14 @@ com.jobtracker
 ```
 src/
 ├── api/                        # API layer
-│   ├── axios.js               # Axios configuration
+│   ├── axios.js               # Axios configuration (với company_id header)
 │   ├── auth.js                # Authentication API
-│   ├── jobs.js                # Jobs API
+│   ├── jobs.js                # Job Postings API
+│   ├── applications.js ➕      # Applications API (CORE ATS)
+│   ├── comments.js ➕          # Comments API
 │   ├── users.js               # Users API
 │   ├── companies.js           # Companies API
 │   ├── skills.js              # Skills API
-│   ├── resumes.js             # Resumes API
 │   ├── interviews.js          # Interviews API
 │   └── notifications.js       # Notifications API
 ├── components/                 # React Components
@@ -304,9 +329,10 @@ src/
 │   ├── companies/             # Company pages
 │   │   ├── CompaniesPage.jsx  # Companies list page
 │   │   └── CompanyDetailPage.jsx # Company detail page
-│   ├── resumes/               # Resume pages
-│   │   ├── ResumesPage.jsx    # Resumes list page
-│   │   └── ResumeUploadPage.jsx # Resume upload page
+│   ├── applications/ ➕        # Application pages
+│   │   ├── ApplicationsPage.jsx # Applications list page
+│   │   ├── ApplicationDetailPage.jsx # Application detail page
+│   │   └── ApplicationCreatePage.jsx # Application create page
 │   ├── interviews/            # Interview pages
 │   │   ├── InterviewsPage.jsx # Interviews list page
 │   │   └── InterviewDetailPage.jsx # Interview detail page
@@ -321,7 +347,7 @@ src/
 │   ├── usersSlice.js          # Users slice
 │   ├── companiesSlice.js      # Companies slice
 │   ├── skillsSlice.js         # Skills slice
-│   ├── resumesSlice.js        # Resumes slice
+│   ├── applicationsSlice.js ➕ # Applications slice
 │   ├── interviewsSlice.js     # Interviews slice
 │   └── notificationsSlice.js  # Notifications slice
 ├── styles/                     # Styles
@@ -397,7 +423,19 @@ public class SecurityConfig {
         
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
+        // Extract company_id từ JWT claims và set vào SecurityContext
+        converter.setPrincipalClaimName("sub");
         return converter;
+    }
+    
+    // Multi-tenant filter - tự động filter theo company_id
+    @Bean
+    public FilterRegistrationBean<TenantFilter> tenantFilter() {
+        FilterRegistrationBean<TenantFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(new TenantFilter());
+        registration.addUrlPatterns("/api/*");
+        registration.setOrder(1);
+        return registration;
     }
 }
 ```
@@ -409,10 +447,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final CompanyService companyService; // Multi-tenant
     
-    public CustomOAuth2UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public CustomOAuth2UserService(UserRepository userRepository, 
+                                  RoleRepository roleRepository,
+                                  CompanyService companyService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.companyService = companyService;
     }
     
     @Override
@@ -439,8 +481,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
     
     private User createNewUser(OAuth2UserInfo userInfo) {
-        Role userRole = roleRepository.findByName("USER")
+        Role userRole = roleRepository.findByName("RECRUITER") // Default role cho ATS
             .orElseThrow(() -> new RuntimeException("Default role not found"));
+        
+        // Tạo hoặc lấy company mặc định (hoặc yêu cầu user chọn company)
+        Company defaultCompany = companyService.getOrCreateDefaultCompany();
         
         User user = new User();
         user.setEmail(userInfo.getEmail());
@@ -448,6 +493,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         user.setLastName(userInfo.getLastName());
         user.setAvatarUrl(userInfo.getImageUrl());
         user.setRole(userRole);
+        user.setCompany(defaultCompany); // Multi-tenant key
         user.setEmailVerified(true);
         user.setActive(true);
         
@@ -462,20 +508,23 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 ```java
 @Entity
 @Table(name = "jobs")
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = "string"))
+@Filter(name = "tenantFilter", condition = "company_id = :tenantId")
 @EntityListeners(AuditingEntityListener.class)
-public class Job {
+public class Job extends BaseFullAuditEntity {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36)
+    private String id;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User user; // HR/Recruiter tạo job posting
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)
-    private Company company;
+    private Company company; // Multi-tenant key
     
     @Column(nullable = false)
     private String title;
@@ -483,25 +532,28 @@ public class Job {
     @Column(nullable = false)
     private String position;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "job_type_id", nullable = false)
-    private JobType jobType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "job_type", nullable = false)
+    private JobType jobType; // ENUM: FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_id", nullable = false)
-    private JobStatus status;
-    
-    @Column(name = "application_date")
-    private LocalDate applicationDate;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "job_status", nullable = false)
+    private JobStatus jobStatus = JobStatus.DRAFT; // ENUM: DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED
     
     @Column(name = "deadline_date")
     private LocalDate deadlineDate;
     
-    @Column(name = "interview_date")
-    private LocalDate interviewDate;
+    @Column(name = "published_at")
+    private LocalDateTime publishedAt;
     
-    @Column(name = "offer_date")
-    private LocalDate offerDate;
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+    
+    @Column(name = "views_count")
+    private Integer viewsCount = 0;
+    
+    @Column(name = "applications_count")
+    private Integer applicationsCount = 0;
     
     @Column(name = "job_description", columnDefinition = "TEXT")
     private String jobDescription;
@@ -515,19 +567,8 @@ public class Job {
     @Column(name = "job_url")
     private String jobUrl;
     
-    @Column(columnDefinition = "TEXT")
-    private String notes;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "priority_id", nullable = false)
-    private Priority priority;
-    
     @Column(name = "is_remote")
     private Boolean isRemote = false;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "experience_level_id")
-    private ExperienceLevel experienceLevel;
     
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -538,30 +579,85 @@ public class Job {
     private Set<Skill> skills = new HashSet<>();
     
     @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Application> applications = new HashSet<>(); // Applications apply to this job
+    
+    // Audit fields inherited from BaseFullAuditEntity
+    // Constructors, getters, setters
+}
+```
+
+#### Application Entity Example (CORE ATS) ➕
+```java
+@Entity
+@Table(name = "applications")
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = "string"))
+@Filter(name = "tenantFilter", condition = "company_id = :tenantId")
+@EntityListeners(AuditingEntityListener.class)
+public class Application extends BaseFullAuditEntity {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36)
+    private String id;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "job_id", nullable = false)
+    private Job job;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company; // Multi-tenant key
+    
+    // Candidate Info
+    @Column(name = "candidate_name", nullable = false)
+    private String candidateName;
+    
+    @Column(name = "candidate_email", nullable = false)
+    private String candidateEmail;
+    
+    @Column(name = "candidate_phone")
+    private String candidatePhone;
+    
+    // Application Status Workflow
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ApplicationStatus status = ApplicationStatus.NEW; // ENUM: NEW, SCREENING, INTERVIEWING, OFFERED, HIRED, REJECTED
+    
+    @Column(name = "source")
+    private String source; // Email, LinkedIn, Referral
+    
+    @Column(name = "applied_date", nullable = false)
+    private LocalDate appliedDate;
+    
+    @Column(name = "resume_file_path")
+    private String resumeFilePath; // Cloudinary URL
+    
+    @Column(name = "cover_letter", columnDefinition = "TEXT")
+    private String coverLetter;
+    
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+    
+    @Column(name = "rating")
+    private Integer rating; // 1-5
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_to")
+    private User assignedTo; // HR/Recruiter được assign
+    
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<ApplicationStatusHistory> statusHistory = new HashSet<>();
+    
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Comment> comments = new HashSet<>();
+    
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Interview> interviews = new HashSet<>();
     
-    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Attachment> attachments = new HashSet<>();
     
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-    
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private User createdBy;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "updated_by")
-    private User updatedBy;
-    
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-    
+    // Audit fields inherited from BaseFullAuditEntity
     // Constructors, getters, setters
 }
 ```
@@ -569,25 +665,26 @@ public class Job {
 #### Repository with Custom Queries
 ```java
 @Repository
-public interface JobRepository extends JpaRepository<Job, Long>, JpaSpecificationExecutor<Job> {
+public interface JobRepository extends JpaRepository<Job, String>, JpaSpecificationExecutor<Job> {
     
-    @Query("SELECT j FROM Job j WHERE j.user.id = :userId AND j.deletedAt IS NULL")
-    Page<Job> findByUserIdAndDeletedAtIsNull(@Param("userId") Long userId, Pageable pageable);
+    // Multi-tenant queries - tự động filter theo company_id
+    @Query("SELECT j FROM Job j WHERE j.company.id = :companyId AND j.deletedAt IS NULL")
+    Page<Job> findByCompanyIdAndDeletedAtIsNull(@Param("companyId") String companyId, Pageable pageable);
     
-    @Query("SELECT j FROM Job j WHERE j.user.id = :userId AND j.status = :status AND j.deletedAt IS NULL")
-    List<Job> findByUserIdAndStatusAndDeletedAtIsNull(@Param("userId") Long userId, @Param("status") JobStatus status);
+    @Query("SELECT j FROM Job j WHERE j.company.id = :companyId AND j.jobStatus = :jobStatus AND j.deletedAt IS NULL")
+    List<Job> findByCompanyIdAndJobStatusAndDeletedAtIsNull(@Param("companyId") String companyId, @Param("jobStatus") JobStatus jobStatus);
     
-    @Query("SELECT j FROM Job j WHERE j.user.id = :userId AND j.deadlineDate BETWEEN :startDate AND :endDate AND j.deletedAt IS NULL")
-    List<Job> findUpcomingDeadlines(@Param("userId") Long userId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    @Query("SELECT j FROM Job j WHERE j.company.id = :companyId AND j.jobStatus = 'PUBLISHED' AND j.deletedAt IS NULL")
+    Page<Job> findPublishedJobsByCompanyId(@Param("companyId") String companyId, Pageable pageable);
     
-    @Query("SELECT COUNT(j) FROM Job j WHERE j.user.id = :userId AND j.status = :status AND j.deletedAt IS NULL")
-    Long countByUserIdAndStatusAndDeletedAtIsNull(@Param("userId") Long userId, @Param("status") JobStatus status);
+    @Query("SELECT COUNT(j) FROM Job j WHERE j.company.id = :companyId AND j.jobStatus = :jobStatus AND j.deletedAt IS NULL")
+    Long countByCompanyIdAndJobStatusAndDeletedAtIsNull(@Param("companyId") String companyId, @Param("jobStatus") JobStatus jobStatus);
     
-    @Query("SELECT j.company.name, COUNT(j) FROM Job j WHERE j.user.id = :userId AND j.deletedAt IS NULL GROUP BY j.company.name ORDER BY COUNT(j) DESC")
-    List<Object[]> findCompanyStatsByUserId(@Param("userId") Long userId);
+    @Query("SELECT j FROM Job j WHERE j.company.id = :companyId AND j.deadlineDate BETWEEN :startDate AND :endDate AND j.deletedAt IS NULL")
+    List<Job> findUpcomingDeadlines(@Param("companyId") String companyId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
     
-    @Query("SELECT j FROM Job j WHERE j.user.id = :userId AND j.deadlineDate <= :deadlineDate AND j.status IN :statuses AND j.deletedAt IS NULL")
-    List<Job> findJobsWithUpcomingDeadlines(@Param("userId") Long userId, @Param("deadlineDate") LocalDate deadlineDate, @Param("statuses") List<JobStatus> statuses);
+    @Query("SELECT j FROM Job j WHERE j.company.id = :companyId AND j.deadlineDate <= :deadlineDate AND j.jobStatus IN :statuses AND j.deletedAt IS NULL")
+    List<Job> findJobsWithUpcomingDeadlines(@Param("companyId") String companyId, @Param("deadlineDate") LocalDate deadlineDate, @Param("statuses") List<JobStatus> statuses);
 }
 ```
 
@@ -602,47 +699,57 @@ public class JobService {
     private final JobRepository jobRepository;
     private final CompanyRepository companyRepository;
     private final SkillRepository skillRepository;
-    private final ResumeRepository resumeRepository;
     private final JobMapper jobMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final TenantService tenantService; // Multi-tenant context
     
     public JobService(JobRepository jobRepository, 
                      CompanyRepository companyRepository,
                      SkillRepository skillRepository,
-                     ResumeRepository resumeRepository,
                      JobMapper jobMapper,
-                     ApplicationEventPublisher eventPublisher) {
+                     ApplicationEventPublisher eventPublisher,
+                     TenantService tenantService) {
         this.jobRepository = jobRepository;
         this.companyRepository = companyRepository;
         this.skillRepository = skillRepository;
-        this.resumeRepository = resumeRepository;
         this.jobMapper = jobMapper;
         this.eventPublisher = eventPublisher;
+        this.tenantService = tenantService;
     }
     
     @Transactional(readOnly = true)
-    public Page<JobResponse> getJobsByUserId(Long userId, JobSearchCriteria criteria, Pageable pageable) {
-        Specification<Job> spec = JobSpecification.buildSpecification(criteria, userId);
+    public Page<JobResponse> getJobsByCompanyId(String companyId, JobSearchCriteria criteria, Pageable pageable) {
+        // Validate company access
+        tenantService.validateCompanyAccess(companyId);
+        
+        Specification<Job> spec = JobSpecification.buildSpecification(criteria, companyId);
         Page<Job> jobs = jobRepository.findAll(spec, pageable);
         return jobs.map(jobMapper::toResponse);
     }
     
     @Transactional(readOnly = true)
-    public JobResponse getJobById(Long jobId, Long userId) {
-        Job job = jobRepository.findByIdAndUserIdAndDeletedAtIsNull(jobId, userId)
+    public JobResponse getJobById(String jobId, String companyId) {
+        tenantService.validateCompanyAccess(companyId);
+        
+        Job job = jobRepository.findById(jobId)
+            .filter(j -> j.getCompany().getId().equals(companyId))
+            .filter(j -> j.getDeletedAt() == null)
             .orElseThrow(() -> new ResourceNotFoundException("Job not found with id: " + jobId));
         return jobMapper.toResponse(job);
     }
     
-    public JobResponse createJob(JobCreateRequest request, Long userId) {
+    public JobResponse createJob(JobCreateRequest request, String userId, String companyId) {
+        tenantService.validateCompanyAccess(companyId);
+        
         // Validate company exists
-        Company company = companyRepository.findById(request.getCompanyId())
-            .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + request.getCompanyId()));
+        Company company = companyRepository.findById(companyId)
+            .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + companyId));
         
         // Create job entity
         Job job = jobMapper.toEntity(request);
         job.setUser(new User(userId));
         job.setCompany(company);
+        job.setJobStatus(JobStatus.DRAFT); // Default status
         
         // Set skills if provided
         if (request.getSkillIds() != null && !request.getSkillIds().isEmpty()) {
@@ -661,8 +768,32 @@ public class JobService {
         return jobMapper.toResponse(savedJob);
     }
     
-    public JobResponse updateJob(Long jobId, JobUpdateRequest request, Long userId) {
-        Job job = jobRepository.findByIdAndUserIdAndDeletedAtIsNull(jobId, userId)
+    public JobResponse publishJob(String jobId, String companyId) {
+        tenantService.validateCompanyAccess(companyId);
+        
+        Job job = jobRepository.findById(jobId)
+            .filter(j -> j.getCompany().getId().equals(companyId))
+            .orElseThrow(() -> new ResourceNotFoundException("Job not found with id: " + jobId));
+        
+        job.setJobStatus(JobStatus.PUBLISHED);
+        job.setPublishedAt(LocalDateTime.now());
+        
+        if (job.getDeadlineDate() != null) {
+            job.setExpiresAt(job.getDeadlineDate().atTime(23, 59, 59));
+        }
+        
+        Job updatedJob = jobRepository.save(job);
+        eventPublisher.publishEvent(new JobPublishedEvent(updatedJob));
+        
+        return jobMapper.toResponse(updatedJob);
+    }
+    
+    public JobResponse updateJob(String jobId, JobUpdateRequest request, String companyId) {
+        tenantService.validateCompanyAccess(companyId);
+        
+        Job job = jobRepository.findById(jobId)
+            .filter(j -> j.getCompany().getId().equals(companyId))
+            .filter(j -> j.getDeletedAt() == null)
             .orElseThrow(() -> new ResourceNotFoundException("Job not found with id: " + jobId));
         
         // Update job fields
@@ -677,55 +808,23 @@ public class JobService {
         Job updatedJob = jobRepository.save(job);
         
         // Publish event if status changed
-        if (request.getStatus() != null && !request.getStatus().equals(job.getStatus())) {
+        if (request.getJobStatus() != null && !request.getJobStatus().equals(job.getJobStatus())) {
             eventPublisher.publishEvent(new JobStatusChangeEvent(updatedJob));
         }
         
         return jobMapper.toResponse(updatedJob);
     }
     
-    public void deleteJob(Long jobId, Long userId) {
-        Job job = jobRepository.findByIdAndUserIdAndDeletedAtIsNull(jobId, userId)
+    public void deleteJob(String jobId, String companyId) {
+        tenantService.validateCompanyAccess(companyId);
+        
+        Job job = jobRepository.findById(jobId)
+            .filter(j -> j.getCompany().getId().equals(companyId))
             .orElseThrow(() -> new ResourceNotFoundException("Job not found with id: " + jobId));
         
         // Soft delete
-        job.setDeletedAt(LocalDateTime.now());
+        job.softDelete();
         jobRepository.save(job);
-    }
-    
-    @Transactional(readOnly = true)
-    public DashboardStatistics getDashboardStatistics(Long userId) {
-        // Get job counts by status
-        Map<JobStatus, Long> jobCounts = jobRepository.findAll()
-            .stream()
-            .filter(job -> job.getUser().getId().equals(userId) && job.getDeletedAt() == null)
-            .collect(Collectors.groupingBy(Job::getStatus, Collectors.counting()));
-        
-        // Calculate success rates
-        long totalApplied = jobCounts.getOrDefault(JobStatus.APPLIED, 0L) + 
-                           jobCounts.getOrDefault(JobStatus.INTERVIEW, 0L) + 
-                           jobCounts.getOrDefault(JobStatus.OFFER, 0L) + 
-                           jobCounts.getOrDefault(JobStatus.REJECTED, 0L);
-        
-        long totalInterviews = jobCounts.getOrDefault(JobStatus.INTERVIEW, 0L) + 
-                              jobCounts.getOrDefault(JobStatus.OFFER, 0L) + 
-                              jobCounts.getOrDefault(JobStatus.REJECTED, 0L);
-        
-        long totalOffers = jobCounts.getOrDefault(JobStatus.OFFER, 0L);
-        
-        double applicationToInterviewRate = totalApplied > 0 ? (double) totalInterviews / totalApplied * 100 : 0;
-        double interviewToOfferRate = totalInterviews > 0 ? (double) totalOffers / totalInterviews * 100 : 0;
-        double applicationToOfferRate = totalApplied > 0 ? (double) totalOffers / totalApplied * 100 : 0;
-        
-        return DashboardStatistics.builder()
-            .totalJobs(jobCounts.values().stream().mapToLong(Long::longValue).sum())
-            .jobsByStatus(jobCounts)
-            .successRate(SuccessRate.builder()
-                .applicationToInterview(applicationToInterviewRate)
-                .interviewToOffer(interviewToOfferRate)
-                .applicationToOffer(applicationToOfferRate)
-                .build())
-            .build();
     }
 }
 ```
@@ -741,7 +840,7 @@ import { jobsSlice } from './jobsSlice';
 import { usersSlice } from './usersSlice';
 import { companiesSlice } from './companiesSlice';
 import { skillsSlice } from './skillsSlice';
-import { resumesSlice } from './resumesSlice';
+import { applicationsSlice } from './applicationsSlice';
 import { interviewsSlice } from './interviewsSlice';
 import { notificationsSlice } from './notificationsSlice';
 
@@ -752,7 +851,7 @@ export const store = configureStore({
     users: usersSlice.reducer,
     companies: companiesSlice.reducer,
     skills: skillsSlice.reducer,
-    resumes: resumesSlice.reducer,
+    applications: applicationsSlice.reducer,
     interviews: interviewsSlice.reducer,
     notifications: notificationsSlice.reducer,
   },
@@ -985,27 +1084,40 @@ export const useJobs = () => {
 
 ### 1. Database Optimizations
 
-#### Indexing Strategy
+#### Indexing Strategy (Multi-Tenant Optimized)
 ```sql
--- Performance indexes
-CREATE INDEX idx_jobs_user_status_date ON jobs(user_id, status, created_at);
-CREATE INDEX idx_jobs_deadline_status ON jobs(deadline_date, status);
-CREATE INDEX idx_interviews_job_round ON interviews(job_id, round_number);
-CREATE INDEX idx_notifications_user_unread ON notifications(user_id, is_read);
+-- Multi-tenant composite indexes (CRITICAL)
+CREATE INDEX idx_jobs_company_status_date ON jobs(company_id, job_status, created_at);
+CREATE INDEX idx_jobs_company_published ON jobs(company_id, job_status, published_at) WHERE job_status = 'PUBLISHED';
+CREATE INDEX idx_applications_company_status_date ON applications(company_id, status, applied_date);
+CREATE INDEX idx_applications_company_job_status ON applications(company_id, job_id, status);
+CREATE INDEX idx_interviews_company_scheduled ON interviews(company_id, scheduled_date, status);
+CREATE INDEX idx_notifications_company_user_unread ON notifications(company_id, user_id, is_read);
+CREATE INDEX idx_users_company_role_active ON users(company_id, role_id, is_active);
+CREATE INDEX idx_audit_logs_company_entity ON audit_logs(company_id, entity_type, entity_id);
+
+-- Single-column indexes
+CREATE INDEX idx_jobs_deadline_status ON jobs(deadline_date, job_status);
+CREATE INDEX idx_applications_assigned_status ON applications(assigned_to, status);
 CREATE INDEX idx_user_sessions_token ON user_sessions(session_token);
-CREATE INDEX idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
 
 -- Full-text search indexes
 CREATE FULLTEXT INDEX idx_jobs_search ON jobs(title, position, job_description);
 CREATE FULLTEXT INDEX idx_companies_search ON companies(name, description);
+CREATE FULLTEXT INDEX idx_applications_search ON applications(candidate_name, candidate_email, notes);
 ```
 
 #### Query Optimization
 ```java
-// Using @EntityGraph for eager loading
-@EntityGraph(attributePaths = {"company", "skills", "interviews"})
-@Query("SELECT j FROM Job j WHERE j.user.id = :userId AND j.deletedAt IS NULL")
-Page<Job> findByUserIdWithDetails(@Param("userId") Long userId, Pageable pageable);
+// Using @EntityGraph for eager loading (multi-tenant)
+@EntityGraph(attributePaths = {"company", "skills", "applications"})
+@Query("SELECT j FROM Job j WHERE j.company.id = :companyId AND j.deletedAt IS NULL")
+Page<Job> findByCompanyIdWithDetails(@Param("companyId") String companyId, Pageable pageable);
+
+// Application queries với multi-tenant
+@EntityGraph(attributePaths = {"job", "assignedTo", "statusHistory"})
+@Query("SELECT a FROM Application a WHERE a.company.id = :companyId AND a.deletedAt IS NULL")
+Page<Application> findByCompanyIdWithDetails(@Param("companyId") String companyId, Pageable pageable);
 
 // Using @BatchSize for batch loading
 @BatchSize(size = 20)
@@ -1063,19 +1175,33 @@ public class CacheConfig {
 @Service
 public class JobService {
     
-    @Cacheable(value = "jobs", key = "#userId + '_' + #page + '_' + #size")
-    public Page<JobResponse> getJobsByUserId(Long userId, int page, int size) {
-        // Implementation
+    @Cacheable(value = "jobs", key = "#companyId + '_' + #page + '_' + #size")
+    public Page<JobResponse> getJobsByCompanyId(String companyId, int page, int size) {
+        // Implementation với multi-tenant filtering
     }
     
     @CacheEvict(value = "jobs", allEntries = true)
-    public JobResponse createJob(JobCreateRequest request, Long userId) {
-        // Implementation
+    public JobResponse createJob(JobCreateRequest request, String userId, String companyId) {
+        // Implementation với company validation
     }
     
-    @Cacheable(value = "dashboard", key = "#userId")
-    public DashboardStatistics getDashboardStatistics(Long userId) {
-        // Implementation
+    @Cacheable(value = "dashboard", key = "#companyId")
+    public DashboardStatistics getDashboardStatistics(String companyId) {
+        // Implementation với multi-tenant metrics
+    }
+}
+
+@Service
+public class ApplicationService {
+    
+    @Cacheable(value = "applications", key = "#companyId + '_' + #status + '_' + #page")
+    public Page<ApplicationResponse> getApplicationsByCompanyId(String companyId, ApplicationStatus status, int page, int size) {
+        // Implementation với multi-tenant filtering
+    }
+    
+    @CacheEvict(value = "applications", allEntries = true)
+    public ApplicationResponse createApplication(ApplicationCreateRequest request, String companyId) {
+        // Implementation với company validation
     }
 }
 ```
@@ -1174,7 +1300,16 @@ public class JobMetrics {
     
     public void incrementJobStatusChanged(JobStatus from, JobStatus to) {
         jobStatusChangedCounter.increment(
-            Tags.of("from", from.name(), "to", to.name())
+            Tags.of("from", from.name(), "to", to.name()) // DRAFT → PUBLISHED, etc.
+        );
+    }
+    
+    public void incrementApplicationStatusChanged(ApplicationStatus from, ApplicationStatus to) {
+        Counter applicationStatusCounter = Counter.builder("applications.status.changed")
+            .description("Number of application status changes")
+            .register(meterRegistry);
+        applicationStatusCounter.increment(
+            Tags.of("from", from.name(), "to", to.name()) // NEW → SCREENING → INTERVIEWING, etc.
         );
     }
     
@@ -1243,12 +1378,37 @@ public class ValidJobStatusValidator implements ConstraintValidator<ValidJobStat
         if (value == null) return true;
         
         try {
-            JobStatus.valueOf(value.toUpperCase());
+            JobStatus.valueOf(value.toUpperCase()); // DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED
             return true;
         } catch (IllegalArgumentException e) {
             return false;
         }
     }
+}
+
+// ENUM Definitions
+public enum JobStatus {
+    DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED
+}
+
+public enum JobType {
+    FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE
+}
+
+public enum ApplicationStatus {
+    NEW, SCREENING, INTERVIEWING, OFFERED, HIRED, REJECTED
+}
+
+public enum InterviewType {
+    PHONE, VIDEO, IN_PERSON, TECHNICAL, HR, FINAL
+}
+
+public enum InterviewStatus {
+    SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED
+}
+
+public enum InterviewResult {
+    PASSED, FAILED, PENDING
 }
 ```
 
@@ -1313,17 +1473,19 @@ spring:
 
 Dựa trên database schema, có **3 patterns chính** cho audit fields:
 
-#### **Pattern 1: FULL AUDIT** (18 bảng)
+#### **Pattern 1: FULL AUDIT** (10 bảng)
 ```java
 // Có: created_by, updated_by, created_at, updated_at
-- All Lookup Tables (11 bảng)
-- Core Business Entities (7 bảng): users, companies, jobs, skills, interviews, resumes, attachments
+- Lookup Tables (2 bảng): roles, permissions (RBAC)
+- Core Business Entities (8 bảng): users, companies, jobs, skills, interviews, applications, comments, attachments
+// Note: Các lookup tables khác (job_statuses, job_types, etc.) đã chuyển sang ENUM
 ```
 
-#### **Pattern 2: PARTIAL AUDIT** (3 bảng)  
+#### **Pattern 2: PARTIAL AUDIT** (1 bảng)  
 ```java
 // Có: created_by, created_at, updated_at (không có updated_by)
-- Junction Tables: user_skills, job_skills, job_resumes
+- Junction Tables: job_skills
+// Note: user_skills và job_resumes đã bỏ
 ```
 
 #### **Pattern 3: SYSTEM TABLES** (3 bảng)
@@ -1336,49 +1498,43 @@ Dựa trên database schema, có **3 patterns chính** cho audit fields:
 
 | **Base Class** | **Tables** | **Audit Fields** | **Soft Delete** | **Count** |
 |---|---|---|---|---|
-| **BaseFullAuditEntity** | **Lookup Tables (11 bảng)** | | | |
+| **BaseFullAuditEntity** | **Lookup Tables (2 bảng - chỉ RBAC)** | | | |
 | | `roles` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 1 |
 | | `permissions` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 2 |
-| | `job_statuses` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 3 |
-| | `job_types` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 4 |
-| | `priorities` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 5 |
-| | `experience_levels` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 6 |
-| | `interview_types` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 7 |
-| | `interview_statuses` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 8 |
-| | `interview_results` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 9 |
-| | `notification_types` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 10 |
-| | `notification_priorities` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 11 |
-| | **Core Business Entities (7 bảng)** | | | |
-| | `users` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 12 |
-| | `companies` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 13 |
-| | `jobs` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 14 |
-| | `skills` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 15 |
-| | `interviews` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 16 |
-| | `resumes` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 17 |
-| | `attachments` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 18 |
-| **BasePartialAuditEntity** | **Junction Tables (3 bảng)** | | | |
-| | `user_skills` | ✅ created_by, created_at, updated_at | ✅ is_deleted | 19 |
-| | `job_skills` | ✅ created_by, created_at, updated_at | ✅ is_deleted | 20 |
-| | `job_resumes` | ✅ created_by, created_at, updated_at | ✅ is_deleted | 21 |
+| | **Core Business Entities (8 bảng)** | | | |
+| | `users` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 3 |
+| | `companies` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 4 |
+| | `jobs` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 5 |
+| | `skills` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 6 |
+| | `interviews` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 7 |
+| | `applications` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 8 |
+| | `comments` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 9 |
+| | `attachments` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 10 |
+| **BasePartialAuditEntity** | **Junction Tables (1 bảng)** | | | |
+| | `job_skills` | ✅ created_by, created_at, updated_at | ✅ is_deleted | 11 |
 | **BaseSystemEntity** | **System Tables (3 bảng)** | | | |
-| | `notifications` | ✅ created_at, updated_at | ❌ No soft delete | 22 |
-| | `user_sessions` | ✅ created_at, updated_at | ❌ No soft delete | 23 |
-| | `audit_logs` | ✅ created_at | ❌ No soft delete | 24 |
+| | `notifications` | ✅ created_at, updated_at | ❌ No soft delete | 12 |
+| | `user_sessions` | ✅ created_at, updated_at | ❌ No soft delete | 13 |
+| | `audit_logs` | ✅ created_at | ❌ No soft delete | 14 |
+| **Không có Base Class** | **History Tables (1 bảng)** | | | |
+| | `application_status_history` ➕ | ❌ No audit fields | ❌ No soft delete | 15 |
 
 ### 🎯 Implementation Summary
 
-#### **BaseFullAuditEntity** (18 bảng)
+#### **BaseFullAuditEntity** (10 bảng)
 ```java
 // Extends: BaseSoftDeleteEntity
 // Fields: created_by, updated_by, created_at, updated_at, deleted_at
-// Usage: All lookup tables + core business entities
+// Usage: RBAC lookup tables (roles, permissions) + core business entities
+// Note: Các lookup tables khác (job_statuses, job_types, etc.) đã chuyển sang ENUM
 ```
 
-#### **BasePartialAuditEntity** (3 bảng)
+#### **BasePartialAuditEntity** (1 bảng)
 ```java
 // Extends: BaseBooleanDeleteEntity  
 // Fields: created_by, created_at, updated_at, is_deleted
-// Usage: Junction tables only
+// Usage: Junction tables only (job_skills)
+// Note: user_skills và job_resumes đã bỏ
 ```
 
 #### **BaseSystemEntity** (3 bảng)
@@ -1395,6 +1551,11 @@ Dựa trên database schema, có **3 patterns chính** cho audit fields:
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseFullAuditEntity extends BaseSoftDeleteEntity {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36, nullable = false, updatable = false)
+    private String id;
     
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -1507,17 +1668,18 @@ public abstract class BaseBooleanDeleteEntity {
 
 ### 📋 Entity Implementation Examples
 
-#### Lookup Tables (11 bảng)
+#### Lookup Tables (2 bảng - chỉ RBAC)
 ```java
 @Entity
 @Table(name = "roles")
 public class Role extends BaseFullAuditEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36)
+    private String id;
     
     @Column(nullable = false, unique = true)
-    private String name;
+    private String name; // COMPANY_ADMIN, RECRUITER, HIRING_MANAGER, INTERVIEWER
     
     private String description;
     
@@ -1526,37 +1688,87 @@ public class Role extends BaseFullAuditEntity {
     
     // Business fields only, audit fields inherited
 }
-```
 
-#### Core Business Entities (7 bảng)
-```java
 @Entity
-@Table(name = "jobs")
-public class Job extends BaseFullAuditEntity {
+@Table(name = "permissions")
+public class Permission extends BaseFullAuditEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36)
+    private String id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(nullable = false, unique = true)
+    private String name; // JOB_CREATE, APPLICATION_VIEW, etc.
+    
+    private String resource; // JOB, APPLICATION, INTERVIEW, etc.
+    private String action; // CREATE, READ, UPDATE, DELETE
     
     // Business fields only, audit fields inherited
 }
 ```
 
-#### Junction Tables (3 bảng)
+#### Core Business Entities (8 bảng)
 ```java
 @Entity
-@Table(name = "user_skills")
-public class UserSkill extends BasePartialAuditEntity {
+@Table(name = "jobs")
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = "string"))
+@Filter(name = "tenantFilter", condition = "company_id = :tenantId")
+public class Job extends BaseFullAuditEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36)
+    private String id;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User user; // HR/Recruiter
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company; // Multi-tenant key
+    
+    // Business fields only, audit fields inherited
+}
+
+@Entity
+@Table(name = "applications")
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = "string"))
+@Filter(name = "tenantFilter", condition = "company_id = :tenantId")
+public class Application extends BaseFullAuditEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36)
+    private String id;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "job_id", nullable = false)
+    private Job job;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company; // Multi-tenant key
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ApplicationStatus status = ApplicationStatus.NEW;
+    
+    // Business fields only, audit fields inherited
+}
+```
+
+#### Junction Tables (1 bảng)
+```java
+@Entity
+@Table(name = "job_skills")
+public class JobSkill extends BasePartialAuditEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36)
+    private String id;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "job_id", nullable = false)
+    private Job job;
     
     // Business fields only, audit fields inherited
 }
@@ -1616,14 +1828,15 @@ public class Notification extends BaseSystemEntity {
 ### 2. Advanced Features
 
 #### AI Integration
-- **Resume Optimization**: AI-powered resume suggestions
-- **Job Matching**: ML-based job recommendations
+- **CV Parsing**: AI-powered CV parsing và extraction
+- **Application Matching**: ML-based matching applications với job requirements
 - **Interview Preparation**: AI-generated interview questions
 - **Salary Prediction**: ML-based salary estimates
+- **Candidate Ranking**: AI-powered candidate ranking
 
 #### Real-time Features
-- **Live Chat**: Real-time communication with recruiters
-- **Collaborative Editing**: Real-time resume collaboration
+- **Live Chat**: Real-time communication giữa HR/Recruiter
+- **Collaborative Comments**: Real-time comments trên applications
 - **Live Notifications**: WebSocket-based real-time updates
 - **Video Interviews**: Integrated video calling
 

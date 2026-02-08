@@ -623,12 +623,11 @@ page=0&size=20&sort=createdAt,desc&status=PUBLISHED&jobStatus=DRAFT&search=devel
       "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
       "title": "Senior Java Developer",
       "position": "Backend Developer",
-      "jobTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+      "jobType": "FULL_TIME",
       "location": "Mountain View, CA",
       "salaryMin": 120000,
       "salaryMax": 180000,
       "currency": "USD",
-      "statusId": "s2",
       "jobStatus": "PUBLISHED",
       "deadlineDate": "2024-01-25",
       "publishedAt": "2024-01-10T09:00:00Z",
@@ -678,24 +677,22 @@ Authorization: Bearer <access_token>
     "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
     "title": "Senior Java Developer",
     "position": "Backend Developer",
-    "jobTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "jobType": "FULL_TIME",
     "location": "Mountain View, CA",
     "salaryMin": 120000,
     "salaryMax": 180000,
     "currency": "USD",
-    "statusId": "s2",
-    "applicationDate": "2024-01-10",
+    "jobStatus": "PUBLISHED",
     "deadlineDate": "2024-01-25",
-    "interviewDate": null,
-    "offerDate": null,
+    "publishedAt": "2024-01-10T09:00:00Z",
+    "expiresAt": "2024-01-25T23:59:59Z",
+    "viewsCount": 150,
+    "applicationsCount": 25,
     "jobDescription": "We are looking for a senior Java developer...",
     "requirements": "5+ years of Java experience...",
     "benefits": "Health insurance, 401k, stock options...",
     "jobUrl": "https://careers.google.com/jobs/123",
-    "notes": "Applied through referral",
-    "priorityId": "p3",
     "isRemote": false,
-    "experienceLevelId": "e4",
     "createdAt": "2024-01-10T09:00:00Z",
     "updatedAt": "2024-01-10T09:00:00Z",
     "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
@@ -722,12 +719,12 @@ Authorization: Bearer <access_token>
   "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
   "title": "Senior Java Developer",
   "position": "Backend Developer",
-  "jobTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+  "jobType": "FULL_TIME",
   "location": "Mountain View, CA",
   "salaryMin": 120000,
   "salaryMax": 180000,
   "currency": "USD",
-  "statusId": "s1",
+  "jobStatus": "DRAFT",
   "deadlineDate": "2024-01-25",
   "jobDescription": "We are looking for a senior Java developer...",
   "requirements": "5+ years of Java experience...",
@@ -749,12 +746,11 @@ Authorization: Bearer <access_token>
     "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
     "title": "Senior Java Developer",
     "position": "Backend Developer",
-    "jobTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "jobType": "FULL_TIME",
     "location": "Mountain View, CA",
     "salaryMin": 120000,
     "salaryMax": 180000,
     "currency": "USD",
-    "statusId": "s1",
     "jobStatus": "DRAFT",
     "deadlineDate": "2024-01-25",
     "publishedAt": null,
@@ -783,9 +779,8 @@ Authorization: Bearer <access_token>
 {
   "title": "Senior Java Developer - Updated",
   "position": "Backend Developer",
-  "status": "INTERVIEW",
-  "interviewDate": "2024-01-20",
-  "notes": "Updated notes after phone screening"
+  "jobStatus": "PUBLISHED",
+  "publishedAt": "2024-01-20T09:00:00Z"
 }
 ```
 
@@ -798,9 +793,8 @@ Authorization: Bearer <access_token>
     "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "title": "Senior Java Developer - Updated",
     "position": "Backend Developer",
-    "status": "INTERVIEW",
-    "interviewDate": "2024-01-20",
-    "notes": "Updated notes after phone screening",
+    "jobStatus": "PUBLISHED",
+    "publishedAt": "2024-01-20T09:00:00Z",
     "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
@@ -854,7 +848,7 @@ Authorization: Bearer <access_token>
   "data": {
     "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "jobStatus": "PUBLISHED",
-    "statusId": "s2",
+    "jobStatus": "PUBLISHED",
     "publishedAt": "2024-01-15T10:30:00Z",
     "expiresAt": "2024-02-15T23:59:59Z",
     "updatedAt": "2024-01-15T10:30:00Z"
@@ -1393,227 +1387,22 @@ Trả về thông tin chi tiết cùng metadata audit.
 
 ## 📋 Lookup Tables APIs
 
-### 1. Get Job Statuses
-**GET** `/lookup/job-statuses`
+> **🔄 CHUYỂN SANG ENUM**: Các lookup tables sau đã chuyển sang ENUM trong database, không cần APIs riêng:
+> - **Job Statuses** → ENUM trong `jobs.jobStatus` (DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED)
+> - **Job Types** → ENUM trong `jobs.jobType` (FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE)
+> - **Interview Types** → ENUM trong `interviews.interviewType` (PHONE, VIDEO, IN_PERSON, TECHNICAL, HR, FINAL)
+> - **Interview Statuses** → ENUM trong `interviews.status` (SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED)
+> - **Interview Results** → ENUM trong `interviews.result` (PASSED, FAILED, PENDING)
+> - **Notification Types** → ENUM trong `notifications.type` (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, etc.)
+> - **Notification Priorities** → ENUM trong `notifications.priority` (HIGH, MEDIUM, LOW)
 
-Lấy danh sách tất cả job statuses.
+### ~~1. Get Job Statuses~~ ❌ **CHUYỂN SANG ENUM**
 
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
+> **Lý do**: Job statuses giờ là ENUM trong `jobs.jobStatus`. Sử dụng trực tiếp ENUM values trong request/response.
 
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Job statuses retrieved successfully",
-  "data": [
-    {
-      "id": "s1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
-      "name": "SAVED",
-      "displayName": "Saved",
-      "description": "Job saved but not yet applied",
-      "color": "#6B7280",
-      "sortOrder": 1,
-      "isActive": true
-    },
-    {
-      "id": "s2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
-      "name": "APPLIED",
-      "displayName": "Applied",
-      "description": "Application submitted",
-      "color": "#3B82F6",
-      "sortOrder": 2,
-      "isActive": true
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
+### ~~2. Get Job Types~~ ❌ **CHUYỂN SANG ENUM**
 
-### Create Job Status
-**POST** `/lookup/job-statuses`
-
-#### Request Body
-```json
-{
-  "name": "ON_HOLD",
-  "displayName": "On Hold",
-  "description": "Application paused",
-  "color": "#FBBF24",
-  "sortOrder": 7
-}
-```
-
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "Job status created successfully",
-  "data": {
-    "id": "s7g8h9i0-1j2k-3l4m-5n6o-p7q8r9s0t1u2",
-    "name": "ON_HOLD",
-    "displayName": "On Hold",
-    "description": "Application paused",
-    "color": "#FBBF24",
-    "sortOrder": 7,
-    "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Update Job Status
-**PUT** `/lookup/job-statuses/{id}`
-
-#### Request Body
-```json
-{
-  "displayName": "On Hold",
-  "description": "Paused by company",
-  "color": "#FBBF24",
-  "isActive": true
-}
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Job status updated successfully",
-  "data": {
-    "id": "s7g8h9i0-1j2k-3l4m-5n6o-p7q8r9s0t1u2",
-    "name": "ON_HOLD",
-    "displayName": "On Hold",
-    "description": "Paused by company",
-    "color": "#FBBF24",
-    "sortOrder": 7,
-    "isActive": true,
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Delete Job Status
-**DELETE** `/lookup/job-statuses/{id}`
-
-Soft delete trạng thái khỏi danh sách khả dụng. Response chuẩn:
-```json
-{
-  "success": true,
-  "message": "Job status deleted successfully",
-  "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 2. Get Job Types
-**GET** `/lookup/job-types`
-
-Lấy danh sách tất cả job types.
-
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Job types retrieved successfully",
-  "data": [
-    {
-      "id": "jt1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
-      "name": "FULL_TIME",
-      "displayName": "Full Time",
-      "description": "Full-time employment",
-      "isActive": true
-    },
-    {
-      "id": "jt2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
-      "name": "PART_TIME",
-      "displayName": "Part Time",
-      "description": "Part-time employment",
-      "isActive": true
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Create Job Type
-**POST** `/lookup/job-types`
-
-#### Request Body
-```json
-{
-  "name": "APPRENTICESHIP",
-  "displayName": "Apprenticeship",
-  "description": "Apprenticeship program"
-}
-```
-
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "Job type created successfully",
-  "data": {
-    "id": "jt5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "APPRENTICESHIP",
-    "displayName": "Apprenticeship",
-    "description": "Apprenticeship program",
-    "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Update Job Type
-**PUT** `/lookup/job-types/{id}`
-
-#### Request Body
-```json
-{
-  "displayName": "Apprenticeship",
-  "description": "On-the-job apprenticeship",
-  "isActive": true
-}
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Job type updated successfully",
-  "data": {
-    "id": "jt5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "APPRENTICESHIP",
-    "displayName": "Apprenticeship",
-    "description": "On-the-job apprenticeship",
-    "isActive": true,
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Delete Job Type
-**DELETE** `/lookup/job-types/{id}`
-
-```json
-{
-  "success": true,
-  "message": "Job type deleted successfully",
-  "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
+> **Lý do**: Job types giờ là ENUM trong `jobs.jobType`. Sử dụng trực tiếp ENUM values trong request/response.
 
 ### ~~3. Get Priorities~~ ❌ **REMOVED**
 
@@ -1623,795 +1412,25 @@ Authorization: Bearer <access_token>
 
 > **Lý do**: Quá phức tạp cho ATS. HR có thể ghi tự do trong job description. Đã bỏ hoàn toàn.
 
-### 3. Get Interview Types
+### ~~5. Get Interview Types~~ ❌ **CHUYỂN SANG ENUM**
 
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
+> **Lý do**: Interview types giờ là ENUM trong `interviews.interviewType` (PHONE, VIDEO, IN_PERSON, TECHNICAL, HR, FINAL). Sử dụng trực tiếp ENUM values trong request/response.
 
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Priorities retrieved successfully",
-  "data": [
-    {
-      "id": "p1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
-      "name": "LOW",
-      "displayName": "Low",
-      "level": 1,
-      "color": "#6B7280",
-      "description": "Low priority",
-      "isActive": true
-    },
-    {
-      "id": "p2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
-      "name": "MEDIUM",
-      "displayName": "Medium",
-      "level": 2,
-      "color": "#3B82F6",
-      "description": "Medium priority",
-      "isActive": true
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
+### ~~6. Get Interview Statuses~~ ❌ **CHUYỂN SANG ENUM**
 
-### Create Priority
-**POST** `/lookup/priorities`
+> **Lý do**: Interview statuses giờ là ENUM trong `interviews.status` (SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED). Sử dụng trực tiếp ENUM values trong request/response.
 
-#### Request Body
-```json
-{
-  "name": "BLOCKER",
-  "displayName": "Blocker",
-  "level": 5,
-  "color": "#DC2626",
-  "description": "Must act immediately"
-}
-```
+### ~~7. Get Interview Results~~ ❌ **CHUYỂN SANG ENUM**
 
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "Priority created successfully",
-  "data": {
-    "id": "p5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "BLOCKER",
-    "displayName": "Blocker",
-    "level": 5,
-    "color": "#DC2626",
-    "description": "Must act immediately",
-    "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
+> **Lý do**: Interview results giờ là ENUM trong `interviews.result` (PASSED, FAILED, PENDING). Sử dụng trực tiếp ENUM values trong request/response.
 
-### Update Priority
-**PUT** `/lookup/priorities/{id}`
+### ~~8. Get Notification Types~~ ❌ **CHUYỂN SANG ENUM**
 
-#### Request Body
-```json
-{
-  "displayName": "Blocker",
-  "level": 5,
-  "color": "#DC2626",
-  "description": "Highest urgency",
-  "isActive": true
-}
-```
+> **Lý do**: Notification types giờ là ENUM trong `notifications.type` (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, INTERVIEW_REMINDER, STATUS_CHANGE, DEADLINE_REMINDER, COMMENT_ADDED, ASSIGNMENT_CHANGED). Sử dụng trực tiếp ENUM values trong request/response.
 
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Priority updated successfully",
-  "data": {
-    "id": "p5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "BLOCKER",
-    "displayName": "Blocker",
-    "level": 5,
-    "color": "#DC2626",
-    "description": "Highest urgency",
-    "isActive": true,
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
+### ~~9. Get Notification Priorities~~ ❌ **CHUYỂN SANG ENUM**
 
-### Delete Priority
-**DELETE** `/lookup/priorities/{id}`
-
-```json
-{
-  "success": true,
-  "message": "Priority deleted successfully",
-  "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 4. Get Experience Levels
-**GET** `/lookup/experience-levels`
-
-Lấy danh sách tất cả experience levels.
-
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Experience levels retrieved successfully",
-  "data": [
-    {
-      "id": "el1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
-      "name": "ENTRY",
-      "displayName": "Entry Level",
-      "minYears": 0,
-      "maxYears": 1,
-      "description": "Entry level position",
-      "isActive": true
-    },
-    {
-      "id": "el2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
-      "name": "JUNIOR",
-      "displayName": "Junior",
-      "minYears": 1,
-      "maxYears": 3,
-      "description": "Junior level position",
-      "isActive": true
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Create Experience Level
-**POST** `/lookup/experience-levels`
-
-#### Request Body
-```json
-{
-  "name": "STAFF",
-  "displayName": "Staff",
-  "minYears": 8,
-  "maxYears": 12,
-  "description": "Staff engineer level"
-}
-```
-
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "Experience level created successfully",
-  "data": {
-    "id": "el5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "STAFF",
-    "displayName": "Staff",
-    "minYears": 8,
-    "maxYears": 12,
-    "description": "Staff engineer level",
-    "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Update Experience Level
-**PUT** `/lookup/experience-levels/{id}`
-
-#### Request Body
-```json
-{
-  "displayName": "Staff",
-  "minYears": 8,
-  "maxYears": 12,
-  "description": "Staff / Principal track",
-  "isActive": true
-}
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Experience level updated successfully",
-  "data": {
-    "id": "el5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "STAFF",
-    "displayName": "Staff",
-    "minYears": 8,
-    "maxYears": 12,
-    "description": "Staff / Principal track",
-    "isActive": true,
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Delete Experience Level
-**DELETE** `/lookup/experience-levels/{id}`
-
-```json
-{
-  "success": true,
-  "message": "Experience level deleted successfully",
-  "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 5. Get Interview Types
-**GET** `/lookup/interview-types`
-
-Lấy danh sách tất cả interview types.
-
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Interview types retrieved successfully",
-  "data": [
-    {
-      "id": "it1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
-      "name": "PHONE",
-      "displayName": "Phone Interview",
-      "description": "Phone-based interview",
-      "isActive": true
-    },
-    {
-      "id": "it2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
-      "name": "VIDEO",
-      "displayName": "Video Interview",
-      "description": "Video call interview",
-      "isActive": true
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Create Interview Type
-**POST** `/lookup/interview-types`
-
-#### Request Body
-```json
-{
-  "name": "PAIR_PROGRAMMING",
-  "displayName": "Pair Programming",
-  "description": "Live coding with interviewer"
-}
-```
-
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "Interview type created successfully",
-  "data": {
-    "id": "it5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "PAIR_PROGRAMMING",
-    "displayName": "Pair Programming",
-    "description": "Live coding with interviewer",
-    "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Update Interview Type
-**PUT** `/lookup/interview-types/{id}`
-
-#### Request Body
-```json
-{
-  "displayName": "Pair Programming",
-  "description": "Live pair programming session",
-  "isActive": true
-}
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Interview type updated successfully",
-  "data": {
-    "id": "it5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "PAIR_PROGRAMMING",
-    "displayName": "Pair Programming",
-    "description": "Live pair programming session",
-    "isActive": true,
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Delete Interview Type
-**DELETE** `/lookup/interview-types/{id}`
-
-```json
-{
-  "success": true,
-  "message": "Interview type deleted successfully",
-  "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 6. Get Interview Statuses
-**GET** `/lookup/interview-statuses`
-
-Lấy danh sách tất cả interview statuses.
-
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Interview statuses retrieved successfully",
-  "data": [
-    {
-      "id": "is1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
-      "name": "SCHEDULED",
-      "displayName": "Scheduled",
-      "description": "Interview scheduled",
-      "color": "#3B82F6",
-      "isActive": true
-    },
-    {
-      "id": "is2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
-      "name": "COMPLETED",
-      "displayName": "Completed",
-      "description": "Interview completed",
-      "color": "#10B981",
-      "isActive": true
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Create Interview Status
-**POST** `/lookup/interview-statuses`
-
-#### Request Body
-```json
-{
-  "name": "NO_SHOW",
-  "displayName": "No Show",
-  "description": "Candidate did not attend",
-  "color": "#F87171"
-}
-```
-
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "Interview status created successfully",
-  "data": {
-    "id": "is5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "NO_SHOW",
-    "displayName": "No Show",
-    "description": "Candidate did not attend",
-    "color": "#F87171",
-    "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Update Interview Status
-**PUT** `/lookup/interview-statuses/{id}`
-
-#### Request Body
-```json
-{
-  "displayName": "No Show",
-  "description": "Candidate did not attend",
-  "color": "#F87171",
-  "isActive": true
-}
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Interview status updated successfully",
-  "data": {
-    "id": "is5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "NO_SHOW",
-    "displayName": "No Show",
-    "description": "Candidate did not attend",
-    "color": "#F87171",
-    "isActive": true,
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Delete Interview Status
-**DELETE** `/lookup/interview-statuses/{id}`
-
-```json
-{
-  "success": true,
-  "message": "Interview status deleted successfully",
-  "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 7. Get Interview Results
-**GET** `/lookup/interview-results`
-
-Lấy danh sách tất cả interview results.
-
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Interview results retrieved successfully",
-  "data": [
-    {
-      "id": "ir1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
-      "name": "PASSED",
-      "displayName": "Passed",
-      "description": "Interview passed",
-      "color": "#10B981",
-      "isActive": true
-    },
-    {
-      "id": "ir2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
-      "name": "FAILED",
-      "displayName": "Failed",
-      "description": "Interview failed",
-      "color": "#EF4444",
-      "isActive": true
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Create Interview Result
-**POST** `/lookup/interview-results`
-
-#### Request Body
-```json
-{
-  "name": "ON_HOLD",
-  "displayName": "On Hold",
-  "description": "Awaiting leadership decision",
-  "color": "#FBBF24"
-}
-```
-
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "Interview result created successfully",
-  "data": {
-    "id": "ir5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "ON_HOLD",
-    "displayName": "On Hold",
-    "description": "Awaiting leadership decision",
-    "color": "#FBBF24",
-    "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Update Interview Result
-**PUT** `/lookup/interview-results/{id}`
-
-#### Request Body
-```json
-{
-  "displayName": "On Hold",
-  "description": "Pending leadership decision",
-  "color": "#FBBF24",
-  "isActive": true
-}
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Interview result updated successfully",
-  "data": {
-    "id": "ir5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "ON_HOLD",
-    "displayName": "On Hold",
-    "description": "Pending leadership decision",
-    "color": "#FBBF24",
-    "isActive": true,
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Delete Interview Result
-**DELETE** `/lookup/interview-results/{id}`
-
-```json
-{
-  "success": true,
-  "message": "Interview result deleted successfully",
-  "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 8. Get Notification Types
-**GET** `/lookup/notification-types`
-
-Lấy danh sách loại thông báo hệ thống.
-
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Notification types retrieved successfully",
-  "data": [
-    {
-      "id": "c9d0c7f4-4d1c-4a53-8a51-4f53c9a9f5d0",
-      "name": "DEADLINE_REMINDER",
-      "displayName": "Deadline Reminder",
-      "description": "Reminder for job application deadline",
-      "template": "Your job application for {job_title} is due in {days} days.",
-      "isActive": true
-    },
-    {
-      "id": "2c0d54a7-ef1d-4ef1-a38e-a89461e4d1cd",
-      "name": "INTERVIEW_REMINDER",
-      "displayName": "Interview Reminder",
-      "description": "Reminder for upcoming interview",
-      "template": "You have an interview for {job_title} at {company_name} in {hours} hours.",
-      "isActive": true
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Create Notification Type
-**POST** `/lookup/notification-types`
-
-#### Request Body
-```json
-{
-  "name": "CUSTOM",
-  "displayName": "Custom Message",
-  "description": "Manual notification",
-  "template": "{message}",
-  "isActive": true
-}
-```
-
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "Notification type created successfully",
-  "data": {
-    "id": "d4e5f6g7-8h9i-0j1k-2l3m-n4o5p6q7r8s9",
-    "name": "CUSTOM",
-    "displayName": "Custom Message",
-    "description": "Manual notification",
-    "template": "{message}",
-    "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Update Notification Type
-**PUT** `/lookup/notification-types/{id}`
-
-#### Request Body
-```json
-{
-  "displayName": "Custom Message",
-  "description": "Manual notification template",
-  "template": "{message}",
-  "isActive": true
-}
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Notification type updated successfully",
-  "data": {
-    "id": "d4e5f6g7-8h9i-0j1k-2l3m-n4o5p6q7r8s9",
-    "name": "CUSTOM",
-    "displayName": "Custom Message",
-    "description": "Manual notification template",
-    "template": "{message}",
-    "isActive": true,
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Delete Notification Type
-**DELETE** `/lookup/notification-types/{id}`
-
-```json
-{
-  "success": true,
-  "message": "Notification type deleted successfully",
-  "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 9. Get Notification Priorities
-**GET** `/lookup/notification-priorities`
-
-Lấy danh sách mức độ ưu tiên của thông báo.
-
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Notification priorities retrieved successfully",
-  "data": [
-    {
-      "id": "0da2f18c-4c3d-4d2c-b3f5-2d933515d96e",
-      "name": "LOW",
-      "displayName": "Low",
-      "level": 1,
-      "color": "#6B7280",
-      "description": "Low priority notification",
-      "isActive": true
-    },
-    {
-      "id": "a9fd0c51-fd0a-4a01-bbbd-12cf32c29086",
-      "name": "HIGH",
-      "displayName": "High",
-      "level": 3,
-      "color": "#F59E0B",
-      "description": "High priority notification",
-      "isActive": true
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Create Notification Priority
-**POST** `/lookup/notification-priorities`
-
-#### Request Body
-```json
-{
-  "name": "CRITICAL",
-  "displayName": "Critical",
-  "level": 5,
-  "color": "#B91C1C",
-  "description": "Critical notifications",
-  "isActive": true
-}
-```
-
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "Notification priority created successfully",
-  "data": {
-    "id": "e5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "CRITICAL",
-    "displayName": "Critical",
-    "level": 5,
-    "color": "#B91C1C",
-    "description": "Critical notifications",
-    "isActive": true,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Update Notification Priority
-**PUT** `/lookup/notification-priorities/{id}`
-
-#### Request Body
-```json
-{
-  "displayName": "Critical",
-  "level": 5,
-  "color": "#B91C1C",
-  "description": "Critical notifications only",
-  "isActive": true
-}
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Notification priority updated successfully",
-  "data": {
-    "id": "e5f6g7h8-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
-    "name": "CRITICAL",
-    "displayName": "Critical",
-    "level": 5,
-    "color": "#B91C1C",
-    "description": "Critical notifications only",
-    "isActive": true,
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### Delete Notification Priority
-**DELETE** `/lookup/notification-priorities/{id}`
-
-```json
-{
-  "success": true,
-  "message": "Notification priority deleted successfully",
-  "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
+> **Lý do**: Notification priorities giờ là ENUM trong `notifications.priority` (HIGH, MEDIUM, LOW). Sử dụng trực tiếp ENUM values trong request/response.
 
 ## 🔐 RBAC & Permission APIs
 
@@ -3069,15 +2088,15 @@ Authorization: Bearer <access_token>
       "roundNumber": 1,
       "meetingLink": "https://meet.google.com/xxx-yyyy-zzz",
       "location": "Office Building A, Room 101",
-      "interviewTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+      "interviewType": "TECHNICAL",
       "scheduledDate": "2024-01-20T14:00:00Z",
       "actualDate": null,
       "durationMinutes": 60,
       "interviewerName": "Jane Smith",
       "interviewerEmail": "jane.smith@google.com",
       "interviewerPosition": "Senior Engineer",
-      "statusId": "b2c3d4e5-6f7g-8h9i-0j1k-l2m3n4o5p6q7",
-      "resultId": null,
+      "status": "SCHEDULED",
+      "result": null,
       "feedback": null,
       "notes": "Technical interview",
       "questionsAsked": null,
@@ -3095,9 +2114,9 @@ Authorization: Bearer <access_token>
 ```
 
 ### 2. Create Interview
-**POST** `/jobs/{jobId}/interviews`
+**POST** `/applications/{applicationId}/interviews`
 
-Tạo interview mới cho job.
+Tạo interview mới cho application.
 
 #### Request Headers
 ```
@@ -3108,12 +2127,15 @@ Authorization: Bearer <access_token>
 ```json
 {
   "roundNumber": 1,
-  "interviewType": "PHONE",
+  "interviewType": "TECHNICAL",
   "scheduledDate": "2024-01-20T14:00:00Z",
   "durationMinutes": 60,
   "interviewerName": "Jane Smith",
   "interviewerEmail": "jane.smith@google.com",
   "interviewerPosition": "Senior Engineer",
+  "status": "SCHEDULED",
+  "meetingLink": "https://meet.google.com/xxx-yyyy-zzz",
+  "location": "Office Building A, Room 101",
   "notes": "Technical interview"
 }
 ```
@@ -3125,17 +2147,21 @@ Authorization: Bearer <access_token>
   "message": "Interview created successfully",
   "data": {
     "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "applicationId": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
     "roundNumber": 1,
-    "interviewTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "interviewType": "TECHNICAL",
     "scheduledDate": "2024-01-20T14:00:00Z",
     "actualDate": null,
     "durationMinutes": 60,
     "interviewerName": "Jane Smith",
     "interviewerEmail": "jane.smith@google.com",
     "interviewerPosition": "Senior Engineer",
-    "statusId": "b2c3d4e5-6f7g-8h9i-0j1k-l2m3n4o5p6q7",
-    "resultId": null,
+    "status": "SCHEDULED",
+    "result": null,
+    "meetingLink": "https://meet.google.com/xxx-yyyy-zzz",
+    "location": "Office Building A, Room 101",
     "feedback": null,
     "notes": "Technical interview",
     "questionsAsked": null,
@@ -3184,15 +2210,15 @@ Authorization: Bearer <access_token>
     "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "roundNumber": 1,
-    "interviewTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "interviewType": "TECHNICAL",
     "scheduledDate": "2024-01-20T14:00:00Z",
     "actualDate": "2024-01-20T14:30:00Z",
     "durationMinutes": 60,
     "interviewerName": "Jane Smith",
     "interviewerEmail": "jane.smith@google.com",
     "interviewerPosition": "Senior Engineer",
-    "statusId": "b2c3d4e5-6f7g-8h9i-0j1k-l2m3n4o5p6q7",
-    "resultId": "c3d4e5f6-7g8h-9i0j-1k2l-m3n4o5p6q7r8",
+    "status": "COMPLETED",
+    "result": "PASSED",
     "feedback": "Great technical skills, good communication",
     "notes": "Interview went well, waiting for next round",
     "questionsAsked": "What is your experience with Spring Boot?",
@@ -3222,15 +2248,15 @@ Trả về đầy đủ thông tin của một interview (bao gồm audit, feedb
     "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
     "roundNumber": 1,
-    "interviewTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "interviewType": "TECHNICAL",
     "scheduledDate": "2024-01-20T14:00:00Z",
     "actualDate": "2024-01-20T14:30:00Z",
     "durationMinutes": 60,
     "interviewerName": "Jane Smith",
     "interviewerEmail": "jane.smith@google.com",
     "interviewerPosition": "Senior Engineer",
-    "statusId": "b2c3d4e5-6f7g-8h9i-0j1k-l2m3n4o5p6q7",
-    "resultId": "c3d4e5f6-7g8h-9i0j-1k2l-m3n4o5p6q7r8",
+    "status": "COMPLETED",
+    "result": "PASSED",
     "feedback": "Great technical skills, good communication",
     "notes": "Interview went well, waiting for next round",
     "questionsAsked": "What is your experience with Spring Boot?",
@@ -3364,39 +2390,52 @@ startDate=2024-01-01&endDate=2024-12-31&groupBy=month
     "timeline": [
       {
         "date": "2024-01",
-        "applied": 8,
-        "interview": 2,
-        "offer": 1,
-        "rejected": 3
+        "new": 45,
+        "screening": 20,
+        "interviewing": 15,
+        "offered": 5,
+        "hired": 8,
+        "rejected": 25
       },
       {
         "date": "2024-02",
-        "applied": 12,
-        "interview": 4,
-        "offer": 2,
-        "rejected": 5
+        "new": 80,
+        "screening": 35,
+        "interviewing": 25,
+        "offered": 10,
+        "hired": 15,
+        "rejected": 45
       }
     ],
-    "companyStats": [
+    "jobPostingStats": [
       {
-        "company": "Google",
-        "totalApplications": 5,
-        "interviews": 2,
-        "offers": 1,
-        "successRate": 20.0
+        "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+        "jobTitle": "Senior Java Developer",
+        "totalApplications": 25,
+        "interviews": 10,
+        "offers": 3,
+        "hired": 2,
+        "conversionRate": 8.0
+      }
+    ],
+    "sourceStats": [
+      {
+        "source": "Email",
+        "totalApplications": 50,
+        "hired": 10,
+        "conversionRate": 20.0
       },
       {
-        "company": "Microsoft",
-        "totalApplications": 3,
-        "interviews": 1,
-        "offers": 0,
-        "successRate": 0.0
+        "source": "LinkedIn",
+        "totalApplications": 30,
+        "hired": 5,
+        "conversionRate": 16.7
       }
     ],
     "skillStats": [
       {
         "skill": "Java",
-        "totalJobs": 15,
+        "totalApplications": 45,
         "successRate": 26.7
       },
       {
@@ -3410,12 +2449,14 @@ startDate=2024-01-01&endDate=2024-12-31&groupBy=month
 }
 ```
 
-## 🔔 Notification APIs
+## 🔔 Notification APIs (ATS) 🔄
+
+> **🔄 SEMANTIC CHANGE**: Notifications có thể link đến applications (status changes, interview reminders).
 
 ### 1. Get User Notifications
 **GET** `/notifications`
 
-Lấy danh sách notifications của user.
+Lấy danh sách notifications của user (filtered by company).
 
 #### Request Headers
 ```
@@ -3424,7 +2465,7 @@ Authorization: Bearer <access_token>
 
 #### Query Parameters
 ```
-page=0&size=20&isRead=false&type=DEADLINE_REMINDER
+page=0&size=20&isRead=false&type=APPLICATION_RECEIVED&applicationId=xxx
 ```
 
 #### Response (200 OK)
@@ -3435,16 +2476,18 @@ page=0&size=20&isRead=false&type=DEADLINE_REMINDER
     {
       "id": "n1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
       "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+      "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
       "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-      "typeId": "c9d0c7f4-4d1c-4a53-8a51-4f53c9a9f5d0",
-      "title": "Deadline Reminder",
-      "message": "Google application deadline is in 3 days",
+      "applicationId": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "type": "APPLICATION_RECEIVED",
+      "title": "New Application Received",
+      "message": "John Doe applied for Senior Java Developer",
       "isRead": false,
       "isSent": true,
       "sentAt": "2024-01-15T10:00:00Z",
       "scheduledAt": null,
-      "priorityId": "0da2f18c-4c3d-4d2c-b3f5-2d933515d96e",
-      "metadata": "{\"deadlineDate\":\"2024-01-18\",\"companyName\":\"Google\"}",
+      "priority": "MEDIUM",
+      "metadata": "{\"candidateName\":\"John Doe\",\"jobTitle\":\"Senior Java Developer\"}",
       "createdAt": "2024-01-15T10:00:00Z",
       "updatedAt": "2024-01-15T10:00:00Z"
     }
@@ -3513,8 +2556,8 @@ Authorization: Bearer <access_token>
 {
   "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
   "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-  "typeId": "c9d0c7f4-4d1c-4a53-8a51-4f53c9a9f5d0",
-  "priorityId": "0da2f18c-4c3d-4d2c-b3f5-2d933515d96e",
+  "type": "DEADLINE_REMINDER",
+  "priority": "HIGH",
   "title": "Custom Reminder",
   "message": "Follow up with recruiter tomorrow",
   "scheduledAt": "2024-01-16T09:00:00Z",
@@ -3533,8 +2576,8 @@ Authorization: Bearer <access_token>
     "id": "n2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
     "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-    "typeId": "c9d0c7f4-4d1c-4a53-8a51-4f53c9a9f5d0",
-    "priorityId": "0da2f18c-4c3d-4d2c-b3f5-2d933515d96e",
+    "type": "DEADLINE_REMINDER",
+    "priority": "HIGH",
     "title": "Custom Reminder",
     "message": "Follow up with recruiter tomorrow",
     "isRead": false,
@@ -3563,8 +2606,8 @@ Trả về đầy đủ metadata (job, user, template data).
     "id": "n1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
     "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-    "typeId": "c9d0c7f4-4d1c-4a53-8a51-4f53c9a9f5d0",
-    "priorityId": "0da2f18c-4c3d-4d2c-b3f5-2d933515d96e",
+    "type": "DEADLINE_REMINDER",
+    "priority": "MEDIUM",
     "title": "Deadline Reminder",
     "message": "Google application deadline is in 3 days",
     "isRead": false,
@@ -3680,10 +2723,10 @@ page=0&size=20&entityType=JOB&action=UPDATE&startDate=2024-01-01&endDate=2024-01
       "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
       "userEmail": "admin@gmail.com",
       "oldValues": {
-        "status": "APPLIED"
+        "jobStatus": "DRAFT"
       },
       "newValues": {
-        "status": "INTERVIEW"
+        "jobStatus": "PUBLISHED"
       },
       "ipAddress": "203.0.113.10",
       "userAgent": "Mozilla/5.0 ...",
@@ -3713,12 +2756,14 @@ page=0&size=20&entityType=JOB&action=UPDATE&startDate=2024-01-01&endDate=2024-01
 }
 ```
 
-## 📁 File Management APIs
+## 📁 File Management APIs (ATS) 🔄
 
-### 1. Upload Job Attachment
-**POST** `/jobs/{jobId}/attachments`
+> **🔄 SEMANTIC CHANGE**: Attachments belong to Applications (CVs, certificates), không phải Jobs.
 
-Upload file đính kèm cho job.
+### 1. Upload Application Attachment
+**POST** `/applications/{applicationId}/attachments`
+
+Upload file đính kèm cho application (CV, certificate, portfolio).
 
 #### Request Headers
 ```
@@ -3729,8 +2774,8 @@ Content-Type: multipart/form-data
 #### Request Body (Form Data)
 ```
 file: <file>
-attachmentType: JOB_DESCRIPTION
-description: "Official job description"
+attachmentType: RESUME
+description: "Candidate's resume"
 ```
 
 #### Response (201 Created)
@@ -3740,15 +2785,16 @@ description: "Official job description"
   "message": "Attachment uploaded successfully",
   "data": {
     "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
-    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "applicationId": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
     "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "filename": "job_description.pdf",
-    "originalFilename": "Google_Job_Description.pdf",
-    "filePath": "/attachments/job_1/job_description.pdf",
+    "filename": "john_doe_resume.pdf",
+    "originalFilename": "John_Doe_Resume_2024.pdf",
+    "filePath": "/attachments/app_1/john_doe_resume.pdf",
     "fileSize": 512000,
     "fileType": "application/pdf",
-    "attachmentType": "JOB_DESCRIPTION",
-    "description": "Official job description",
+    "attachmentType": "RESUME",
+    "description": "Candidate's resume",
     "isPublic": false,
     "uploadedAt": "2024-01-15T10:30:00Z",
     "createdAt": "2024-01-15T10:30:00Z"
@@ -3770,28 +2816,53 @@ Authorization: Bearer <access_token>
 #### Response (200 OK)
 ```
 Content-Type: application/pdf
-Content-Disposition: attachment; filename="Google_Job_Description.pdf"
+Content-Disposition: attachment; filename="John_Doe_Resume_2024.pdf"
 Content-Length: 512000
 
 <binary_file_content>
 ```
 
-### 3. List Job Attachments
-**GET** `/jobs/{jobId}/attachments`
+### 3. List Application Attachments
+**GET** `/applications/{applicationId}/attachments`
+
+Lấy danh sách attachments của application.
 
 #### Response (200 OK)
 ```json
 {
   "success": true,
-  "message": "Job attachments retrieved successfully",
+  "message": "Application attachments retrieved successfully",
   "data": [
     {
       "id": "5f47e8b3-338f-4f1a-8e65-92dbd1dcb2f2",
-      "filename": "job_description.pdf",
-      "attachmentType": "JOB_DESCRIPTION",
+      "filename": "john_doe_resume.pdf",
+      "attachmentType": "RESUME",
+      "fileSize": 512000,
       "uploadedAt": "2024-01-15T10:30:00Z"
+    },
+    {
+      "id": "6g58f9c4-449g-5g2b-9f76-a3ece2edc3g3",
+      "filename": "john_doe_certificate.pdf",
+      "attachmentType": "CERTIFICATE",
+      "fileSize": 256000,
+      "uploadedAt": "2024-01-15T11:00:00Z"
     }
   ],
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 4. Delete Attachment
+**DELETE** `/attachments/{id}`
+
+Xóa attachment.
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Attachment deleted successfully",
+  "data": null,
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
