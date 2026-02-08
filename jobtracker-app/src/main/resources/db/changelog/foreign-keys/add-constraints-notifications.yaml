@@ -10,7 +10,13 @@ databaseChangeLog:
             referencedColumnNames: id
             onDelete: CASCADE
             constraintName: fk_notifications_user_id_users
-
+        - addForeignKeyConstraint:
+            baseTableName: notifications
+            baseColumnNames: company_id
+            referencedTableName: companies
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            constraintName: fk_notifications_company_id_companies
         - addForeignKeyConstraint:
             baseTableName: notifications
             baseColumnNames: job_id
@@ -18,28 +24,10 @@ databaseChangeLog:
             referencedColumnNames: id
             onDelete: SET NULL
             constraintName: fk_notifications_job_id_jobs
-
         - addForeignKeyConstraint:
             baseTableName: notifications
-            baseColumnNames: type_id
-            referencedTableName: notification_types
+            baseColumnNames: application_id
+            referencedTableName: applications
             referencedColumnNames: id
-            onDelete: RESTRICT
-            constraintName: fk_notifications_type_id_notification_types
-
-        - addForeignKeyConstraint:
-            baseTableName: notifications
-            baseColumnNames: priority_id
-            referencedTableName: notification_priorities
-            referencedColumnNames: id
-            onDelete: RESTRICT
-            constraintName: fk_notifications_priority_id_notification_priorities
-
-
-
-
-
-
-
-
-
+            onDelete: SET NULL
+            constraintName: fk_notifications_application_id_applications

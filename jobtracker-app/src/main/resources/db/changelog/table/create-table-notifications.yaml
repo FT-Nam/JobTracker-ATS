@@ -13,6 +13,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  defaultValueComputed: UUID()
                   remarks: "UUID thông báo"
               - column:
                   name: user_id
@@ -21,15 +22,25 @@ databaseChangeLog:
                     nullable: false
                   remarks: "UUID người dùng nhận thông báo"
               - column:
+                  name: company_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID công ty"
+              - column:
                   name: job_id
                   type: varchar(36)
                   remarks: "UUID công việc liên quan (nullable)"
               - column:
-                  name: type_id
+                  name: application_id
                   type: varchar(36)
+                  remarks: "UUID ứng tuyển liên quan (nullable)"
+              - column:
+                  name: type
+                  type: varchar(50)
                   constraints:
                     nullable: false
-                  remarks: "UUID loại thông báo"
+                  remarks: "Loại thông báo"
               - column:
                   name: title
                   type: varchar(255)
@@ -61,15 +72,15 @@ databaseChangeLog:
                   type: timestamp
                   remarks: "Thời gian lên lịch gửi"
               - column:
-                  name: priority_id
-                  type: varchar(36)
+                  name: priority
+                  type: varchar(50)
                   constraints:
                     nullable: false
-                  remarks: "UUID độ ưu tiên"
+                  remarks: "Độ ưu tiên"
               - column:
                   name: metadata
                   type: json
-                  remarks: "Dữ liệu bổ sung (JSON)"
+                  remarks: "Dữ liệu bổ sung"
               - column:
                   name: created_at
                   type: timestamp
@@ -80,8 +91,3 @@ databaseChangeLog:
                   type: timestamp
                   defaultValueComputed: CURRENT_TIMESTAMP
                   remarks: "Thời gian cập nhật"
-
-
-
-
-

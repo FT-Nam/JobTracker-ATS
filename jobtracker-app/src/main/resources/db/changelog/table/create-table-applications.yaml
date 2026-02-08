@@ -1,11 +1,11 @@
 databaseChangeLog:
   - changeSet:
-      id: create-table-resumes
+      id: create-table-applications
       author: namphan
       changes:
         - createTable:
-            tableName: resumes
-            remarks: "Bảng CV"
+            tableName: applications
+            remarks: "Bảng ứng tuyển"
             columns:
               - column:
                   name: id
@@ -13,79 +13,81 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "UUID CV"
+                  defaultValueComputed: UUID()
+                  remarks: "UUID ứng tuyển"
               - column:
-                  name: user_id
+                  name: job_id
                   type: varchar(36)
                   constraints:
                     nullable: false
-                  remarks: "UUID người dùng sở hữu"
+                  remarks: "UUID công việc"
               - column:
-                  name: name
+                  name: company_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID công ty"
+              - column:
+                  name: candidate_name
                   type: varchar(255)
                   constraints:
                     nullable: false
-                  remarks: "Tên file CV"
+                  remarks: "Tên ứng viên"
               - column:
-                  name: original_filename
+                  name: candidate_email
                   type: varchar(255)
                   constraints:
                     nullable: false
-                  remarks: "Tên file gốc"
+                  remarks: "Email ứng viên"
               - column:
-                  name: file_path
-                  type: varchar(500)
-                  constraints:
-                    nullable: false
-                  remarks: "Đường dẫn file trên Dropbox"
+                  name: candidate_phone
+                  type: varchar(20)
+                  remarks: "Số điện thoại ứng viên"
               - column:
-                  name: file_size
-                  type: bigint
-                  constraints:
-                    nullable: false
-                  remarks: "Kích thước file (bytes)"
-              - column:
-                  name: file_type
-                  type: varchar(100)
-                  constraints:
-                    nullable: false
-                  remarks: "Loại file (pdf, doc, docx)"
-              - column:
-                  name: version
+                  name: status
                   type: varchar(50)
-                  defaultValue: '1.0'
-                  remarks: "Phiên bản CV"
+                  defaultValue: 'NEW'
+                  constraints:
+                    nullable: false
+                  remarks: "Trạng thái ứng tuyển"
               - column:
-                  name: is_default
-                  type: boolean
-                  defaultValueBoolean: false
-                  remarks: "CV mặc định"
+                  name: source
+                  type: varchar(100)
+                  remarks: "Nguồn ứng viên"
               - column:
-                  name: description
+                  name: applied_date
+                  type: date
+                  constraints:
+                    nullable: false
+                  remarks: "Ngày nộp đơn"
+              - column:
+                  name: resume_file_path
+                  type: varchar(500)
+                  remarks: "Đường dẫn CV"
+              - column:
+                  name: cover_letter
                   type: text
-                  remarks: "Mô tả CV"
+                  remarks: "Cover letter"
               - column:
-                  name: tags
-                  type: json
-                  remarks: "Tags phân loại CV (JSON array)"
+                  name: notes
+                  type: text
+                  remarks: "Ghi chú của HR"
               - column:
-                  name: is_active
-                  type: boolean
-                  defaultValueBoolean: true
-                  remarks: "CV đang hoạt động"
+                  name: rating
+                  type: int
+                  remarks: "Đánh giá ứng viên"
               - column:
-                  name: uploaded_at
-                  type: timestamp
-                  defaultValueComputed: CURRENT_TIMESTAMP
-                  remarks: "Thời gian upload"
+                  name: assigned_to
+                  type: varchar(36)
+                  remarks: "Người được assign"
               - column:
                   name: created_by
                   type: varchar(36)
-                  remarks: "Người tạo (FK to users)"
+                  remarks: "Người tạo"
               - column:
                   name: updated_by
                   type: varchar(36)
-                  remarks: "Người cập nhật cuối (FK to users)"
+                  remarks: "Người cập nhật"
               - column:
                   name: created_at
                   type: timestamp
@@ -100,8 +102,4 @@ databaseChangeLog:
                   name: deleted_at
                   type: timestamp
                   remarks: "Thời gian xóa (soft delete)"
-
-
-
-
 

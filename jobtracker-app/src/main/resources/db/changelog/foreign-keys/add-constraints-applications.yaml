@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-constraints-applications
+      author: namphan
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: applications
+            baseColumnNames: job_id
+            referencedTableName: jobs
+            referencedColumnNames: id
+            onDelete: CASCADE
+            constraintName: fk_applications_job_id_jobs
+        - addForeignKeyConstraint:
+            baseTableName: applications
+            baseColumnNames: company_id
+            referencedTableName: companies
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            constraintName: fk_applications_company_id_companies
+        - addForeignKeyConstraint:
+            baseTableName: applications
+            baseColumnNames: assigned_to
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: SET NULL
+            constraintName: fk_applications_assigned_to_users
+

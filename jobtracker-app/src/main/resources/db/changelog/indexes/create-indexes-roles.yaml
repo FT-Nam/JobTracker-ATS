@@ -4,36 +4,20 @@ databaseChangeLog:
       author: namphan
       changes:
         - createIndex:
-            tableName: roles
             indexName: idx_roles_name
+            tableName: roles
             columns:
               - column:
                   name: name
-
         - createIndex:
-            tableName: roles
             indexName: idx_roles_is_active
+            tableName: roles
             columns:
               - column:
                   name: is_active
-
         - createIndex:
-            tableName: roles
             indexName: idx_roles_deleted_at
+            tableName: roles
             columns:
               - column:
                   name: deleted_at
-
-        - createIndex:
-            tableName: roles
-            indexName: idx_roles_created_by
-            columns:
-              - column:
-                  name: created_by
-
-        - createIndex:
-            tableName: roles
-            indexName: idx_roles_updated_by
-            columns:
-              - column:
-                  name: updated_by

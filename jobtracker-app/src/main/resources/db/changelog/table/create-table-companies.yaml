@@ -13,6 +13,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  defaultValueComputed: UUID()
                   remarks: "UUID công ty"
               - column:
                   name: name
@@ -31,7 +32,7 @@ databaseChangeLog:
               - column:
                   name: size
                   type: varchar(50)
-                  remarks: "Quy mô công ty (STARTUP, SMALL, MEDIUM, LARGE, ENTERPRISE)"
+                  remarks: "Quy mô công ty"
               - column:
                   name: location
                   type: varchar(255)
@@ -50,13 +51,37 @@ databaseChangeLog:
                   defaultValueBoolean: false
                   remarks: "Công ty đã xác thực"
               - column:
+                  name: subscription_plan
+                  type: varchar(50)
+                  defaultValue: 'FREE'
+                  remarks: "Gói subscription"
+              - column:
+                  name: max_jobs
+                  type: int
+                  defaultValueNumeric: 5
+                  remarks: "Số jobs tối đa theo plan"
+              - column:
+                  name: max_users
+                  type: int
+                  defaultValueNumeric: 3
+                  remarks: "Số users tối đa theo plan"
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  remarks: "Company đang hoạt động"
+              - column:
+                  name: subscription_expires_at
+                  type: timestamp
+                  remarks: "Ngày hết hạn subscription"
+              - column:
                   name: created_by
                   type: varchar(36)
-                  remarks: "Người tạo (FK to users)"
+                  remarks: "Người tạo"
               - column:
                   name: updated_by
                   type: varchar(36)
-                  remarks: "Người cập nhật cuối (FK to users)"
+                  remarks: "Người cập nhật"
               - column:
                   name: created_at
                   type: timestamp
@@ -71,8 +96,3 @@ databaseChangeLog:
                   name: deleted_at
                   type: timestamp
                   remarks: "Thời gian xóa (soft delete)"
-
-
-
-
-

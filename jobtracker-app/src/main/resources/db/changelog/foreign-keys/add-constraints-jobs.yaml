@@ -10,7 +10,6 @@ databaseChangeLog:
             referencedColumnNames: id
             onDelete: CASCADE
             constraintName: fk_jobs_user_id_users
-
         - addForeignKeyConstraint:
             baseTableName: jobs
             baseColumnNames: company_id
@@ -18,38 +17,3 @@ databaseChangeLog:
             referencedColumnNames: id
             onDelete: RESTRICT
             constraintName: fk_jobs_company_id_companies
-
-        - addForeignKeyConstraint:
-            baseTableName: jobs
-            baseColumnNames: job_type_id
-            referencedTableName: job_types
-            referencedColumnNames: id
-            onDelete: RESTRICT
-            constraintName: fk_jobs_job_type_id_job_types
-
-        - addForeignKeyConstraint:
-            baseTableName: jobs
-            baseColumnNames: status_id
-            referencedTableName: job_statuses
-            referencedColumnNames: id
-            onDelete: RESTRICT
-            constraintName: fk_jobs_status_id_job_statuses
-
-        - addForeignKeyConstraint:
-            baseTableName: jobs
-            baseColumnNames: priority_id
-            referencedTableName: priorities
-            referencedColumnNames: id
-            onDelete: RESTRICT
-            constraintName: fk_jobs_priority_id_priorities
-
-        - addForeignKeyConstraint:
-            baseTableName: jobs
-            baseColumnNames: experience_level_id
-            referencedTableName: experience_levels
-            referencedColumnNames: id
-            onDelete: SET NULL
-            constraintName: fk_jobs_experience_level_id_experience_levels
-
-
-

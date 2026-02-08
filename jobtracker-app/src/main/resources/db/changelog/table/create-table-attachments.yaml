@@ -13,13 +13,18 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  defaultValueComputed: UUID()
                   remarks: "UUID file đính kèm"
               - column:
-                  name: job_id
+                  name: application_id
+                  type: varchar(36)
+                  remarks: "UUID ứng tuyển"
+              - column:
+                  name: company_id
                   type: varchar(36)
                   constraints:
                     nullable: false
-                  remarks: "UUID công việc"
+                  remarks: "UUID công ty"
               - column:
                   name: user_id
                   type: varchar(36)
@@ -43,7 +48,7 @@ databaseChangeLog:
                   type: varchar(500)
                   constraints:
                     nullable: false
-                  remarks: "Đường dẫn file trên Dropbox"
+                  remarks: "Đường dẫn file"
               - column:
                   name: file_size
                   type: bigint
@@ -61,7 +66,7 @@ databaseChangeLog:
                   type: varchar(50)
                   constraints:
                     nullable: false
-                  remarks: "Loại file đính kèm (JOB_DESCRIPTION, COVER_LETTER, CERTIFICATE, PORTFOLIO, OTHER)"
+                  remarks: "Loại file đính kèm"
               - column:
                   name: description
                   type: text
@@ -79,11 +84,11 @@ databaseChangeLog:
               - column:
                   name: created_by
                   type: varchar(36)
-                  remarks: "Người tạo (FK to users)"
+                  remarks: "Người tạo"
               - column:
                   name: updated_by
                   type: varchar(36)
-                  remarks: "Người cập nhật cuối (FK to users)"
+                  remarks: "Người cập nhật"
               - column:
                   name: created_at
                   type: timestamp
@@ -98,8 +103,3 @@ databaseChangeLog:
                   name: deleted_at
                   type: timestamp
                   remarks: "Thời gian xóa (soft delete)"
-
-
-
-
-

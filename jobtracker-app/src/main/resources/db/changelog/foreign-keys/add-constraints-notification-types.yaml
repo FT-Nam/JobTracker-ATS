@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: add-constraints-notification-types
-      author: namphan
-      changes:
-        
-
-

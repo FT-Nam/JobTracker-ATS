@@ -13,6 +13,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  defaultValueComputed: UUID()
                   remarks: "UUID quyền"
               - column:
                   name: name
@@ -23,7 +24,7 @@ databaseChangeLog:
                   remarks: "Tên quyền"
               - column:
                   name: resource
-                  type: varchar(100)
+                  type: varchar(50)
                   constraints:
                     nullable: false
                   remarks: "Tài nguyên"
@@ -32,7 +33,7 @@ databaseChangeLog:
                   type: varchar(50)
                   constraints:
                     nullable: false
-                  remarks: "Hành động (CREATE, READ, UPDATE, DELETE)"
+                  remarks: "Hành động"
               - column:
                   name: description
                   type: varchar(255)
@@ -45,11 +46,11 @@ databaseChangeLog:
               - column:
                   name: created_by
                   type: varchar(36)
-                  remarks: "Người tạo (FK to users)"
+                  remarks: "Người tạo"
               - column:
                   name: updated_by
                   type: varchar(36)
-                  remarks: "Người cập nhật cuối (FK to users)"
+                  remarks: "Người cập nhật"
               - column:
                   name: created_at
                   type: timestamp
@@ -64,8 +65,3 @@ databaseChangeLog:
                   name: deleted_at
                   type: timestamp
                   remarks: "Thời gian xóa (soft delete)"
-
-
-
-
-

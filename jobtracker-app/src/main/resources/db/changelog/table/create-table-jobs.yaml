@@ -5,7 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: jobs
-            remarks: "Bảng công việc"
+            remarks: "Bảng tin tuyển dụng"
             columns:
               - column:
                   name: id
@@ -13,13 +13,14 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "UUID công việc"
+                  defaultValueComputed: UUID()
+                  remarks: "UUID tin tuyển dụng"
               - column:
                   name: user_id
                   type: varchar(36)
                   constraints:
                     nullable: false
-                  remarks: "UUID người dùng sở hữu"
+                  remarks: "UUID người tạo tin"
               - column:
                   name: company_id
                   type: varchar(36)
@@ -31,19 +32,19 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
-                  remarks: "Tiêu đề công việc"
+                  remarks: "Tiêu đề tin tuyển dụng"
               - column:
                   name: position
                   type: varchar(255)
                   constraints:
                     nullable: false
-                  remarks: "Vị trí ứng tuyển"
+                  remarks: "Vị trí cần tuyển"
               - column:
-                  name: job_type_id
-                  type: varchar(36)
+                  name: job_type
+                  type: varchar(50)
                   constraints:
                     nullable: false
-                  remarks: "UUID loại công việc"
+                  remarks: "Loại công việc"
               - column:
                   name: location
                   type: varchar(255)
@@ -62,27 +63,14 @@ databaseChangeLog:
                   defaultValue: 'USD'
                   remarks: "Đơn vị tiền tệ"
               - column:
-                  name: status_id
-                  type: varchar(36)
-                  constraints:
-                    nullable: false
-                  remarks: "UUID trạng thái ứng tuyển"
-              - column:
-                  name: application_date
-                  type: date
-                  remarks: "Ngày nộp đơn"
+                  name: job_status
+                  type: varchar(50)
+                  defaultValue: 'DRAFT'
+                  remarks: "Trạng thái tin"
               - column:
                   name: deadline_date
                   type: date
                   remarks: "Hạn nộp đơn"
-              - column:
-                  name: interview_date
-                  type: date
-                  remarks: "Ngày phỏng vấn"
-              - column:
-                  name: offer_date
-                  type: date
-                  remarks: "Ngày nhận offer"
               - column:
                   name: job_description
                   type: text
@@ -100,32 +88,36 @@ databaseChangeLog:
                   type: varchar(500)
                   remarks: "URL tin tuyển dụng"
               - column:
-                  name: notes
-                  type: text
-                  remarks: "Ghi chú cá nhân"
-              - column:
-                  name: priority_id
-                  type: varchar(36)
-                  constraints:
-                    nullable: false
-                  remarks: "UUID độ ưu tiên"
-              - column:
                   name: is_remote
                   type: boolean
                   defaultValueBoolean: false
                   remarks: "Làm việc từ xa"
               - column:
-                  name: experience_level_id
-                  type: varchar(36)
-                  remarks: "UUID cấp độ kinh nghiệm"
+                  name: published_at
+                  type: timestamp
+                  remarks: "Ngày đăng tin"
+              - column:
+                  name: expires_at
+                  type: timestamp
+                  remarks: "Ngày hết hạn"
+              - column:
+                  name: views_count
+                  type: int
+                  defaultValueNumeric: 0
+                  remarks: "Số lượt xem"
+              - column:
+                  name: applications_count
+                  type: int
+                  defaultValueNumeric: 0
+                  remarks: "Số lượng ứng tuyển"
               - column:
                   name: created_by
                   type: varchar(36)
-                  remarks: "Người tạo (FK to users)"
+                  remarks: "Người tạo"
               - column:
                   name: updated_by
                   type: varchar(36)
-                  remarks: "Người cập nhật cuối (FK to users)"
+                  remarks: "Người cập nhật"
               - column:
                   name: created_at
                   type: timestamp
@@ -140,8 +132,3 @@ databaseChangeLog:
                   name: deleted_at
                   type: timestamp
                   remarks: "Thời gian xóa (soft delete)"
-
-
-
-
-

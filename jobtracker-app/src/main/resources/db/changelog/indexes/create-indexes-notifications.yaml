@@ -4,82 +4,86 @@ databaseChangeLog:
       author: namphan
       changes:
         - createIndex:
-            tableName: notifications
             indexName: idx_notifications_user_id
+            tableName: notifications
             columns:
               - column:
                   name: user_id
-
         - createIndex:
+            indexName: idx_notifications_company_id
             tableName: notifications
+            columns:
+              - column:
+                  name: company_id
+        - createIndex:
             indexName: idx_notifications_job_id
+            tableName: notifications
             columns:
               - column:
                   name: job_id
-
         - createIndex:
+            indexName: idx_notifications_application_id
             tableName: notifications
-            indexName: idx_notifications_type_id
             columns:
               - column:
-                  name: type_id
-
+                  name: application_id
         - createIndex:
+            indexName: idx_notifications_type
             tableName: notifications
-            indexName: idx_notifications_priority_id
             columns:
               - column:
-                  name: priority_id
-
+                  name: type
         - createIndex:
+            indexName: idx_notifications_priority
             tableName: notifications
+            columns:
+              - column:
+                  name: priority
+        - createIndex:
             indexName: idx_notifications_is_read
+            tableName: notifications
             columns:
               - column:
                   name: is_read
-
         - createIndex:
-            tableName: notifications
             indexName: idx_notifications_is_sent
+            tableName: notifications
             columns:
               - column:
                   name: is_sent
-
         - createIndex:
-            tableName: notifications
             indexName: idx_notifications_scheduled_at
+            tableName: notifications
             columns:
               - column:
                   name: scheduled_at
-
         - createIndex:
-            tableName: notifications
             indexName: idx_notifications_created_at
+            tableName: notifications
             columns:
               - column:
                   name: created_at
-
         - createIndex:
-            tableName: notifications
             indexName: idx_notifications_user_unread
+            tableName: notifications
             columns:
               - column:
                   name: user_id
               - column:
                   name: is_read
-
         - createIndex:
+            indexName: idx_notifications_company_unread
             tableName: notifications
+            columns:
+              - column:
+                  name: company_id
+              - column:
+                  name: is_read
+        - createIndex:
             indexName: idx_notifications_scheduled_unsent
+            tableName: notifications
             columns:
               - column:
                   name: scheduled_at
               - column:
                   name: is_sent
-
-
-
-
-
-
-

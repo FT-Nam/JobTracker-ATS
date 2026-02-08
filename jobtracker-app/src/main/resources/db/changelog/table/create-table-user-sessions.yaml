@@ -13,7 +13,8 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "UUID session"
+                  defaultValueComputed: UUID()
+                  remarks: "UUID phiên đăng nhập"
               - column:
                   name: user_id
                   type: varchar(36)
@@ -28,29 +29,13 @@ databaseChangeLog:
                     unique: true
                   remarks: "Token phiên đăng nhập"
               - column:
-                  name: refresh_token
-                  type: varchar(500)
-                  constraints:
-                    nullable: false
-                    unique: true
-                  remarks: "Refresh token"
-              - column:
-                  name: device_info
-                  type: json
-                  remarks: "Thông tin thiết bị (JSON)"
-              - column:
                   name: ip_address
                   type: varchar(45)
                   remarks: "Địa chỉ IP"
               - column:
                   name: user_agent
-                  type: text
-                  remarks: "User agent string"
-              - column:
-                  name: is_active
-                  type: boolean
-                  defaultValueBoolean: true
-                  remarks: "Phiên đang hoạt động"
+                  type: varchar(500)
+                  remarks: "User agent"
               - column:
                   name: expires_at
                   type: timestamp
@@ -58,10 +43,15 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Thời gian hết hạn"
               - column:
-                  name: last_used_at
+                  name: last_activity_at
                   type: timestamp
                   defaultValueComputed: CURRENT_TIMESTAMP
-                  remarks: "Lần sử dụng cuối"
+                  remarks: "Lần hoạt động cuối"
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  remarks: "Phiên đang hoạt động"
               - column:
                   name: created_at
                   type: timestamp
@@ -72,8 +62,3 @@ databaseChangeLog:
                   type: timestamp
                   defaultValueComputed: CURRENT_TIMESTAMP
                   remarks: "Thời gian cập nhật"
-
-
-
-
-

@@ -4,52 +4,28 @@ databaseChangeLog:
       author: namphan
       changes:
         - createIndex:
-            tableName: permissions
             indexName: idx_permissions_name
+            tableName: permissions
             columns:
               - column:
                   name: name
-
         - createIndex:
-            tableName: permissions
             indexName: idx_permissions_resource_action
+            tableName: permissions
             columns:
               - column:
                   name: resource
               - column:
                   name: action
-
         - createIndex:
-            tableName: permissions
             indexName: idx_permissions_is_active
+            tableName: permissions
             columns:
               - column:
                   name: is_active
-
         - createIndex:
-            tableName: permissions
             indexName: idx_permissions_deleted_at
+            tableName: permissions
             columns:
               - column:
                   name: deleted_at
-
-        - createIndex:
-            tableName: permissions
-            indexName: idx_permissions_created_by
-            columns:
-              - column:
-                  name: created_by
-
-        - createIndex:
-            tableName: permissions
-            indexName: idx_permissions_updated_by
-            columns:
-              - column:
-                  name: updated_by
-
-
-
-
-
-
-

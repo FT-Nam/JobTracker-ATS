@@ -5,8 +5,19 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseTableName: users
+            baseColumnNames: company_id
+            referencedTableName: companies
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            constraintName: fk_users_company_id_companies
+        - addForeignKeyConstraint:
+            baseTableName: users
             baseColumnNames: role_id
             referencedTableName: roles
             referencedColumnNames: id
             onDelete: RESTRICT
             constraintName: fk_users_role_id_roles
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: company_id, email
+            constraintName: uk_users_company_email

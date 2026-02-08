@@ -4,36 +4,20 @@ databaseChangeLog:
       author: namphan
       changes:
         - createIndex:
-            tableName: job_skills
             indexName: idx_job_skills_job_id
+            tableName: job_skills
             columns:
               - column:
                   name: job_id
-
         - createIndex:
-            tableName: job_skills
             indexName: idx_job_skills_skill_id
+            tableName: job_skills
             columns:
               - column:
                   name: skill_id
-
         - createIndex:
-            tableName: job_skills
-            indexName: idx_job_skills_created_by
-            columns:
-              - column:
-                  name: created_by
-
-        - createIndex:
-            tableName: job_skills
             indexName: idx_job_skills_is_deleted
+            tableName: job_skills
             columns:
               - column:
                   name: is_deleted
-
-
-
-
-
-
-

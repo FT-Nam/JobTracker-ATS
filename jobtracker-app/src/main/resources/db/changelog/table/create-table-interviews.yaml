@@ -13,13 +13,26 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  defaultValueComputed: UUID()
                   remarks: "UUID phỏng vấn"
+              - column:
+                  name: application_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID ứng tuyển"
               - column:
                   name: job_id
                   type: varchar(36)
                   constraints:
                     nullable: false
-                  remarks: "UUID công việc"
+                  remarks: "UUID công việc (reference)"
+              - column:
+                  name: company_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID công ty"
               - column:
                   name: round_number
                   type: int
@@ -27,11 +40,11 @@ databaseChangeLog:
                     nullable: false
                   remarks: "Số vòng phỏng vấn"
               - column:
-                  name: interview_type_id
-                  type: varchar(36)
+                  name: interview_type
+                  type: varchar(50)
                   constraints:
                     nullable: false
-                  remarks: "UUID loại phỏng vấn"
+                  remarks: "Loại phỏng vấn"
               - column:
                   name: scheduled_date
                   type: timestamp
@@ -59,15 +72,16 @@ databaseChangeLog:
                   type: varchar(255)
                   remarks: "Vị trí người phỏng vấn"
               - column:
-                  name: status_id
-                  type: varchar(36)
+                  name: status
+                  type: varchar(50)
+                  defaultValue: 'SCHEDULED'
                   constraints:
                     nullable: false
-                  remarks: "UUID trạng thái phỏng vấn"
+                  remarks: "Trạng thái phỏng vấn"
               - column:
-                  name: result_id
-                  type: varchar(36)
-                  remarks: "UUID kết quả phỏng vấn"
+                  name: result
+                  type: varchar(50)
+                  remarks: "Kết quả phỏng vấn"
               - column:
                   name: feedback
                   type: text
@@ -87,15 +101,23 @@ databaseChangeLog:
               - column:
                   name: rating
                   type: int
-                  remarks: "Đánh giá chất lượng phỏng vấn (1-5)"
+                  remarks: "Đánh giá chất lượng phỏng vấn"
+              - column:
+                  name: meeting_link
+                  type: varchar(500)
+                  remarks: "Link phỏng vấn"
+              - column:
+                  name: location
+                  type: varchar(255)
+                  remarks: "Địa điểm"
               - column:
                   name: created_by
                   type: varchar(36)
-                  remarks: "Người tạo (FK to users)"
+                  remarks: "Người tạo"
               - column:
                   name: updated_by
                   type: varchar(36)
-                  remarks: "Người cập nhật cuối (FK to users)"
+                  remarks: "Người cập nhật"
               - column:
                   name: created_at
                   type: timestamp
@@ -110,10 +132,3 @@ databaseChangeLog:
                   name: deleted_at
                   type: timestamp
                   remarks: "Thời gian xóa (soft delete)"
-
-
-
-
-
-
-

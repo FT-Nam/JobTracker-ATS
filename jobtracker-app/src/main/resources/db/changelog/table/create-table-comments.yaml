@@ -1,11 +1,11 @@
 databaseChangeLog:
   - changeSet:
-      id: create-table-job-resumes
+      id: create-table-comments
       author: namphan
       changes:
         - createTable:
-            tableName: job_resumes
-            remarks: "Bảng liên kết CV với công việc"
+            tableName: comments
+            remarks: "Bảng bình luận"
             columns:
               - column:
                   name: id
@@ -13,28 +13,31 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "UUID job resume"
+                  defaultValueComputed: UUID()
+                  remarks: "UUID bình luận"
               - column:
-                  name: job_id
+                  name: application_id
                   type: varchar(36)
                   constraints:
                     nullable: false
-                  remarks: "UUID công việc"
+                  remarks: "UUID ứng tuyển"
               - column:
-                  name: resume_id
+                  name: user_id
                   type: varchar(36)
                   constraints:
                     nullable: false
-                  remarks: "UUID CV"
+                  remarks: "Người bình luận"
               - column:
-                  name: is_primary
+                  name: comment_text
+                  type: text
+                  constraints:
+                    nullable: false
+                  remarks: "Nội dung bình luận"
+              - column:
+                  name: is_internal
                   type: boolean
                   defaultValueBoolean: true
-                  remarks: "CV chính được sử dụng"
-              - column:
-                  name: created_by
-                  type: varchar(36)
-                  remarks: "Người tạo (FK to users)"
+                  remarks: "Bình luận nội bộ"
               - column:
                   name: created_at
                   type: timestamp
@@ -46,14 +49,7 @@ databaseChangeLog:
                   defaultValueComputed: CURRENT_TIMESTAMP
                   remarks: "Thời gian cập nhật"
               - column:
-                  name: is_deleted
-                  type: boolean
-                  defaultValueBoolean: false
-                  remarks: "Đã xóa (soft delete)"
-
-
-
-
-
-
+                  name: deleted_at
+                  type: timestamp
+                  remarks: "Thời gian xóa (soft delete)"
 

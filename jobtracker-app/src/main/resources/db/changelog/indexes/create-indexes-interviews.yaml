@@ -4,78 +4,68 @@ databaseChangeLog:
       author: namphan
       changes:
         - createIndex:
+            indexName: idx_interviews_application_id
             tableName: interviews
+            columns:
+              - column:
+                  name: application_id
+        - createIndex:
             indexName: idx_interviews_job_id
+            tableName: interviews
             columns:
               - column:
                   name: job_id
-
         - createIndex:
+            indexName: idx_interviews_company_id
             tableName: interviews
-            indexName: idx_interviews_interview_type_id
             columns:
               - column:
-                  name: interview_type_id
-
+                  name: company_id
         - createIndex:
+            indexName: idx_interviews_interview_type
             tableName: interviews
-            indexName: idx_interviews_status_id
             columns:
               - column:
-                  name: status_id
-
+                  name: interview_type
         - createIndex:
+            indexName: idx_interviews_status
             tableName: interviews
-            indexName: idx_interviews_result_id
             columns:
               - column:
-                  name: result_id
-
+                  name: status
         - createIndex:
+            indexName: idx_interviews_result
             tableName: interviews
+            columns:
+              - column:
+                  name: result
+        - createIndex:
             indexName: idx_interviews_scheduled_date
+            tableName: interviews
             columns:
               - column:
                   name: scheduled_date
-
         - createIndex:
-            tableName: interviews
-            indexName: idx_interviews_created_at
-            columns:
-              - column:
-                  name: created_at
-
-        - createIndex:
-            tableName: interviews
-            indexName: idx_interviews_created_by
-            columns:
-              - column:
-                  name: created_by
-
-        - createIndex:
-            tableName: interviews
-            indexName: idx_interviews_updated_by
-            columns:
-              - column:
-                  name: updated_by
-
-        - createIndex:
-            tableName: interviews
             indexName: idx_interviews_deleted_at
+            tableName: interviews
             columns:
               - column:
                   name: deleted_at
-
         - createIndex:
+            indexName: idx_interviews_company_scheduled_status
             tableName: interviews
-            indexName: idx_interviews_job_round
             columns:
               - column:
-                  name: job_id
+                  name: company_id
+              - column:
+                  name: scheduled_date
+              - column:
+                  name: status
+        - createIndex:
+            indexName: idx_interviews_application_round
+            tableName: interviews
+            columns:
+              - column:
+                  name: application_id
               - column:
                   name: round_number
-
-
-
-
-

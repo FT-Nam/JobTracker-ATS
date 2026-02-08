@@ -4,55 +4,38 @@ databaseChangeLog:
       author: namphan
       changes:
         - createIndex:
-            tableName: companies
             indexName: idx_companies_name
+            tableName: companies
             columns:
               - column:
                   name: name
-
         - createIndex:
-            tableName: companies
             indexName: idx_companies_industry
+            tableName: companies
             columns:
               - column:
                   name: industry
-
         - createIndex:
-            tableName: companies
             indexName: idx_companies_size
+            tableName: companies
             columns:
               - column:
                   name: size
-
         - createIndex:
+            indexName: idx_companies_subscription_plan
             tableName: companies
-            indexName: idx_companies_created_at
             columns:
               - column:
-                  name: created_at
-
+                  name: subscription_plan
         - createIndex:
+            indexName: idx_companies_is_active
             tableName: companies
-            indexName: idx_companies_created_by
             columns:
               - column:
-                  name: created_by
-
+                  name: is_active
         - createIndex:
-            tableName: companies
-            indexName: idx_companies_updated_by
-            columns:
-              - column:
-                  name: updated_by
-
-        - createIndex:
-            tableName: companies
             indexName: idx_companies_deleted_at
+            tableName: companies
             columns:
               - column:
                   name: deleted_at
-
-
-
-
-

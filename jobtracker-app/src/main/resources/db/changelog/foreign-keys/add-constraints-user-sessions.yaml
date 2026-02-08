@@ -11,9 +11,3 @@ databaseChangeLog:
             onDelete: CASCADE
             constraintName: fk_user_sessions_user_id_users
 
-
-
-
-
-
-

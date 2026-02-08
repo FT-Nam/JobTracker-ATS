@@ -10,12 +10,10 @@ databaseChangeLog:
             referencedColumnNames: id
             onDelete: SET NULL
             constraintName: fk_audit_logs_user_id_users
-
-
-
-
-
-
-
-
-
+        - addForeignKeyConstraint:
+            baseTableName: audit_logs
+            baseColumnNames: company_id
+            referencedTableName: companies
+            referencedColumnNames: id
+            onDelete: SET NULL
+            constraintName: fk_audit_logs_company_id_companies

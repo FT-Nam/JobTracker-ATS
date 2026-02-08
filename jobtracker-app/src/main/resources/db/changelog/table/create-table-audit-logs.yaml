@@ -5,7 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: audit_logs
-            remarks: "Bảng log audit"
+            remarks: "Bảng audit log"
             columns:
               - column:
                   name: id
@@ -13,52 +13,52 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  defaultValueComputed: UUID()
                   remarks: "UUID audit log"
+              - column:
+                  name: company_id
+                  type: varchar(36)
+                  remarks: "UUID công ty"
               - column:
                   name: user_id
                   type: varchar(36)
-                  remarks: "UUID người dùng thực hiện (nullable cho system actions)"
+                  remarks: "UUID người dùng thực hiện"
               - column:
                   name: entity_type
                   type: varchar(100)
                   constraints:
                     nullable: false
-                  remarks: "Loại entity (User, Job, Company, etc.)"
+                  remarks: "Loại entity"
               - column:
                   name: entity_id
                   type: varchar(36)
                   constraints:
                     nullable: false
-                  remarks: "UUID của entity"
+                  remarks: "UUID entity"
               - column:
                   name: action
                   type: varchar(50)
                   constraints:
                     nullable: false
-                  remarks: "Hành động thực hiện (CREATE, UPDATE, DELETE, LOGIN, LOGOUT, UPLOAD, DOWNLOAD)"
+                  remarks: "Hành động"
               - column:
                   name: old_values
                   type: json
-                  remarks: "Giá trị cũ (JSON)"
+                  remarks: "Giá trị cũ"
               - column:
                   name: new_values
                   type: json
-                  remarks: "Giá trị mới (JSON)"
+                  remarks: "Giá trị mới"
               - column:
                   name: ip_address
                   type: varchar(45)
                   remarks: "Địa chỉ IP"
               - column:
                   name: user_agent
-                  type: text
-                  remarks: "User agent string"
+                  type: varchar(500)
+                  remarks: "User agent"
               - column:
                   name: created_at
                   type: timestamp
                   defaultValueComputed: CURRENT_TIMESTAMP
                   remarks: "Thời gian tạo"
-
-
-
-
-

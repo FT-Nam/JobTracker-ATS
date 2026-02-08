@@ -13,7 +13,8 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "ID vai trò"
+                  defaultValueComputed: UUID()
+                  remarks: "UUID vai trò"
               - column:
                   name: name
                   type: varchar(50)
@@ -33,11 +34,11 @@ databaseChangeLog:
               - column:
                   name: created_by
                   type: varchar(36)
-                  remarks: "Người tạo (FK to users)"
+                  remarks: "Người tạo"
               - column:
                   name: updated_by
                   type: varchar(36)
-                  remarks: "Người cập nhật cuối (FK to users)"
+                  remarks: "Người cập nhật"
               - column:
                   name: created_at
                   type: timestamp

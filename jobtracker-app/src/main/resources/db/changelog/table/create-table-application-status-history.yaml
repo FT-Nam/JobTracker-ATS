@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-application-status-history
+      author: namphan
+      changes:
+        - createTable:
+            tableName: application_status_history
+            remarks: "Bảng lịch sử thay đổi trạng thái ứng tuyển"
+            columns:
+              - column:
+                  name: id
+                  type: varchar(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  defaultValueComputed: UUID()
+                  remarks: "UUID lịch sử"
+              - column:
+                  name: application_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID ứng tuyển"
+              - column:
+                  name: from_status
+                  type: varchar(50)
+                  remarks: "Trạng thái cũ"
+              - column:
+                  name: to_status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                  remarks: "Trạng thái mới"
+              - column:
+                  name: changed_by
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "Người thay đổi"
+              - column:
+                  name: notes
+                  type: text
+                  remarks: "Ghi chú"
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian tạo"
+

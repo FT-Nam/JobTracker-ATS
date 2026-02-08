@@ -10,7 +10,6 @@ databaseChangeLog:
             referencedColumnNames: id
             onDelete: CASCADE
             constraintName: fk_job_skills_job_id_jobs
-
         - addForeignKeyConstraint:
             baseTableName: job_skills
             baseColumnNames: skill_id
@@ -18,20 +17,7 @@ databaseChangeLog:
             referencedColumnNames: id
             onDelete: CASCADE
             constraintName: fk_job_skills_skill_id_skills
-
-        - addForeignKeyConstraint:
-            baseTableName: job_skills
-            baseColumnNames: created_by
-            referencedTableName: users
-            referencedColumnNames: id
-            onDelete: SET NULL
-            constraintName: fk_job_skills_created_by_users
-
-
-
-
-
-
-
-
-
+        - addUniqueConstraint:
+            tableName: job_skills
+            columnNames: job_id, skill_id
+            constraintName: uk_job_skills_job_skill

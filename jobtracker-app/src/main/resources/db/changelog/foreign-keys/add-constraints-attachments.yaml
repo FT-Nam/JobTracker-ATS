@@ -5,12 +5,18 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseTableName: attachments
-            baseColumnNames: job_id
-            referencedTableName: jobs
+            baseColumnNames: application_id
+            referencedTableName: applications
             referencedColumnNames: id
             onDelete: CASCADE
-            constraintName: fk_attachments_job_id_jobs
-
+            constraintName: fk_attachments_application_id_applications
+        - addForeignKeyConstraint:
+            baseTableName: attachments
+            baseColumnNames: company_id
+            referencedTableName: companies
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            constraintName: fk_attachments_company_id_companies
         - addForeignKeyConstraint:
             baseTableName: attachments
             baseColumnNames: user_id
@@ -18,6 +24,3 @@ databaseChangeLog:
             referencedColumnNames: id
             onDelete: CASCADE
             constraintName: fk_attachments_user_id_users
-
-
-

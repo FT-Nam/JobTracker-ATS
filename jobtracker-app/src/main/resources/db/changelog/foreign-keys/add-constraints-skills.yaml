@@ -3,6 +3,4 @@ databaseChangeLog:
       id: add-constraints-skills
       author: namphan
       changes:
-        
-
 

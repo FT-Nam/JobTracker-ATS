@@ -5,7 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: job_skills
-            remarks: "Bảng kỹ năng công việc - Many-to-Many"
+            remarks: "Bảng kỹ năng công việc"
             columns:
               - column:
                   name: id
@@ -13,7 +13,8 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "UUID job skill"
+                  defaultValueComputed: UUID()
+                  remarks: "UUID kỹ năng công việc"
               - column:
                   name: job_id
                   type: varchar(36)
@@ -34,11 +35,11 @@ databaseChangeLog:
               - column:
                   name: proficiency_level
                   type: varchar(50)
-                  remarks: "Mức độ thành thạo yêu cầu (BEGINNER, INTERMEDIATE, ADVANCED, EXPERT)"
+                  remarks: "Mức độ thành thạo"
               - column:
                   name: created_by
                   type: varchar(36)
-                  remarks: "Người tạo (FK to users)"
+                  remarks: "Người tạo"
               - column:
                   name: created_at
                   type: timestamp
@@ -54,8 +55,3 @@ databaseChangeLog:
                   type: boolean
                   defaultValueBoolean: false
                   remarks: "Đã xóa (soft delete)"
-
-
-
-
-

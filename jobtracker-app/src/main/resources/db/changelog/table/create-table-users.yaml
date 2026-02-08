@@ -13,18 +13,24 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  defaultValueComputed: UUID()
                   remarks: "UUID người dùng"
+              - column:
+                  name: company_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID công ty"
               - column:
                   name: email
                   type: varchar(255)
                   constraints:
                     nullable: false
-                    unique: true
                   remarks: "Email đăng nhập"
               - column:
                   name: password
                   type: varchar(255)
-                  remarks: "Mật khẩu đã hash (null nếu dùng OAuth)"
+                  remarks: "Mật khẩu đã hash"
               - column:
                   name: first_name
                   type: varchar(100)
@@ -50,7 +56,7 @@ databaseChangeLog:
                   type: varchar(36)
                   constraints:
                     nullable: false
-                  remarks: "ID vai trò người dùng"
+                  remarks: "UUID vai trò người dùng"
               - column:
                   name: is_active
                   type: boolean
@@ -64,8 +70,6 @@ databaseChangeLog:
               - column:
                   name: google_id
                   type: varchar(100)
-                  constraints:
-                    unique: true
                   remarks: "Google OAuth ID"
               - column:
                   name: last_login_at
@@ -74,11 +78,11 @@ databaseChangeLog:
               - column:
                   name: created_by
                   type: varchar(36)
-                  remarks: "Người tạo (FK to users)"
+                  remarks: "Người tạo"
               - column:
                   name: updated_by
                   type: varchar(36)
-                  remarks: "Người cập nhật cuối (FK to users)"
+                  remarks: "Người cập nhật"
               - column:
                   name: created_at
                   type: timestamp

@@ -5,35 +5,22 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseTableName: interviews
+            baseColumnNames: application_id
+            referencedTableName: applications
+            referencedColumnNames: id
+            onDelete: CASCADE
+            constraintName: fk_interviews_application_id_applications
+        - addForeignKeyConstraint:
+            baseTableName: interviews
             baseColumnNames: job_id
             referencedTableName: jobs
             referencedColumnNames: id
-            onDelete: CASCADE
+            onDelete: RESTRICT
             constraintName: fk_interviews_job_id_jobs
-
         - addForeignKeyConstraint:
             baseTableName: interviews
-            baseColumnNames: interview_type_id
-            referencedTableName: interview_types
+            baseColumnNames: company_id
+            referencedTableName: companies
             referencedColumnNames: id
             onDelete: RESTRICT
-            constraintName: fk_interviews_interview_type_id_interview_types
-
-        - addForeignKeyConstraint:
-            baseTableName: interviews
-            baseColumnNames: status_id
-            referencedTableName: interview_statuses
-            referencedColumnNames: id
-            onDelete: RESTRICT
-            constraintName: fk_interviews_status_id_interview_statuses
-
-        - addForeignKeyConstraint:
-            baseTableName: interviews
-            baseColumnNames: result_id
-            referencedTableName: interview_results
-            referencedColumnNames: id
-            onDelete: SET NULL
-            constraintName: fk_interviews_result_id_interview_results
-
-
-
+            constraintName: fk_interviews_company_id_companies

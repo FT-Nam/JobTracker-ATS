@@ -1,11 +1,11 @@
 databaseChangeLog:
   - changeSet:
-      id: create-table-user-skills
+      id: create-table-role-permissions
       author: namphan
       changes:
         - createTable:
-            tableName: user_skills
-            remarks: "Bảng kỹ năng người dùng"
+            tableName: role_permissions
+            remarks: "Bảng quan hệ vai trò quyền"
             columns:
               - column:
                   name: id
@@ -13,38 +13,24 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  remarks: "UUID user skill"
+                  defaultValueComputed: UUID()
+                  remarks: "UUID quan hệ"
               - column:
-                  name: user_id
+                  name: role_id
                   type: varchar(36)
                   constraints:
                     nullable: false
-                  remarks: "UUID người dùng"
+                  remarks: "UUID vai trò"
               - column:
-                  name: skill_id
+                  name: permission_id
                   type: varchar(36)
                   constraints:
                     nullable: false
-                  remarks: "UUID kỹ năng"
-              - column:
-                  name: proficiency_level
-                  type: varchar(50)
-                  constraints:
-                    nullable: false
-                  remarks: "Mức độ thành thạo (BEGINNER, INTERMEDIATE, ADVANCED, EXPERT)"
-              - column:
-                  name: years_of_experience
-                  type: decimal(3,1)
-                  remarks: "Số năm kinh nghiệm"
-              - column:
-                  name: is_verified
-                  type: boolean
-                  defaultValueBoolean: false
-                  remarks: "Kỹ năng đã xác thực"
+                  remarks: "UUID quyền"
               - column:
                   name: created_by
                   type: varchar(36)
-                  remarks: "Người tạo (FK to users)"
+                  remarks: "Người tạo"
               - column:
                   name: created_at
                   type: timestamp
@@ -60,8 +46,4 @@ databaseChangeLog:
                   type: boolean
                   defaultValueBoolean: false
                   remarks: "Đã xóa (soft delete)"
-
-
-
-
 

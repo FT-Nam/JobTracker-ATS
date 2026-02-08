@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: add-constraints-interview-results
-      author: namphan
-      changes:
-        
-
-

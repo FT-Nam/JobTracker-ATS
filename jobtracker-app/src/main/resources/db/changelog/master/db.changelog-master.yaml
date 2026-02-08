@@ -1,55 +1,34 @@
 databaseChangeLog:
-# Create lookup tables
   - include:
       file: db/changelog/table/create-table-roles.yaml
   - include:
       file: db/changelog/table/create-table-permissions.yaml
   - include:
-      file: db/changelog/table/create-table-job-statuses.yaml
-  - include:
-      file: db/changelog/table/create-table-job-types.yaml
-  - include:
-      file: db/changelog/table/create-table-priorities.yaml
-  - include:
-      file: db/changelog/table/create-table-experience-levels.yaml
-  - include:
-      file: db/changelog/table/create-table-interview-types.yaml
-  - include:
-      file: db/changelog/table/create-table-interview-statuses.yaml
-  - include:
-      file: db/changelog/table/create-table-interview-results.yaml
-  - include:
-      file: db/changelog/table/create-table-notification-types.yaml
-  - include:
-      file: db/changelog/table/create-table-notification-priorities.yaml
+      file: db/changelog/table/create-table-role-permissions.yaml
 
-# Create core business tables
-  - include:
-      file: db/changelog/table/create-table-users.yaml
   - include:
       file: db/changelog/table/create-table-companies.yaml
+  - include:
+      file: db/changelog/table/create-table-users.yaml
   - include:
       file: db/changelog/table/create-table-jobs.yaml
   - include:
       file: db/changelog/table/create-table-skills.yaml
+
+  - include:
+      file: db/changelog/table/create-table-applications.yaml
+  - include:
+      file: db/changelog/table/create-table-application-status-history.yaml
+  - include:
+      file: db/changelog/table/create-table-comments.yaml
+
+  - include:
+      file: db/changelog/table/create-table-job-skills.yaml
+
   - include:
       file: db/changelog/table/create-table-interviews.yaml
   - include:
-      file: db/changelog/table/create-table-resumes.yaml
-  - include:
       file: db/changelog/table/create-table-attachments.yaml
-
-# Create junction tables
-  - include:
-      file: db/changelog/table/create-table-roles-permissions.yaml
-  - include:
-      file: db/changelog/table/create-table-user-skills.yaml
-  - include:
-      file: db/changelog/table/create-table-job-skills.yaml
-  - include:
-      file: db/changelog/table/create-table-job-resumes.yaml
-
-# Create system tables
   - include:
       file: db/changelog/table/create-table-notifications.yaml
   - include:
@@ -57,51 +36,32 @@ databaseChangeLog:
   - include:
       file: db/changelog/table/create-table-audit-logs.yaml
 
-# Add foreign key constraints
   - include:
       file: db/changelog/foreign-keys/add-constraints-roles.yaml
   - include:
       file: db/changelog/foreign-keys/add-constraints-permissions.yaml
   - include:
-      file: db/changelog/foreign-keys/add-constraints-job-statuses.yaml
-  - include:
-      file: db/changelog/foreign-keys/add-constraints-job-types.yaml
-  - include:
-      file: db/changelog/foreign-keys/add-constraints-priorities.yaml
-  - include:
-      file: db/changelog/foreign-keys/add-constraints-experience-levels.yaml
-  - include:
-      file: db/changelog/foreign-keys/add-constraints-interview-types.yaml
-  - include:
-      file: db/changelog/foreign-keys/add-constraints-interview-statuses.yaml
-  - include:
-      file: db/changelog/foreign-keys/add-constraints-interview-results.yaml
-  - include:
-      file: db/changelog/foreign-keys/add-constraints-notification-types.yaml
-  - include:
-      file: db/changelog/foreign-keys/add-constraints-notification-priorities.yaml
-  - include:
-      file: db/changelog/foreign-keys/add-constraints-users.yaml
+      file: db/changelog/foreign-keys/add-constraints-role-permissions.yaml
   - include:
       file: db/changelog/foreign-keys/add-constraints-companies.yaml
+  - include:
+      file: db/changelog/foreign-keys/add-constraints-users.yaml
   - include:
       file: db/changelog/foreign-keys/add-constraints-jobs.yaml
   - include:
       file: db/changelog/foreign-keys/add-constraints-skills.yaml
   - include:
-      file: db/changelog/foreign-keys/add-constraints-interviews.yaml
+      file: db/changelog/foreign-keys/add-constraints-applications.yaml
   - include:
-      file: db/changelog/foreign-keys/add-constraints-resumes.yaml
+      file: db/changelog/foreign-keys/add-constraints-application-status-history.yaml
   - include:
-      file: db/changelog/foreign-keys/add-constraints-attachments.yaml
-  - include:
-      file: db/changelog/foreign-keys/add-constraints-roles-permissions.yaml
-  - include:
-      file: db/changelog/foreign-keys/add-constraints-user-skills.yaml
+      file: db/changelog/foreign-keys/add-constraints-comments.yaml
   - include:
       file: db/changelog/foreign-keys/add-constraints-job-skills.yaml
   - include:
-      file: db/changelog/foreign-keys/add-constraints-job-resumes.yaml
+      file: db/changelog/foreign-keys/add-constraints-interviews.yaml
+  - include:
+      file: db/changelog/foreign-keys/add-constraints-attachments.yaml
   - include:
       file: db/changelog/foreign-keys/add-constraints-notifications.yaml
   - include:
@@ -109,55 +69,38 @@ databaseChangeLog:
   - include:
       file: db/changelog/foreign-keys/add-constraints-audit-logs.yaml
 
-# Create indexes
   - include:
       file: db/changelog/indexes/create-indexes-roles.yaml
   - include:
       file: db/changelog/indexes/create-indexes-permissions.yaml
   - include:
-      file: db/changelog/indexes/create-indexes-job-statuses.yaml
-  - include:
-      file: db/changelog/indexes/create-indexes-job-types.yaml
-  - include:
-      file: db/changelog/indexes/create-indexes-priorities.yaml
-  - include:
-      file: db/changelog/indexes/create-indexes-experience-levels.yaml
-  - include:
-      file: db/changelog/indexes/create-indexes-interview-types.yaml
-  - include:
-      file: db/changelog/indexes/create-indexes-interview-statuses.yaml
-  - include:
-      file: db/changelog/indexes/create-indexes-interview-results.yaml
-  - include:
-      file: db/changelog/indexes/create-indexes-notification-types.yaml
-  - include:
-      file: db/changelog/indexes/create-indexes-notification-priorities.yaml
-  - include:
-      file: db/changelog/indexes/create-indexes-users.yaml
+      file: db/changelog/indexes/create-indexes-role-permissions.yaml
   - include:
       file: db/changelog/indexes/create-indexes-companies.yaml
+  - include:
+      file: db/changelog/indexes/create-indexes-users.yaml
   - include:
       file: db/changelog/indexes/create-indexes-jobs.yaml
   - include:
       file: db/changelog/indexes/create-indexes-skills.yaml
   - include:
-      file: db/changelog/indexes/create-indexes-interviews.yaml
+      file: db/changelog/indexes/create-indexes-applications.yaml
   - include:
-      file: db/changelog/indexes/create-indexes-resumes.yaml
+      file: db/changelog/indexes/create-indexes-application-status-history.yaml
   - include:
-      file: db/changelog/indexes/create-indexes-attachments.yaml
-  - include:
-      file: db/changelog/indexes/create-indexes-roles-permissions.yaml
-  - include:
-      file: db/changelog/indexes/create-indexes-user-skills.yaml
+      file: db/changelog/indexes/create-indexes-comments.yaml
   - include:
       file: db/changelog/indexes/create-indexes-job-skills.yaml
   - include:
-      file: db/changelog/indexes/create-indexes-job-resumes.yaml
+      file: db/changelog/indexes/create-indexes-interviews.yaml
+  - include:
+      file: db/changelog/indexes/create-indexes-attachments.yaml
   - include:
       file: db/changelog/indexes/create-indexes-notifications.yaml
   - include:
       file: db/changelog/indexes/create-indexes-user-sessions.yaml
   - include:
       file: db/changelog/indexes/create-indexes-audit-logs.yaml
+
+
 

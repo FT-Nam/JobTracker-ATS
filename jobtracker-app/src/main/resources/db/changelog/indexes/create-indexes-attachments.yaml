@@ -4,57 +4,38 @@ databaseChangeLog:
       author: namphan
       changes:
         - createIndex:
+            indexName: idx_attachments_application_id
             tableName: attachments
-            indexName: idx_attachments_job_id
             columns:
               - column:
-                  name: job_id
-
+                  name: application_id
         - createIndex:
+            indexName: idx_attachments_company_id
             tableName: attachments
+            columns:
+              - column:
+                  name: company_id
+        - createIndex:
             indexName: idx_attachments_user_id
+            tableName: attachments
             columns:
               - column:
                   name: user_id
-
         - createIndex:
-            tableName: attachments
             indexName: idx_attachments_attachment_type
+            tableName: attachments
             columns:
               - column:
                   name: attachment_type
-
         - createIndex:
-            tableName: attachments
             indexName: idx_attachments_uploaded_at
+            tableName: attachments
             columns:
               - column:
                   name: uploaded_at
-
         - createIndex:
-            tableName: attachments
-            indexName: idx_attachments_created_by
-            columns:
-              - column:
-                  name: created_by
-
-        - createIndex:
-            tableName: attachments
-            indexName: idx_attachments_updated_by
-            columns:
-              - column:
-                  name: updated_by
-
-        - createIndex:
-            tableName: attachments
             indexName: idx_attachments_deleted_at
+            tableName: attachments
             columns:
               - column:
                   name: deleted_at
-
-
-
-
-
-
-

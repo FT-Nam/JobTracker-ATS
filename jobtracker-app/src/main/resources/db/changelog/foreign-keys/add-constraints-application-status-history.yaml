@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-constraints-application-status-history
+      author: namphan
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: application_status_history
+            baseColumnNames: application_id
+            referencedTableName: applications
+            referencedColumnNames: id
+            onDelete: CASCADE
+            constraintName: fk_application_status_history_application_id_applications
+        - addForeignKeyConstraint:
+            baseTableName: application_status_history
+            baseColumnNames: changed_by
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: SET NULL
+            constraintName: fk_application_status_history_changed_by_users
+

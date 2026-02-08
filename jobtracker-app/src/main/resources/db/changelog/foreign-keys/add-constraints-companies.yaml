@@ -3,6 +3,4 @@ databaseChangeLog:
       id: add-constraints-companies
       author: namphan
       changes:
-        
-
 
