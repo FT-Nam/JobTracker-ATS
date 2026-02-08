@@ -1,10 +1,9 @@
 package com.jobtracker.jobtracker_app.dto.requests.job;
 
-import jakarta.validation.constraints.NotBlank;
+import com.jobtracker.jobtracker_app.enums.JobStatus;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -13,10 +12,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class JobUpdateStatusRequest {
-    @NotBlank(message = "job_status.name.not_blank")
-    String status;
-
-    LocalDate offerDate;
-
-    String notes;
+    @NotNull(message = "job.job_status.not_null")
+    JobStatus jobStatus;
 }

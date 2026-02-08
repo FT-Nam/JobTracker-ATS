@@ -1,14 +1,18 @@
 package com.jobtracker.jobtracker_app.entities;
 
 import com.jobtracker.jobtracker_app.entities.base.FullAuditEntity;
+import com.jobtracker.jobtracker_app.enums.JobStatus;
+import com.jobtracker.jobtracker_app.enums.JobType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "jobs")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -34,8 +38,8 @@ public class Job extends FullAuditEntity {
     @Column(nullable = false, length = 255)
     String position;
 
-    @ManyToOne
-    @JoinColumn(name = "job_type_id", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "job_type", nullable = false, length = 50)
     JobType jobType;
 
     String location;
@@ -47,23 +51,14 @@ public class Job extends FullAuditEntity {
     BigDecimal salaryMax;
 
     @Column(length = 3)
-    String currency = "VND";
+    String currency = "USD";
 
-    @ManyToOne
-    @JoinColumn(name = "status_id", nullable = false)
-    JobStatus status;
-
-    @Column(name = "application_date")
-    LocalDate applicationDate;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "job_status", nullable = false, length = 50)
+    JobStatus jobStatus = JobStatus.DRAFT;
 
     @Column(name = "deadline_date")
     LocalDate deadlineDate;
-
-    @Column(name = "interview_date")
-    LocalDate interviewDate;
-
-    @Column(name = "offer_date")
-    LocalDate offerDate;
 
     @Column(name = "job_description", columnDefinition = "TEXT")
     String jobDescription;
@@ -77,19 +72,20 @@ public class Job extends FullAuditEntity {
     @Column(name = "job_url", length = 500)
     String jobUrl;
 
-    @Column(columnDefinition = "TEXT")
-    String notes;
-
-    @ManyToOne
-    @JoinColumn(name = "priority_id", nullable = false)
-    Priority priority;
-
     @Column(name = "is_remote", nullable = false)
     Boolean isRemote = false;
 
-    @ManyToOne
-    @JoinColumn(name = "experience_level_id")
-    ExperienceLevel experienceLevel;
+    @Column(name = "published_at")
+    LocalDateTime publishedAt;
+
+    @Column(name = "expires_at")
+    LocalDateTime expiresAt;
+
+    @Column(name = "views_count", nullable = false)
+    Integer viewsCount = 0;
+
+    @Column(name = "applications_count", nullable = false)
+    Integer applicationsCount = 0;
 }
 
 

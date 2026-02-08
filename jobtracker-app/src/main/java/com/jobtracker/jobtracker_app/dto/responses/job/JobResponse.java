@@ -1,5 +1,7 @@
 package com.jobtracker.jobtracker_app.dto.responses.job;
 
+import com.jobtracker.jobtracker_app.enums.JobStatus;
+import com.jobtracker.jobtracker_app.enums.JobType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,24 +20,22 @@ public class JobResponse {
     String companyId;
     String title;
     String position;
-    String jobTypeId;
+    JobType jobType;
     String location;
     BigDecimal salaryMin;
     BigDecimal salaryMax;
     String currency;
-    String statusId;
-    LocalDate applicationDate;
+    JobStatus jobStatus;
     LocalDate deadlineDate;
-    LocalDate interviewDate;
-    LocalDate offerDate;
     String jobDescription;
     String requirements;
     String benefits;
     String jobUrl;
-    String notes;
-    String priorityId;
     Boolean isRemote;
-    String experienceLevelId;
+    LocalDateTime publishedAt;
+    LocalDateTime expiresAt;
+    Integer viewsCount;
+    Integer applicationsCount;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;

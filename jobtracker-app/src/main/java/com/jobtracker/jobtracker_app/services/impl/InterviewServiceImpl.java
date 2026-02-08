@@ -23,28 +23,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class InterviewServiceImpl implements InterviewService {
     InterviewRepository interviewRepository;
     InterviewMapper interviewMapper;
+    ApplicationRepository applicationRepository;
     JobRepository jobRepository;
-    InterviewTypeRepository interviewTypeRepository;
-    InterviewStatusRepository interviewStatusRepository;
-    InterviewResultRepository interviewResultRepository;
+    CompanyRepository companyRepository;
 
     @Override
     @Transactional
     public InterviewResponse create(InterviewRequest request) {
         Interview interview = interviewMapper.toInterview(request);
         
-        // Set relationships
+        interview.setApplication(applicationRepository.findById(request.getApplicationId())
+                .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED)));
         interview.setJob(jobRepository.findById(request.getJobId())
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED)));
-        interview.setInterviewType(interviewTypeRepository.findById(request.getInterviewTypeId())
-                .orElseThrow(() -> new AppException(ErrorCode.INTERVIEW_TYPE_NOT_EXISTED)));
-        interview.setStatus(interviewStatusRepository.findById(request.getStatusId())
-                .orElseThrow(() -> new AppException(ErrorCode.INTERVIEW_STATUS_NOT_EXISTED)));
-        
-        if (request.getResultId() != null) {
-            interview.setResult(interviewResultRepository.findById(request.getResultId())
-                    .orElseThrow(() -> new AppException(ErrorCode.INTERVIEW_RESULT_NOT_EXISTED)));
-        }
+        interview.setCompany(companyRepository.findById(request.getCompanyId())
+                .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED)));
         
         return interviewMapper.toInterviewResponse(interviewRepository.save(interview));
     }
@@ -69,22 +62,17 @@ public class InterviewServiceImpl implements InterviewService {
 
         interviewMapper.updateInterview(interview, request);
         
-        // Update relationships if provided
+        if (request.getApplicationId() != null) {
+            interview.setApplication(applicationRepository.findById(request.getApplicationId())
+                    .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED)));
+        }
         if (request.getJobId() != null) {
             interview.setJob(jobRepository.findById(request.getJobId())
                     .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED)));
         }
-        if (request.getInterviewTypeId() != null) {
-            interview.setInterviewType(interviewTypeRepository.findById(request.getInterviewTypeId())
-                    .orElseThrow(() -> new AppException(ErrorCode.INTERVIEW_TYPE_NOT_EXISTED)));
-        }
-        if (request.getStatusId() != null) {
-            interview.setStatus(interviewStatusRepository.findById(request.getStatusId())
-                    .orElseThrow(() -> new AppException(ErrorCode.INTERVIEW_STATUS_NOT_EXISTED)));
-        }
-        if (request.getResultId() != null) {
-            interview.setResult(interviewResultRepository.findById(request.getResultId())
-                    .orElseThrow(() -> new AppException(ErrorCode.INTERVIEW_RESULT_NOT_EXISTED)));
+        if (request.getCompanyId() != null) {
+            interview.setCompany(companyRepository.findById(request.getCompanyId())
+                    .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED)));
         }
 
         return interviewMapper.toInterviewResponse(interviewRepository.save(interview));

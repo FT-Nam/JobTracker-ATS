@@ -11,23 +11,20 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface InterviewMapper {
+    @Mapping(target = "application", ignore = true)
     @Mapping(target = "job", ignore = true)
-    @Mapping(target = "interviewType", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "result", ignore = true)
+    @Mapping(target = "company", ignore = true)
     Interview toInterview(InterviewRequest request);
 
+    @Mapping(source = "application.id", target = "applicationId")
     @Mapping(source = "job.id", target = "jobId")
-    @Mapping(source = "interviewType.id", target = "interviewTypeId")
-    @Mapping(source = "status.id", target = "statusId")
-    @Mapping(source = "result.id", target = "resultId")
+    @Mapping(source = "company.id", target = "companyId")
     InterviewResponse toInterviewResponse(Interview interview);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "application", ignore = true)
     @Mapping(target = "job", ignore = true)
-    @Mapping(target = "interviewType", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "result", ignore = true)
+    @Mapping(target = "company", ignore = true)
     void updateInterview(@MappingTarget Interview interview, InterviewRequest request);
 }
 

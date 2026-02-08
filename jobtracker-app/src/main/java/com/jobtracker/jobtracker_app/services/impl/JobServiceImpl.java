@@ -30,10 +30,6 @@ public class JobServiceImpl implements JobService {
     JobMapper jobMapper;
     UserRepository userRepository;
     CompanyRepository companyRepository;
-    JobTypeRepository jobTypeRepository;
-    JobStatusRepository jobStatusRepository;
-    PriorityRepository priorityRepository;
-    ExperienceLevelRepository experienceLevelRepository;
     JobSkillRepository jobSkillRepository;
     JobSkillMapper jobSkillMapper;
     SkillRepository skillRepository;
@@ -47,17 +43,6 @@ public class JobServiceImpl implements JobService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
         job.setCompany(companyRepository.findById(request.getCompanyId())
                 .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED)));
-        job.setJobType(jobTypeRepository.findById(request.getJobTypeId())
-                .orElseThrow(() -> new AppException(ErrorCode.JOB_TYPE_NOT_EXISTED)));
-        job.setStatus(jobStatusRepository.findById(request.getStatusId())
-                .orElseThrow(() -> new AppException(ErrorCode.JOB_STATUS_NOT_EXISTED)));
-        job.setPriority(priorityRepository.findById(request.getPriorityId())
-                .orElseThrow(() -> new AppException(ErrorCode.PRIORITY_NOT_EXISTED)));
-        
-        if (request.getExperienceLevelId() != null) {
-            job.setExperienceLevel(experienceLevelRepository.findById(request.getExperienceLevelId())
-                    .orElseThrow(() -> new AppException(ErrorCode.EXPERIENCE_LEVEL_NOT_EXISTED)));
-        }
         
         return jobMapper.toJobResponse(jobRepository.save(job));
     }
@@ -84,25 +69,16 @@ public class JobServiceImpl implements JobService {
 
         jobMapper.updateJob(job, request);
 
-        if (request.getStatus() != null) {
-            job.setStatus(jobStatusRepository.findByName(request.getStatus())
-                    .orElseThrow(() -> new AppException(ErrorCode.JOB_STATUS_NOT_EXISTED)));
-        }
-
         return jobMapper.toJobUpdateResponse(jobRepository.save(job));
     }
 
     @Override
+    @Transactional
     public JobUpdateStatusResponse updateStatus(String id, JobUpdateStatusRequest request) {
         Job job = jobRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
 
-        jobMapper.updateStatusJob(job,request);
-
-        if(request.getStatus() != null){
-            job.setStatus(jobStatusRepository.findByName(request.getStatus())
-                    .orElseThrow(()-> new AppException(ErrorCode.JOB_STATUS_NOT_EXISTED)));
-        }
+        jobMapper.updateStatusJob(job, request);
 
         return jobMapper.toJobUpdateStatusResponse(jobRepository.save(job));
     }

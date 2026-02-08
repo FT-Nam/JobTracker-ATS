@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "attachments")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,8 +21,12 @@ public class Attachment extends FullAuditEntity {
     String id;
 
     @ManyToOne
-    @JoinColumn(name = "job_id", nullable = false)
-    Job job;
+    @JoinColumn(name = "application_id")
+    Application application;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    Company company;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -56,7 +61,7 @@ public class Attachment extends FullAuditEntity {
     LocalDateTime uploadedAt;
 
     public enum AttachmentType {
-        JOB_DESCRIPTION,
+        RESUME,
         COVER_LETTER,
         CERTIFICATE,
         PORTFOLIO,

@@ -179,6 +179,14 @@ public class MessageKeys {
     public static final String INTERVIEW_LIST_SUCCESS = "interview.list_success";
     public static final String INTERVIEW_DETAIL_SUCCESS = "interview.detail_success";
 
+    // APPLICATION
+    public static final String APPLICATION_NOT_EXISTED = "application.not_existed";
+    public static final String APPLICATION_CREATE_SUCCESS = "application.create_success";
+    public static final String APPLICATION_UPDATE_SUCCESS = "application.update_success";
+    public static final String APPLICATION_DELETE_SUCCESS = "application.delete_success";
+    public static final String APPLICATION_LIST_SUCCESS = "application.list_success";
+    public static final String APPLICATION_DETAIL_SUCCESS = "application.detail_success";
+
     // JOB RESUME
     public static final String JOB_RESUME_NOT_EXISTED = "job_resume.not_existed";
     public static final String JOB_RESUME_CREATE_SUCCESS = "job_resume.create_success";

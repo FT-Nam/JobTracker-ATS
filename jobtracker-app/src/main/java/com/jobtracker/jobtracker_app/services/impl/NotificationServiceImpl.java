@@ -24,9 +24,9 @@ public class NotificationServiceImpl implements NotificationService {
     NotificationRepository notificationRepository;
     NotificationMapper notificationMapper;
     UserRepository userRepository;
+    CompanyRepository companyRepository;
     JobRepository jobRepository;
-    NotificationTypeRepository notificationTypeRepository;
-    NotificationPriorityRepository notificationPriorityRepository;
+    ApplicationRepository applicationRepository;
 
     @Override
     @Transactional
@@ -34,14 +34,16 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationMapper.toNotification(request);
         notification.setUser(userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
-        notification.setType(notificationTypeRepository.findById(request.getTypeId())
-                .orElseThrow(() -> new AppException(ErrorCode.NOTIFICATION_TYPE_NOT_EXISTED)));
-        notification.setPriority(notificationPriorityRepository.findById(request.getPriorityId())
-                .orElseThrow(() -> new AppException(ErrorCode.NOTIFICATION_PRIORITY_NOT_EXISTED)));
+        notification.setCompany(companyRepository.findById(request.getCompanyId())
+                .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED)));
         
         if (request.getJobId() != null) {
             notification.setJob(jobRepository.findById(request.getJobId())
                     .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED)));
+        }
+        if (request.getApplicationId() != null) {
+            notification.setApplication(applicationRepository.findById(request.getApplicationId())
+                    .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED)));
         }
         
         return notificationMapper.toNotificationResponse(notificationRepository.save(notification));
@@ -71,17 +73,17 @@ public class NotificationServiceImpl implements NotificationService {
             notification.setUser(userRepository.findById(request.getUserId())
                     .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
         }
-        if (request.getTypeId() != null) {
-            notification.setType(notificationTypeRepository.findById(request.getTypeId())
-                    .orElseThrow(() -> new AppException(ErrorCode.NOTIFICATION_TYPE_NOT_EXISTED)));
-        }
-        if (request.getPriorityId() != null) {
-            notification.setPriority(notificationPriorityRepository.findById(request.getPriorityId())
-                    .orElseThrow(() -> new AppException(ErrorCode.NOTIFICATION_PRIORITY_NOT_EXISTED)));
+        if (request.getCompanyId() != null) {
+            notification.setCompany(companyRepository.findById(request.getCompanyId())
+                    .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED)));
         }
         if (request.getJobId() != null) {
             notification.setJob(jobRepository.findById(request.getJobId())
                     .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED)));
+        }
+        if (request.getApplicationId() != null) {
+            notification.setApplication(applicationRepository.findById(request.getApplicationId())
+                    .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED)));
         }
 
         return notificationMapper.toNotificationResponse(notificationRepository.save(notification));

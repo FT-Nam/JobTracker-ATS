@@ -1,6 +1,9 @@
 package com.jobtracker.jobtracker_app.entities;
 
 import com.jobtracker.jobtracker_app.entities.base.FullAuditEntity;
+import com.jobtracker.jobtracker_app.enums.InterviewType;
+import com.jobtracker.jobtracker_app.enums.InterviewStatus;
+import com.jobtracker.jobtracker_app.enums.InterviewResult;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "interviews")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,14 +24,22 @@ public class Interview extends FullAuditEntity {
     String id;
 
     @ManyToOne
+    @JoinColumn(name = "application_id", nullable = false)
+    Application application;
+
+    @ManyToOne
     @JoinColumn(name = "job_id", nullable = false)
     Job job;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    Company company;
 
     @Column(name = "round_number", nullable = false)
     Integer roundNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "interview_type_id", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "interview_type", nullable = false, length = 50)
     InterviewType interviewType;
 
     @Column(name = "scheduled_date", nullable = false)
@@ -48,12 +60,12 @@ public class Interview extends FullAuditEntity {
     @Column(name = "interviewer_position", length = 255)
     String interviewerPosition;
 
-    @ManyToOne
-    @JoinColumn(name = "status_id", nullable = false)
-    InterviewStatus status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 50)
+    InterviewStatus status = InterviewStatus.SCHEDULED;
 
-    @ManyToOne
-    @JoinColumn(name = "result_id")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "result", length = 50)
     InterviewResult result;
 
     @Column(columnDefinition = "TEXT")
@@ -70,6 +82,12 @@ public class Interview extends FullAuditEntity {
 
     @Column
     Integer rating;
+
+    @Column(length = 500)
+    String meetingLink;
+
+    @Column(length = 255)
+    String location;
 }
 
 

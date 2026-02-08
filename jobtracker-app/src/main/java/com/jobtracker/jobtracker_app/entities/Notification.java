@@ -1,6 +1,8 @@
 package com.jobtracker.jobtracker_app.entities;
 
 import com.jobtracker.jobtracker_app.entities.base.SystemAuditEntity;
+import com.jobtracker.jobtracker_app.enums.NotificationType;
+import com.jobtracker.jobtracker_app.enums.NotificationPriority;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "notifications")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,11 +27,19 @@ public class Notification extends SystemAuditEntity {
     User user;
 
     @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    Company company;
+
+    @ManyToOne
     @JoinColumn(name = "job_id")
     Job job;
 
     @ManyToOne
-    @JoinColumn(name = "type_id", nullable = false)
+    @JoinColumn(name = "application_id")
+    Application application;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 50)
     NotificationType type;
 
     @Column(nullable = false, length = 255)
@@ -49,8 +60,8 @@ public class Notification extends SystemAuditEntity {
     @Column(name = "scheduled_at")
     LocalDateTime scheduledAt;
 
-    @ManyToOne
-    @JoinColumn(name = "priority_id", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "priority", nullable = false, length = 50)
     NotificationPriority priority;
 
     @Column(columnDefinition = "JSON")

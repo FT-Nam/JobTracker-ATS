@@ -1,5 +1,7 @@
 package com.jobtracker.jobtracker_app.dto.requests.job;
 
+import com.jobtracker.jobtracker_app.enums.JobStatus;
+import com.jobtracker.jobtracker_app.enums.JobType;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -28,8 +30,8 @@ public class JobCreationRequest {
     @Size(max = 255, message = "job.position.size")
     String position;
 
-    @NotBlank(message = "job.job_type_id.not_blank")
-    String jobTypeId;
+    @NotNull(message = "job.job_type.not_null")
+    JobType jobType;
 
     @Size(max = 255, message = "job.location.size")
     String location;
@@ -41,18 +43,11 @@ public class JobCreationRequest {
     BigDecimal salaryMax;
 
     @Pattern(regexp = "USD|VND|EUR|GBP|JPY", message = "job.currency.pattern")
-    String currency;
+    String currency = "USD";
 
-    @NotBlank(message = "job.status_id.not_blank")
-    String statusId;
-
-    LocalDate applicationDate;
+    JobStatus jobStatus = JobStatus.DRAFT;
 
     LocalDate deadlineDate;
-
-    LocalDate interviewDate;
-
-    LocalDate offerDate;
 
     String jobDescription;
 
@@ -64,14 +59,7 @@ public class JobCreationRequest {
     @Pattern(regexp = "^(https?://).*$", message = "job.job_url.pattern")
     String jobUrl;
 
-    String notes;
-
-    @NotBlank(message = "job.priority_id.not_blank")
-    String priorityId;
-
-    Boolean isRemote;
-
-    String experienceLevelId;
+    Boolean isRemote = false;
 }
 
 
