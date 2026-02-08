@@ -22,11 +22,11 @@ databaseChangeLog:
               - column:
                   name: candidate_email
         - createIndex:
-            indexName: idx_applications_status
+            indexName: idx_applications_status_id
             tableName: applications
             columns:
               - column:
-                  name: status
+                  name: status_id
         - createIndex:
             indexName: idx_applications_assigned_to
             tableName: applications
@@ -60,7 +60,7 @@ databaseChangeLog:
               - column:
                   name: job_id
               - column:
-                  name: status
+                  name: status_id
         - createIndex:
             indexName: idx_applications_assigned_status
             tableName: applications
@@ -68,7 +68,7 @@ databaseChangeLog:
               - column:
                   name: assigned_to
               - column:
-                  name: status
+                  name: status_id
         - createIndex:
             indexName: idx_applications_company_status_date
             tableName: applications
@@ -76,7 +76,7 @@ databaseChangeLog:
               - column:
                   name: company_id
               - column:
-                  name: status
+                  name: status_id
               - column:
                   name: applied_date
 

@@ -187,6 +187,14 @@ public class MessageKeys {
     public static final String APPLICATION_LIST_SUCCESS = "application.list_success";
     public static final String APPLICATION_DETAIL_SUCCESS = "application.detail_success";
 
+    // APPLICATION STATUS
+    public static final String APPLICATION_STATUS_NOT_EXISTED = "application_status.not_existed";
+    public static final String APPLICATION_STATUS_CREATE_SUCCESS = "application_status.create_success";
+    public static final String APPLICATION_STATUS_UPDATE_SUCCESS = "application_status.update_success";
+    public static final String APPLICATION_STATUS_DELETE_SUCCESS = "application_status.delete_success";
+    public static final String APPLICATION_STATUS_LIST_SUCCESS = "application_status.list_success";
+    public static final String APPLICATION_STATUS_DETAIL_SUCCESS = "application_status.detail_success";
+
     // JOB RESUME
     public static final String JOB_RESUME_NOT_EXISTED = "job_resume.not_existed";
     public static final String JOB_RESUME_CREATE_SUCCESS = "job_resume.create_success";

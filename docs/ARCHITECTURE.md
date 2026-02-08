@@ -213,6 +213,7 @@ com.jobtracker
 │   ├── Company.java        # Tenant (multi-tenant root)
 │   ├── Job.java            # Job Postings (ATS semantic)
 │   ├── Application.java    # Applications (CORE ATS entity) ➕
+│   ├── ApplicationStatus.java ➕ # Application status lookup table entity
 │   ├── ApplicationStatusHistory.java ➕
 │   ├── Comment.java        # Comments on applications ➕
 │   ├── Interview.java      # Interviews (link to applications)

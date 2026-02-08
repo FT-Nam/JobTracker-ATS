@@ -159,6 +159,8 @@ com.jobtracker
 │   ├── Company.java           # Company entity (Tenant)
 │   ├── Job.java               # Job entity (Job Postings - ATS)
 │   ├── Application.java ➕     # Application entity (CORE ATS)
+│   ├── Application.java ➕     # Application entity (CORE ATS)
+│   ├── ApplicationStatus.java ➕ # Application status lookup table entity
 │   ├── ApplicationStatusHistory.java ➕ # Application status history
 │   ├── Comment.java ➕         # Comment entity
 │   ├── Interview.java         # Interview entity (link to applications)
@@ -175,6 +177,7 @@ com.jobtracker
 │   ├── CompanyRepository.java # Company data access
 │   ├── JobRepository.java     # Job data access (multi-tenant)
 │   ├── ApplicationRepository.java ➕ # Application data access (multi-tenant)
+│   ├── ApplicationStatusRepository.java ➕ # Application status data access
 │   ├── ApplicationStatusHistoryRepository.java ➕
 │   ├── CommentRepository.java ➕
 │   ├── InterviewRepository.java # Interview data access (multi-tenant)
@@ -619,9 +622,9 @@ public class Application extends BaseFullAuditEntity {
     private String candidatePhone;
     
     // Application Status Workflow
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ApplicationStatus status = ApplicationStatus.NEW; // ENUM: NEW, SCREENING, INTERVIEWING, OFFERED, HIRED, REJECTED
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "status_id", nullable = false)
+    private ApplicationStatus status; // Lookup table: application_statuses
     
     @Column(name = "source")
     private String source; // Email, LinkedIn, Referral
@@ -1089,8 +1092,8 @@ export const useJobs = () => {
 -- Multi-tenant composite indexes (CRITICAL)
 CREATE INDEX idx_jobs_company_status_date ON jobs(company_id, job_status, created_at);
 CREATE INDEX idx_jobs_company_published ON jobs(company_id, job_status, published_at) WHERE job_status = 'PUBLISHED';
-CREATE INDEX idx_applications_company_status_date ON applications(company_id, status, applied_date);
-CREATE INDEX idx_applications_company_job_status ON applications(company_id, job_id, status);
+CREATE INDEX idx_applications_company_status_date ON applications(company_id, status_id, applied_date);
+CREATE INDEX idx_applications_company_job_status ON applications(company_id, job_id, status_id);
 CREATE INDEX idx_interviews_company_scheduled ON interviews(company_id, scheduled_date, status);
 CREATE INDEX idx_notifications_company_user_unread ON notifications(company_id, user_id, is_read);
 CREATE INDEX idx_users_company_role_active ON users(company_id, role_id, is_active);
@@ -1098,7 +1101,7 @@ CREATE INDEX idx_audit_logs_company_entity ON audit_logs(company_id, entity_type
 
 -- Single-column indexes
 CREATE INDEX idx_jobs_deadline_status ON jobs(deadline_date, job_status);
-CREATE INDEX idx_applications_assigned_status ON applications(assigned_to, status);
+CREATE INDEX idx_applications_assigned_status ON applications(assigned_to, status_id);
 CREATE INDEX idx_user_sessions_token ON user_sessions(session_token);
 
 -- Full-text search indexes
@@ -1194,8 +1197,8 @@ public class JobService {
 @Service
 public class ApplicationService {
     
-    @Cacheable(value = "applications", key = "#companyId + '_' + #status + '_' + #page")
-    public Page<ApplicationResponse> getApplicationsByCompanyId(String companyId, ApplicationStatus status, int page, int size) {
+    @Cacheable(value = "applications", key = "#companyId + '_' + #statusId + '_' + #page")
+    public Page<ApplicationResponse> getApplicationsByCompanyId(String companyId, String statusId, int page, int size) {
         // Implementation với multi-tenant filtering
     }
     
@@ -1304,12 +1307,12 @@ public class JobMetrics {
         );
     }
     
-    public void incrementApplicationStatusChanged(ApplicationStatus from, ApplicationStatus to) {
+    public void incrementApplicationStatusChanged(String fromStatusId, String toStatusId) {
         Counter applicationStatusCounter = Counter.builder("applications.status.changed")
             .description("Number of application status changes")
             .register(meterRegistry);
         applicationStatusCounter.increment(
-            Tags.of("from", from.name(), "to", to.name()) // NEW → SCREENING → INTERVIEWING, etc.
+            Tags.of("from", fromStatusId, "to", toStatusId) // Status IDs from application_statuses table
         );
     }
     
@@ -1395,9 +1398,8 @@ public enum JobType {
     FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE
 }
 
-public enum ApplicationStatus {
-    NEW, SCREENING, INTERVIEWING, OFFERED, HIRED, REJECTED
-}
+// ApplicationStatus is now a lookup table entity, not an enum
+// See ApplicationStatus.java entity definition below
 
 public enum InterviewType {
     PHONE, VIDEO, IN_PERSON, TECHNICAL, HR, FINAL
@@ -1748,9 +1750,9 @@ public class Application extends BaseFullAuditEntity {
     @JoinColumn(name = "company_id", nullable = false)
     private Company company; // Multi-tenant key
     
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ApplicationStatus status = ApplicationStatus.NEW;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "status_id", nullable = false)
+    private ApplicationStatus status; // Lookup table: application_statuses
     
     // Business fields only, audit fields inherited
 }

@@ -22,15 +22,15 @@ databaseChangeLog:
                     nullable: false
                   remarks: "UUID ứng tuyển"
               - column:
-                  name: from_status
-                  type: varchar(50)
-                  remarks: "Trạng thái cũ"
+                  name: from_status_id
+                  type: varchar(36)
+                  remarks: "UUID trạng thái cũ"
               - column:
-                  name: to_status
-                  type: varchar(50)
+                  name: to_status_id
+                  type: varchar(36)
                   constraints:
                     nullable: false
-                  remarks: "Trạng thái mới"
+                  remarks: "UUID trạng thái mới"
               - column:
                   name: changed_by
                   type: varchar(36)

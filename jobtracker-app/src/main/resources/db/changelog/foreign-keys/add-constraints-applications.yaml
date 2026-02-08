@@ -19,6 +19,13 @@ databaseChangeLog:
             constraintName: fk_applications_company_id_companies
         - addForeignKeyConstraint:
             baseTableName: applications
+            baseColumnNames: status_id
+            referencedTableName: application_statuses
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            constraintName: fk_applications_status_id_application_statuses
+        - addForeignKeyConstraint:
+            baseTableName: applications
             baseColumnNames: assigned_to
             referencedTableName: users
             referencedColumnNames: id

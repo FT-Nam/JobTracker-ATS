@@ -1,0 +1,72 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-application-statuses
+      author: namphan
+      changes:
+        - createTable:
+            tableName: application_statuses
+            remarks: "Bảng trạng thái ứng tuyển"
+            columns:
+              - column:
+                  name: id
+                  type: varchar(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  defaultValueComputed: UUID()
+                  remarks: "UUID application status"
+              - column:
+                  name: name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  remarks: "Tên status"
+              - column:
+                  name: display_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  remarks: "Tên hiển thị"
+              - column:
+                  name: description
+                  type: varchar(255)
+                  remarks: "Mô tả status"
+              - column:
+                  name: color
+                  type: varchar(7)
+                  defaultValue: '#6B7280'
+                  remarks: "Màu sắc hiển thị"
+              - column:
+                  name: sort_order
+                  type: int
+                  defaultValueNumeric: 0
+                  remarks: "Thứ tự sắp xếp"
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  remarks: "Status đang hoạt động"
+              - column:
+                  name: created_by
+                  type: varchar(36)
+                  remarks: "Người tạo"
+              - column:
+                  name: updated_by
+                  type: varchar(36)
+                  remarks: "Người cập nhật"
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian tạo"
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian cập nhật"
+              - column:
+                  name: deleted_at
+                  type: timestamp
+                  remarks: "Thời gian xóa (soft delete)"
+

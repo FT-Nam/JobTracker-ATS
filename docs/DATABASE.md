@@ -162,6 +162,38 @@ CREATE TABLE role_permissions (
 
 > **Lý do**: Job statuses là fixed values (DRAFT, PUBLISHED, CLOSED, FILLED), không cần lookup table. Dùng ENUM trong `jobs.job_status`.
 
+#### 1.5. Application Statuses Table (Bảng trạng thái ứng tuyển) ✅
+
+> **Lý do**: Application statuses cần metadata (display name, color, sort order) và có thể thay đổi workflow. Cần lookup table để linh hoạt.
+
+```sql
+CREATE TABLE application_statuses (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID application status',
+    name VARCHAR(50) NOT NULL UNIQUE COMMENT 'Tên status (NEW, SCREENING, INTERVIEWING, OFFERED, HIRED, REJECTED)',
+    display_name VARCHAR(100) NOT NULL COMMENT 'Tên hiển thị',
+    description VARCHAR(255) COMMENT 'Mô tả status',
+    color VARCHAR(7) DEFAULT '#6B7280' COMMENT 'Màu sắc hiển thị',
+    sort_order INT DEFAULT 0 COMMENT 'Thứ tự sắp xếp',
+    is_active BOOLEAN DEFAULT TRUE COMMENT 'Status đang hoạt động',
+    
+    -- Full Audit Fields
+    created_by VARCHAR(36) COMMENT 'Người tạo',
+    updated_by VARCHAR(36) COMMENT 'Người cập nhật',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian tạo',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời gian cập nhật',
+    deleted_at TIMESTAMP NULL COMMENT 'Thời gian xóa (soft delete)',
+    
+    -- Indexes
+    INDEX idx_name (name),
+    INDEX idx_sort_order (sort_order),
+    INDEX idx_is_active (is_active),
+    INDEX idx_created_at (created_at),
+    INDEX idx_created_by (created_by),
+    INDEX idx_updated_by (updated_by),
+    INDEX idx_deleted_at (deleted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
 #### ~~1.5. Job Types Table~~ ❌ **CHUYỂN SANG ENUM**
 
 > **Lý do**: Job types là fixed values (FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE), không cần lookup table. Dùng ENUM trong `jobs.job_type`.
@@ -420,7 +452,7 @@ CREATE TABLE applications (
     candidate_phone VARCHAR(20) COMMENT 'Số điện thoại ứng viên',
     
     -- Application Status Workflow
-    status ENUM('NEW', 'SCREENING', 'INTERVIEWING', 'OFFERED', 'HIRED', 'REJECTED') NOT NULL DEFAULT 'NEW' COMMENT 'Trạng thái ứng tuyển',
+    status_id VARCHAR(36) NOT NULL COMMENT 'UUID trạng thái ứng tuyển (FK to application_statuses)',
     source VARCHAR(100) COMMENT 'Nguồn ứng viên (Email, LinkedIn, Referral)',
     applied_date DATE NOT NULL COMMENT 'Ngày nộp đơn',
     
@@ -445,22 +477,23 @@ CREATE TABLE applications (
     -- Foreign Keys
     FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+    FOREIGN KEY (status_id) REFERENCES application_statuses(id) ON DELETE RESTRICT,
     FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
     
     -- Indexes
     INDEX idx_job_id (job_id),
     INDEX idx_company_id (company_id),
     INDEX idx_candidate_email (candidate_email),
-    INDEX idx_status (status),
+    INDEX idx_status_id (status_id),
     INDEX idx_assigned_to (assigned_to),
     INDEX idx_applied_date (applied_date),
     INDEX idx_created_at (created_at),
     INDEX idx_deleted_at (deleted_at),
     
     -- Composite Indexes (Multi-tenant + ATS queries)
-    INDEX idx_company_job_status (company_id, job_id, status),
-    INDEX idx_assigned_status (assigned_to, status),
-    INDEX idx_company_status_date (company_id, status, applied_date)
+    INDEX idx_company_job_status (company_id, job_id, status_id),
+    INDEX idx_assigned_status (assigned_to, status_id),
+    INDEX idx_company_status_date (company_id, status_id, applied_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
@@ -470,16 +503,20 @@ CREATE TABLE applications (
 CREATE TABLE application_status_history (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     application_id VARCHAR(36) NOT NULL COMMENT 'UUID ứng tuyển',
-    from_status VARCHAR(50) COMMENT 'Trạng thái cũ',
-    to_status VARCHAR(50) NOT NULL COMMENT 'Trạng thái mới',
+    from_status_id VARCHAR(36) COMMENT 'UUID trạng thái cũ (FK to application_statuses)',
+    to_status_id VARCHAR(36) NOT NULL COMMENT 'UUID trạng thái mới (FK to application_statuses)',
     changed_by VARCHAR(36) NOT NULL COMMENT 'Người thay đổi (FK to users)',
     notes TEXT COMMENT 'Ghi chú',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
+    FOREIGN KEY (from_status_id) REFERENCES application_statuses(id) ON DELETE SET NULL,
+    FOREIGN KEY (to_status_id) REFERENCES application_statuses(id) ON DELETE RESTRICT,
     FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE SET NULL,
     
     INDEX idx_application_id (application_id),
+    INDEX idx_from_status_id (from_status_id),
+    INDEX idx_to_status_id (to_status_id),
     INDEX idx_changed_by (changed_by),
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -853,6 +890,17 @@ INSERT INTO permissions (name, resource, action, description) VALUES
 ('USER_INVITE', 'USER', 'CREATE', 'Invite team members'),
 ('USER_MANAGE', 'USER', 'UPDATE', 'Manage team members'),
 ('USER_DELETE', 'USER', 'DELETE', 'Remove team members');
+```
+
+#### Application Statuses Data (ATS Workflow) ✅
+```sql
+INSERT INTO application_statuses (name, display_name, description, color, sort_order) VALUES
+('NEW', 'Mới', 'Ứng viên vừa nộp đơn', '#3B82F6', 1),
+('SCREENING', 'Sàng lọc', 'Đang sàng lọc hồ sơ', '#8B5CF6', 2),
+('INTERVIEWING', 'Phỏng vấn', 'Đang trong quá trình phỏng vấn', '#F59E0B', 3),
+('OFFERED', 'Đã đề xuất', 'Đã gửi offer cho ứng viên', '#10B981', 4),
+('HIRED', 'Đã tuyển', 'Ứng viên đã được tuyển', '#059669', 5),
+('REJECTED', 'Từ chối', 'Ứng viên bị từ chối', '#EF4444', 6);
 ```
 
 #### ~~Job Statuses Data~~ ❌ **CHUYỂN SANG ENUM**
@@ -1669,9 +1717,11 @@ attachments.user_id → users.id
 - **interviews.interview_type**: ENUM('PHONE', 'VIDEO', 'IN_PERSON', 'TECHNICAL', 'HR', 'FINAL')
 - **interviews.status**: ENUM('SCHEDULED', 'COMPLETED', 'CANCELLED', 'RESCHEDULED')
 - **interviews.result**: ENUM('PASSED', 'FAILED', 'PENDING')
-- **applications.status**: ENUM('NEW', 'SCREENING', 'INTERVIEWING', 'OFFERED', 'HIRED', 'REJECTED')
 - **notifications.type**: ENUM('APPLICATION_RECEIVED', 'INTERVIEW_SCHEDULED', 'INTERVIEW_REMINDER', 'STATUS_CHANGE', 'DEADLINE_REMINDER', 'COMMENT_ADDED', 'ASSIGNMENT_CHANGED')
 - **notifications.priority**: ENUM('HIGH', 'MEDIUM', 'LOW')
+
+### **Lookup Tables (giữ lại vì cần flexibility):**
+- **application_statuses** - Trạng thái ứng tuyển (cần metadata, workflow rules)
 
 ### **Junction Tables:**
 - **role_permissions** (roles ↔ permissions)

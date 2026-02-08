@@ -44,12 +44,11 @@ databaseChangeLog:
                   type: varchar(20)
                   remarks: "Số điện thoại ứng viên"
               - column:
-                  name: status
-                  type: varchar(50)
-                  defaultValue: 'NEW'
+                  name: status_id
+                  type: varchar(36)
                   constraints:
                     nullable: false
-                  remarks: "Trạng thái ứng tuyển"
+                  remarks: "UUID trạng thái ứng tuyển"
               - column:
                   name: source
                   type: varchar(100)

@@ -1,0 +1,6 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-constraints-application-statuses
+      author: namphan
+      changes:
+

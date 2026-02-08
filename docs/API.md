@@ -990,7 +990,13 @@ page=0&size=20&sort=appliedDate,desc&status=NEW&jobId=xxx&assignedTo=xxx&search=
       "candidateName": "John Doe",
       "candidateEmail": "john.doe@example.com",
       "candidatePhone": "+1234567890",
-      "status": "NEW",
+      "statusId": "status1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "status": {
+      "id": "status1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "name": "NEW",
+      "displayName": "Mới",
+      "color": "#3B82F6"
+    },
       "source": "Email",
       "appliedDate": "2024-01-15",
       "resumeFilePath": "/applications/app1/resume.pdf",
@@ -1031,7 +1037,13 @@ Lấy thông tin chi tiết một application.
     "candidateName": "John Doe",
     "candidateEmail": "john.doe@example.com",
     "candidatePhone": "+1234567890",
-    "status": "NEW",
+    "statusId": "status1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "status": {
+      "id": "status1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "name": "NEW",
+      "displayName": "Mới",
+      "color": "#3B82F6"
+    },
     "source": "Email",
     "appliedDate": "2024-01-15",
     "resumeFilePath": "/applications/app1/resume.pdf",
@@ -1059,7 +1071,7 @@ HR/Recruiter tạo application thủ công (khi nhận CV qua email).
   "candidateName": "John Doe",
   "candidateEmail": "john.doe@example.com",
   "candidatePhone": "+1234567890",
-  "status": "NEW",
+  "statusId": "status1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
   "source": "Email",
   "appliedDate": "2024-01-15",
   "resumeFilePath": "/applications/app1/resume.pdf",
@@ -1079,7 +1091,13 @@ HR/Recruiter tạo application thủ công (khi nhận CV qua email).
     "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
     "candidateName": "John Doe",
     "candidateEmail": "john.doe@example.com",
-    "status": "NEW",
+    "statusId": "status1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "status": {
+      "id": "status1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "name": "NEW",
+      "displayName": "Mới",
+      "color": "#3B82F6"
+    },
     "appliedDate": "2024-01-15",
     "createdAt": "2024-01-15T10:30:00Z"
   },
@@ -1095,7 +1113,7 @@ Cập nhật status của application (workflow: NEW → SCREENING → INTERVIEW
 #### Request Body
 ```json
 {
-  "status": "SCREENING",
+  "statusId": "status2a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
   "notes": "Moved to screening phase"
 }
 ```
@@ -1107,7 +1125,7 @@ Cập nhật status của application (workflow: NEW → SCREENING → INTERVIEW
   "message": "Application status updated successfully",
   "data": {
     "id": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
-    "status": "SCREENING",
+    "statusId": "status2a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
     "previousStatus": "NEW",
     "notes": "Moved to screening phase",
     "updatedAt": "2024-01-15T10:30:00Z"
@@ -1201,8 +1219,20 @@ Lấy lịch sử thay đổi status của application.
     {
       "id": "hist1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
       "applicationId": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
-      "fromStatus": "NEW",
-      "toStatus": "SCREENING",
+      "fromStatusId": "status1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "fromStatus": {
+        "id": "status1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+        "name": "NEW",
+        "displayName": "Mới",
+        "color": "#3B82F6"
+      },
+      "toStatusId": "status2a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "toStatus": {
+        "id": "status2a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+        "name": "SCREENING",
+        "displayName": "Sàng lọc",
+        "color": "#8B5CF6"
+      },
       "changedBy": "user1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
       "changedByName": "Jane Recruiter",
       "notes": "Moved to screening phase",
@@ -1395,6 +1425,9 @@ Trả về thông tin chi tiết cùng metadata audit.
 > - **Notification Types** → ENUM trong `notifications.type` (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, etc.)
 > - **Notification Priorities** → ENUM trong `notifications.priority` (HIGH, MEDIUM, LOW)
 
+> **✅ LOOKUP TABLE**: Application Statuses giữ lại lookup table vì cần metadata (display_name, color, sort_order) và flexibility:
+> - **Application Statuses** → Lookup table `application_statuses` (NEW, SCREENING, INTERVIEWING, OFFERED, HIRED, REJECTED)
+
 ### ~~1. Get Job Statuses~~ ❌ **CHUYỂN SANG ENUM**
 
 > **Lý do**: Job statuses giờ là ENUM trong `jobs.jobStatus`. Sử dụng trực tiếp ENUM values trong request/response.
@@ -1430,6 +1463,155 @@ Trả về thông tin chi tiết cùng metadata audit.
 ### ~~9. Get Notification Priorities~~ ❌ **CHUYỂN SANG ENUM**
 
 > **Lý do**: Notification priorities giờ là ENUM trong `notifications.priority` (HIGH, MEDIUM, LOW). Sử dụng trực tiếp ENUM values trong request/response.
+
+### 10. Get Application Statuses ✅
+**GET** `/admin/application-statuses`
+
+Lấy danh sách application statuses cùng metadata (display_name, color, sort_order) để hiển thị trong UI.
+
+#### Request Headers
+```
+Authorization: Bearer <access_token>
+```
+
+#### Query Parameters
+```
+page=0&size=20&sort=sortOrder,asc&isActive=true
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Application statuses retrieved successfully",
+  "data": [
+    {
+      "id": "status1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "name": "NEW",
+      "displayName": "Mới",
+      "description": "Ứng viên vừa nộp đơn",
+      "color": "#3B82F6",
+      "sortOrder": 1,
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z",
+      "createdBy": null,
+      "updatedBy": null,
+      "deletedAt": null
+    },
+    {
+      "id": "status2a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "name": "SCREENING",
+      "displayName": "Sàng lọc",
+      "description": "Đang sàng lọc hồ sơ",
+      "color": "#8B5CF6",
+      "sortOrder": 2,
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z",
+      "createdBy": null,
+      "updatedBy": null,
+      "deletedAt": null
+    }
+  ],
+  "timestamp": "2024-01-15T10:30:00Z",
+  "paginationInfo": {
+    "page": 0,
+    "size": 20,
+    "totalElements": 6,
+    "totalPages": 1
+  }
+}
+```
+
+### 11. Create Application Status
+**POST** `/admin/application-statuses`
+
+Tạo application status mới (chỉ dành cho admin).
+
+#### Request Headers
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+#### Request Body
+```json
+{
+  "name": "ON_HOLD",
+  "displayName": "Tạm hoãn",
+  "description": "Ứng viên tạm hoãn quy trình",
+  "color": "#F59E0B",
+  "sortOrder": 3,
+  "isActive": true
+}
+```
+
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Application status created successfully",
+  "data": {
+    "id": "status3a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "name": "ON_HOLD",
+    "displayName": "Tạm hoãn",
+    "description": "Ứng viên tạm hoãn quy trình",
+    "color": "#F59E0B",
+    "sortOrder": 3,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 12. Update Application Status
+**PUT** `/admin/application-statuses/{id}`
+
+Cập nhật application status (display_name, color, sort_order, etc.).
+
+#### Request Body
+```json
+{
+  "displayName": "Tạm hoãn (Cập nhật)",
+  "color": "#F97316",
+  "sortOrder": 4
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Application status updated successfully",
+  "data": {
+    "id": "status3a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "name": "ON_HOLD",
+    "displayName": "Tạm hoãn (Cập nhật)",
+    "color": "#F97316",
+    "sortOrder": 4,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 13. Delete Application Status
+**DELETE** `/admin/application-statuses/{id}`
+
+Soft delete application status (chỉ khi không có applications nào đang dùng).
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Application status deleted successfully",
+  "data": null,
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
 
 ## 🔐 RBAC & Permission APIs
 

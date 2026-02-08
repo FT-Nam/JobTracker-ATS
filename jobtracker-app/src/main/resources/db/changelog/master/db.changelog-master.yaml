@@ -5,6 +5,8 @@ databaseChangeLog:
       file: db/changelog/table/create-table-permissions.yaml
   - include:
       file: db/changelog/table/create-table-role-permissions.yaml
+  - include:
+      file: db/changelog/table/create-table-application-statuses.yaml
 
   - include:
       file: db/changelog/table/create-table-companies.yaml
@@ -43,6 +45,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/foreign-keys/add-constraints-role-permissions.yaml
   - include:
+      file: db/changelog/foreign-keys/add-constraints-application-statuses.yaml
+  - include:
       file: db/changelog/foreign-keys/add-constraints-companies.yaml
   - include:
       file: db/changelog/foreign-keys/add-constraints-users.yaml
@@ -75,6 +79,8 @@ databaseChangeLog:
       file: db/changelog/indexes/create-indexes-permissions.yaml
   - include:
       file: db/changelog/indexes/create-indexes-role-permissions.yaml
+  - include:
+      file: db/changelog/indexes/create-indexes-application-statuses.yaml
   - include:
       file: db/changelog/indexes/create-indexes-companies.yaml
   - include:

@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-indexes-application-statuses
+      author: namphan
+      changes:
+        - createIndex:
+            indexName: idx_application_statuses_name
+            tableName: application_statuses
+            columns:
+              - column:
+                  name: name
+        - createIndex:
+            indexName: idx_application_statuses_sort_order
+            tableName: application_statuses
+            columns:
+              - column:
+                  name: sort_order
+        - createIndex:
+            indexName: idx_application_statuses_is_active
+            tableName: application_statuses
+            columns:
+              - column:
+                  name: is_active
+        - createIndex:
+            indexName: idx_application_statuses_created_at
+            tableName: application_statuses
+            columns:
+              - column:
+                  name: created_at
+        - createIndex:
+            indexName: idx_application_statuses_created_by
+            tableName: application_statuses
+            columns:
+              - column:
+                  name: created_by
+        - createIndex:
+            indexName: idx_application_statuses_updated_by
+            tableName: application_statuses
+            columns:
+              - column:
+                  name: updated_by
+        - createIndex:
+            indexName: idx_application_statuses_deleted_at
+            tableName: application_statuses
+            columns:
+              - column:
+                  name: deleted_at
+

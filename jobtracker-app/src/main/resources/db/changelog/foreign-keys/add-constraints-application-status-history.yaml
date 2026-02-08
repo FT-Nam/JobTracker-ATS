@@ -12,6 +12,20 @@ databaseChangeLog:
             constraintName: fk_application_status_history_application_id_applications
         - addForeignKeyConstraint:
             baseTableName: application_status_history
+            baseColumnNames: from_status_id
+            referencedTableName: application_statuses
+            referencedColumnNames: id
+            onDelete: SET NULL
+            constraintName: fk_application_status_history_from_status_id_application_statuses
+        - addForeignKeyConstraint:
+            baseTableName: application_status_history
+            baseColumnNames: to_status_id
+            referencedTableName: application_statuses
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            constraintName: fk_application_status_history_to_status_id_application_statuses
+        - addForeignKeyConstraint:
+            baseTableName: application_status_history
             baseColumnNames: changed_by
             referencedTableName: users
             referencedColumnNames: id

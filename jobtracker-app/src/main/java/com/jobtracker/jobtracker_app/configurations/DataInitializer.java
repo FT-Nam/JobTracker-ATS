@@ -8,10 +8,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jobtracker.jobtracker_app.entities.ApplicationStatus;
 import com.jobtracker.jobtracker_app.entities.Permission;
 import com.jobtracker.jobtracker_app.entities.Role;
 import com.jobtracker.jobtracker_app.entities.RolePermission;
 import com.jobtracker.jobtracker_app.entities.User;
+import com.jobtracker.jobtracker_app.repositories.ApplicationStatusRepository;
 import com.jobtracker.jobtracker_app.repositories.PermissionRepository;
 import com.jobtracker.jobtracker_app.repositories.RolePermissionRepository;
 import com.jobtracker.jobtracker_app.repositories.RoleRepository;
@@ -31,12 +33,14 @@ public class DataInitializer implements CommandLineRunner {
     RoleRepository roleRepository;
     PermissionRepository permissionRepository;
     RolePermissionRepository rolePermissionRepository;
+    ApplicationStatusRepository applicationStatusRepository;
     PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
         if (userRepository.count() == 0) {
             log.info("Seeding initial data...");
+            seedApplicationStatuses();
             seedAdminUser();
             log.info("✅ Default admin user created: admin@gmail.com / 123456789");
         } else {
@@ -89,6 +93,39 @@ public class DataInitializer implements CommandLineRunner {
         rolePermissionRepository.saveAll(rolePermissions);
 
         log.info("✅ Admin user created successfully: {}", admin.getEmail());
+    }
+
+    @Transactional
+    public void seedApplicationStatuses() {
+        if (applicationStatusRepository.count() == 0) {
+            log.info("Seeding application statuses...");
+            String systemUser = "system";
+            
+            List<ApplicationStatus> statuses = List.of(
+                    createApplicationStatus("NEW", "Mới", "Ứng viên vừa nộp đơn", "#3B82F6", 1, systemUser),
+                    createApplicationStatus("SCREENING", "Sàng lọc", "Đang sàng lọc hồ sơ", "#8B5CF6", 2, systemUser),
+                    createApplicationStatus("INTERVIEWING", "Phỏng vấn", "Đang trong quá trình phỏng vấn", "#F59E0B", 3, systemUser),
+                    createApplicationStatus("OFFERED", "Đã đề xuất", "Đã gửi offer cho ứng viên", "#10B981", 4, systemUser),
+                    createApplicationStatus("HIRED", "Đã tuyển", "Ứng viên đã được tuyển", "#059669", 5, systemUser),
+                    createApplicationStatus("REJECTED", "Từ chối", "Ứng viên bị từ chối", "#EF4444", 6, systemUser)
+            );
+            
+            applicationStatusRepository.saveAll(statuses);
+            log.info("✅ Application statuses seeded: {} statuses", statuses.size());
+        }
+    }
+
+    private ApplicationStatus createApplicationStatus(String name, String displayName, String description, String color, Integer sortOrder, String createdBy) {
+        ApplicationStatus status = ApplicationStatus.builder()
+                .name(name)
+                .displayName(displayName)
+                .description(description)
+                .color(color)
+                .sortOrder(sortOrder)
+                .isActive(true)
+                .build();
+        status.setCreatedBy(createdBy);
+        return status;
     }
 
     private Permission createPermission(String name, String resource, String action, String description, String createdBy) {

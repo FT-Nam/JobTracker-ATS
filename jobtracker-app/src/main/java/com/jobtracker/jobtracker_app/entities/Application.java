@@ -1,7 +1,6 @@
 package com.jobtracker.jobtracker_app.entities;
 
 import com.jobtracker.jobtracker_app.entities.base.FullAuditEntity;
-import com.jobtracker.jobtracker_app.enums.ApplicationStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -38,9 +37,9 @@ public class Application extends FullAuditEntity {
     @Column(name = "candidate_phone", length = 20)
     String candidatePhone;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 50)
-    ApplicationStatus status = ApplicationStatus.NEW;
+    @ManyToOne
+    @JoinColumn(name = "status_id", nullable = false)
+    ApplicationStatus status;
 
     @Column(length = 100)
     String source;
