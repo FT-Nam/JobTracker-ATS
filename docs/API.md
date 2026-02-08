@@ -1,15 +1,16 @@
-# 🔌 JobTracker API Documentation
+# 🔌 JobTracker ATS API Documentation
 
 ## 📋 Tổng quan API
 
-JobTracker cung cấp RESTful API với thiết kế REST chuẩn, sử dụng JSON cho data exchange và JWT cho authentication.
+JobTracker ATS (Applicant Tracking System) cung cấp RESTful API với thiết kế REST chuẩn, sử dụng JSON cho data exchange và OAuth2/JWT cho authentication. API được thiết kế cho **multi-tenant architecture** với data isolation theo company.
 
 ### 🎯 API Design Principles
 - **RESTful**: Tuân thủ REST conventions
 - **Stateless**: JWT-based authentication
+- **Multi-Tenant**: Data isolation bằng `company_id` trong mọi requests
 - **Versioned**: API versioning với `/api/v1`
 - **Consistent**: Uniform response format
-- **Secure**: HTTPS, JWT, input validation
+- **Secure**: HTTPS, OAuth2, JWT, input validation, RBAC
 - **Documented**: OpenAPI 3.0 specification
 
 ### 🔧 Base Configuration
@@ -17,7 +18,13 @@ JobTracker cung cấp RESTful API với thiết kế REST chuẩn, sử dụng J
 Base URL: https://api.jobtracker.com/api/v1
 Content-Type: application/json
 Authorization: Bearer <oauth2_access_token>
+X-Company-Id: <company_id> (Optional - auto-extracted from user context)
 ```
+
+### 🔑 Multi-Tenant Context
+- Mọi API request tự động filter theo `company_id` của user
+- User chỉ có thể truy cập data của company mình
+- System Admin có thể truy cập tất cả companies
 
 ## 🔐 Authentication APIs
 
@@ -585,12 +592,14 @@ Trả về thông tin đầy đủ của user kèm audit.
 }
 ```
 
-## 💼 Job Management APIs
+## 💼 Job Management APIs (Job Postings - ATS)
+
+> **🔄 SEMANTIC CHANGE**: Jobs = Job Postings (tin tuyển dụng), không phải "job applied". HR/Recruiter tạo job postings để candidates apply.
 
 ### 1. Get All Jobs
 **GET** `/jobs`
 
-Lấy danh sách tất cả jobs của user với pagination và filtering.
+Lấy danh sách tất cả job postings của company với pagination và filtering.
 
 #### Request Headers
 ```
@@ -599,7 +608,7 @@ Authorization: Bearer <access_token>
 
 #### Query Parameters
 ```
-page=0&size=20&sort=createdAt,desc&status=APPLIED&company=Google&search=developer
+page=0&size=20&sort=createdAt,desc&status=PUBLISHED&jobStatus=DRAFT&search=developer&isRemote=true
 ```
 
 #### Response (200 OK)
@@ -620,18 +629,17 @@ page=0&size=20&sort=createdAt,desc&status=APPLIED&company=Google&search=develope
       "salaryMax": 180000,
       "currency": "USD",
       "statusId": "s2",
-      "applicationDate": "2024-01-10",
+      "jobStatus": "PUBLISHED",
       "deadlineDate": "2024-01-25",
-      "interviewDate": null,
-      "offerDate": null,
+      "publishedAt": "2024-01-10T09:00:00Z",
+      "expiresAt": "2024-01-25T23:59:59Z",
+      "viewsCount": 150,
+      "applicationsCount": 25,
       "jobDescription": "We are looking for a senior Java developer...",
       "requirements": "5+ years of Java experience...",
       "benefits": "Health insurance, 401k, stock options...",
       "jobUrl": "https://careers.google.com/jobs/123",
-      "notes": "Applied through referral",
-      "priorityId": "p3",
       "isRemote": false,
-      "experienceLevelId": "e4",
       "createdAt": "2024-01-10T09:00:00Z",
       "updatedAt": "2024-01-10T09:00:00Z",
       "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
@@ -698,10 +706,10 @@ Authorization: Bearer <access_token>
 }
 ```
 
-### 3. Create New Job
+### 3. Create New Job Posting
 **POST** `/jobs`
 
-Tạo job mới.
+Tạo job posting mới (HR/Recruiter tạo tin tuyển dụng).
 
 #### Request Headers
 ```
@@ -711,26 +719,22 @@ Authorization: Bearer <access_token>
 #### Request Body
 ```json
 {
-  "companyId": 1,
+  "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
   "title": "Senior Java Developer",
   "position": "Backend Developer",
-  "jobTypeId": 1,
+  "jobTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
   "location": "Mountain View, CA",
   "salaryMin": 120000,
   "salaryMax": 180000,
   "currency": "USD",
-  "applicationDate": "2024-01-10",
+  "statusId": "s1",
   "deadlineDate": "2024-01-25",
   "jobDescription": "We are looking for a senior Java developer...",
   "requirements": "5+ years of Java experience...",
   "benefits": "Health insurance, 401k, stock options...",
   "jobUrl": "https://careers.google.com/jobs/123",
-  "notes": "Applied through referral",
-  "priorityId": 3,
   "isRemote": false,
-  "experienceLevelId": 4,
-  "skillIds": [1, 2, 3],
-  "resumeIds": [1]
+  "skillIds": ["skill1", "skill2", "skill3"]
 }
 ```
 
@@ -751,11 +755,13 @@ Authorization: Bearer <access_token>
     "salaryMax": 180000,
     "currency": "USD",
     "statusId": "s1",
-    "applicationDate": "2024-01-10",
+    "jobStatus": "DRAFT",
     "deadlineDate": "2024-01-25",
-    "priorityId": "p3",
+    "publishedAt": null,
+    "expiresAt": null,
+    "viewsCount": 0,
+    "applicationsCount": 0,
     "isRemote": false,
-    "experienceLevelId": "e4",
     "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
@@ -821,10 +827,10 @@ Authorization: Bearer <access_token>
 }
 ```
 
-### 6. Update Job Status
+### 6. Publish/Unpublish Job Posting
 **PATCH** `/jobs/{id}/status`
 
-Cập nhật trạng thái job.
+Publish hoặc unpublish job posting (chuyển từ DRAFT → PUBLISHED, hoặc ngược lại).
 
 #### Request Headers
 ```
@@ -834,9 +840,9 @@ Authorization: Bearer <access_token>
 #### Request Body
 ```json
 {
-  "status": "OFFER",
-  "offerDate": "2024-01-25",
-  "notes": "Received offer with $150k base salary"
+  "jobStatus": "PUBLISHED",
+  "publishedAt": "2024-01-15T10:30:00Z",
+  "expiresAt": "2024-02-15T23:59:59Z"
 }
 ```
 
@@ -847,9 +853,10 @@ Authorization: Bearer <access_token>
   "message": "Job status updated successfully",
   "data": {
     "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-    "status": "OFFER",
-    "offerDate": "2024-01-25",
-    "notes": "Received offer with $150k base salary",
+    "jobStatus": "PUBLISHED",
+    "statusId": "s2",
+    "publishedAt": "2024-01-15T10:30:00Z",
+    "expiresAt": "2024-02-15T23:59:59Z",
     "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
@@ -954,15 +961,117 @@ Authorization: Bearer <access_token>
 }
 ```
 
-### 8. Manage Job Resumes
+### ~~8. Manage Job Resumes~~ ❌ **REMOVED**
 
-**POST** `/jobs/{jobId}/resumes`
+> **Lý do**: ATS không cần candidates upload CV. CVs được lưu trong `applications.resume_file_path` hoặc `attachments` table.
+
+## 📝 Applications Management APIs (CORE ATS) ➕
+
+> **🔑 CORE**: Applications là core entity của ATS. Candidates apply to job postings, HR/Recruiter quản lý applications qua workflow (NEW → SCREENING → INTERVIEWING → OFFERED → HIRED/REJECTED).
+
+### 1. Get All Applications
+**GET** `/applications`
+
+Lấy danh sách tất cả applications của company với pagination và filtering.
+
+#### Request Headers
+```
+Authorization: Bearer <access_token>
+```
+
+#### Query Parameters
+```
+page=0&size=20&sort=appliedDate,desc&status=NEW&jobId=xxx&assignedTo=xxx&search=john
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Applications retrieved successfully",
+  "data": [
+    {
+      "id": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+      "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+      "candidateName": "John Doe",
+      "candidateEmail": "john.doe@example.com",
+      "candidatePhone": "+1234567890",
+      "status": "NEW",
+      "source": "Email",
+      "appliedDate": "2024-01-15",
+      "resumeFilePath": "/applications/app1/resume.pdf",
+      "coverLetter": "I am interested in this position...",
+      "notes": "Strong candidate, good fit",
+      "rating": 4,
+      "assignedTo": "user1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "assignedToName": "Jane Recruiter",
+      "createdAt": "2024-01-15T10:30:00Z",
+      "updatedAt": "2024-01-15T10:30:00Z"
+    }
+  ],
+  "timestamp": "2024-01-15T10:30:00Z",
+  "paginationInfo": {
+    "page": 0,
+    "size": 20,
+    "totalElements": 1,
+    "totalPages": 1
+  }
+}
+```
+
+### 2. Get Application by ID
+**GET** `/applications/{id}`
+
+Lấy thông tin chi tiết một application.
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Application retrieved successfully",
+  "data": {
+    "id": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "jobTitle": "Senior Java Developer",
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+    "candidateName": "John Doe",
+    "candidateEmail": "john.doe@example.com",
+    "candidatePhone": "+1234567890",
+    "status": "NEW",
+    "source": "Email",
+    "appliedDate": "2024-01-15",
+    "resumeFilePath": "/applications/app1/resume.pdf",
+    "coverLetter": "I am interested in this position...",
+    "notes": "Strong candidate, good fit",
+    "rating": 4,
+    "assignedTo": "user1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "assignedToName": "Jane Recruiter",
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 3. Create Application (Manual Entry)
+**POST** `/applications`
+
+HR/Recruiter tạo application thủ công (khi nhận CV qua email).
 
 #### Request Body
 ```json
 {
-  "resumeId": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
-  "isPrimary": true
+  "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+  "candidateName": "John Doe",
+  "candidateEmail": "john.doe@example.com",
+  "candidatePhone": "+1234567890",
+  "status": "NEW",
+  "source": "Email",
+  "appliedDate": "2024-01-15",
+  "resumeFilePath": "/applications/app1/resume.pdf",
+  "coverLetter": "I am interested in this position...",
+  "notes": "Received via email"
 }
 ```
 
@@ -970,25 +1079,31 @@ Authorization: Bearer <access_token>
 ```json
 {
   "success": true,
-  "message": "Resume linked to job successfully",
+  "message": "Application created successfully",
   "data": {
-    "id": "g9h0i1j2-3k4l-5m6n-7o8p-q9r0s1t2u3v4",
+    "id": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-    "resumeId": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
-    "resumeName": "John_Doe_Resume_2024.pdf",
-    "isPrimary": true,
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+    "candidateName": "John Doe",
+    "candidateEmail": "john.doe@example.com",
+    "status": "NEW",
+    "appliedDate": "2024-01-15",
     "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
-**PATCH** `/jobs/{jobId}/resumes/{resumeId}`
+### 4. Update Application Status
+**PATCH** `/applications/{id}/status`
+
+Cập nhật status của application (workflow: NEW → SCREENING → INTERVIEWING → OFFERED → HIRED/REJECTED).
 
 #### Request Body
 ```json
 {
-  "isPrimary": true
+  "status": "SCREENING",
+  "notes": "Moved to screening phase"
 }
 ```
 
@@ -996,27 +1111,111 @@ Authorization: Bearer <access_token>
 ```json
 {
   "success": true,
-  "message": "Job resume updated successfully",
+  "message": "Application status updated successfully",
   "data": {
-    "id": "g9h0i1j2-3k4l-5m6n-7o8p-q9r0s1t2u3v4",
-    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-    "resumeId": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
-    "resumeName": "John_Doe_Resume_2024.pdf",
-    "isPrimary": true,
+    "id": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "status": "SCREENING",
+    "previousStatus": "NEW",
+    "notes": "Moved to screening phase",
     "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
-**DELETE** `/jobs/{jobId}/resumes/{resumeId}`
+### 5. Assign Application to Recruiter
+**PATCH** `/applications/{id}/assign`
+
+Assign application cho HR/Recruiter để xử lý.
+
+#### Request Body
+```json
+{
+  "assignedTo": "user1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6"
+}
+```
 
 #### Response (200 OK)
 ```json
 {
   "success": true,
-  "message": "Resume unlinked from job",
+  "message": "Application assigned successfully",
+  "data": {
+    "id": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "assignedTo": "user1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "assignedToName": "Jane Recruiter",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 6. Update Application Details
+**PUT** `/applications/{id}`
+
+Cập nhật thông tin application (notes, rating, etc.).
+
+#### Request Body
+```json
+{
+  "notes": "Updated notes after phone screening",
+  "rating": 5,
+  "coverLetter": "Updated cover letter"
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Application updated successfully",
+  "data": {
+    "id": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "notes": "Updated notes after phone screening",
+    "rating": 5,
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 7. Delete Application
+**DELETE** `/applications/{id}`
+
+Soft delete application.
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Application deleted successfully",
   "data": null,
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 8. Get Application Status History
+**GET** `/applications/{id}/status-history`
+
+Lấy lịch sử thay đổi status của application.
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Status history retrieved successfully",
+  "data": [
+    {
+      "id": "hist1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "applicationId": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "fromStatus": "NEW",
+      "toStatus": "SCREENING",
+      "changedBy": "user1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "changedByName": "Jane Recruiter",
+      "notes": "Moved to screening phase",
+      "createdAt": "2024-01-15T10:30:00Z"
+    }
+  ],
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
@@ -1416,10 +1615,15 @@ Authorization: Bearer <access_token>
 }
 ```
 
-### 3. Get Priorities
-**GET** `/lookup/priorities`
+### ~~3. Get Priorities~~ ❌ **REMOVED**
 
-Lấy danh sách tất cả priorities.
+> **Lý do**: ATS không cần priority cho job postings. Đã bỏ hoàn toàn.
+
+### ~~4. Get Experience Levels~~ ❌ **REMOVED**
+
+> **Lý do**: Quá phức tạp cho ATS. HR có thể ghi tự do trong job description. Đã bỏ hoàn toàn.
+
+### 3. Get Interview Types
 
 #### Request Headers
 ```
@@ -2704,54 +2908,75 @@ page=0&size=50&sort=name,asc&category=PROGRAMMING&search=Java
 }
 ```
 
-### 6. Get User Skills
-**GET** `/users/skills`
+### ~~6. Get User Skills~~ ❌ **REMOVED**
 
-Lấy skills của user hiện tại.
+> **Lý do**: ATS không track skills của HR/Recruiter. Chỉ cần track skills yêu cầu của job (job_skills). Candidates skills nằm trong CV text.
+
+### ~~7. Add User Skill~~ ❌ **REMOVED**
+### ~~8. Update User Skill~~ ❌ **REMOVED**
+### ~~9. Delete User Skill~~ ❌ **REMOVED**
+
+## ~~📄 Resume Management APIs~~ ❌ **REMOVED**
+
+> **Lý do**: ATS không cần candidates upload CV. CVs được lưu trong `applications.resume_file_path` hoặc `attachments` table khi HR upload.
+
+## 💬 Comments Management APIs (ATS) ➕
+
+> **Mục đích**: HR/Recruiter trao đổi về candidates trên applications. Comments có thể là internal (không gửi candidate) hoặc external.
+
+### 1. Get Application Comments
+**GET** `/applications/{applicationId}/comments`
+
+Lấy danh sách comments của một application.
 
 #### Request Headers
 ```
 Authorization: Bearer <access_token>
+```
+
+#### Query Parameters
+```
+page=0&size=20&sort=createdAt,desc&isInternal=true
 ```
 
 #### Response (200 OK)
 ```json
 {
   "success": true,
-  "message": "User skills retrieved successfully",
+  "message": "Comments retrieved successfully",
   "data": [
     {
-      "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
-      "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
-      "skillName": "Java",
-      "skillCategory": "PROGRAMMING",
-      "proficiencyLevel": "ADVANCED",
-      "yearsOfExperience": 5.0,
-      "isVerified": false,
-      "createdAt": "2024-01-01T00:00:00Z",
-      "updatedAt": "2024-01-01T00:00:00Z"
+      "id": "comm1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "applicationId": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "userId": "user1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "userName": "Jane Recruiter",
+      "userAvatar": "https://...",
+      "commentText": "Strong technical background, good fit for the role.",
+      "isInternal": true,
+      "createdAt": "2024-01-15T10:30:00Z",
+      "updatedAt": "2024-01-15T10:30:00Z"
     }
   ],
-  "timestamp": "2024-01-15T10:30:00Z"
+  "timestamp": "2024-01-15T10:30:00Z",
+  "paginationInfo": {
+    "page": 0,
+    "size": 20,
+    "totalElements": 1,
+    "totalPages": 1
+  }
 }
 ```
 
-### 7. Add User Skill
-**POST** `/users/skills`
+### 2. Create Comment
+**POST** `/applications/{applicationId}/comments`
 
-Thêm skill cho user.
-
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
+Thêm comment mới cho application.
 
 #### Request Body
 ```json
 {
-  "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
-  "proficiencyLevel": "ADVANCED",
-  "yearsOfExperience": 5.0
+  "commentText": "Strong technical background, good fit for the role.",
+  "isInternal": true
 }
 ```
 
@@ -2759,30 +2984,30 @@ Authorization: Bearer <access_token>
 ```json
 {
   "success": true,
-  "message": "User skill added successfully",
+  "message": "Comment created successfully",
   "data": {
-    "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
-    "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
-    "skillName": "Java",
-    "skillCategory": "PROGRAMMING",
-    "proficiencyLevel": "ADVANCED",
-    "yearsOfExperience": 5.0,
-    "isVerified": false,
+    "id": "comm1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "applicationId": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "userId": "user1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "userName": "Jane Recruiter",
+    "commentText": "Strong technical background, good fit for the role.",
+    "isInternal": true,
     "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
-### 8. Update User Skill
-**PUT** `/users/skills/{id}`
+### 3. Update Comment
+**PUT** `/applications/{applicationId}/comments/{commentId}`
+
+Cập nhật comment (chỉ author mới có thể update).
 
 #### Request Body
 ```json
 {
-  "proficiencyLevel": "EXPERT",
-  "yearsOfExperience": 6.5,
-  "isVerified": true
+  "commentText": "Updated comment text",
+  "isInternal": false
 }
 ```
 
@@ -2790,226 +3015,40 @@ Authorization: Bearer <access_token>
 ```json
 {
   "success": true,
-  "message": "User skill updated successfully",
+  "message": "Comment updated successfully",
   "data": {
-    "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
-    "skillId": "b7e58a6e-5c5e-4de8-9a3f-6b1ae2d042b5",
-    "skillName": "Java",
-    "skillCategory": "PROGRAMMING",
-    "proficiencyLevel": "EXPERT",
-    "yearsOfExperience": 6.5,
-    "isVerified": true,
+    "id": "comm1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "commentText": "Updated comment text",
+    "isInternal": false,
     "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
-### 9. Delete User Skill
-**DELETE** `/users/skills/{id}`
+### 4. Delete Comment
+**DELETE** `/applications/{applicationId}/comments/{commentId}`
+
+Soft delete comment (chỉ author hoặc admin mới có thể delete).
 
 #### Response (200 OK)
 ```json
 {
   "success": true,
-  "message": "User skill deleted successfully",
+  "message": "Comment deleted successfully",
   "data": null,
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
-## 📄 Resume Management APIs
+## 🎤 Interview Management APIs (ATS) 🔄
 
-### 1. Get User Resumes
-**GET** `/resumes`
+> **🔄 SEMANTIC CHANGE**: Interviews belong to Applications, không phải Jobs. Một application có thể có nhiều vòng interview.
 
-Lấy danh sách resumes của user.
+### 1. Get Application Interviews
+**GET** `/applications/{applicationId}/interviews`
 
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Resumes retrieved successfully",
-  "data": [
-    {
-      "id": 1,
-      "name": "John_Doe_Resume_2024.pdf",
-      "originalFilename": "John_Doe_Resume_2024.pdf",
-      "fileSize": 1024000,
-      "fileType": "application/pdf",
-      "version": "1.0",
-      "isDefault": true,
-      "description": "Updated resume for 2024",
-      "tags": ["senior", "java", "backend"],
-      "isActive": true,
-      "uploadedAt": "2024-01-10T09:00:00Z",
-      "createdAt": "2024-01-10T09:00:00Z",
-      "updatedAt": "2024-01-10T09:00:00Z"
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 2. Upload Resume
-**POST** `/resumes/upload`
-
-Upload resume mới.
-
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-Content-Type: multipart/form-data
-```
-
-#### Request Body (Form Data)
-```
-file: <pdf_file>
-description: "Updated resume for 2024"
-tags: ["senior", "java", "backend"]
-isDefault: true
-```
-
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "Resume uploaded successfully",
-  "data": {
-    "id": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
-    "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "name": "John_Doe_Resume_2024.pdf",
-    "originalFilename": "John_Doe_Resume_2024.pdf",
-    "filePath": "/resumes/user_1/resume_1.pdf",
-    "fileSize": 1024000,
-    "fileType": "application/pdf",
-    "version": "1.0",
-    "isDefault": true,
-    "description": "Updated resume for 2024",
-    "tags": "senior,java,backend",
-    "isActive": true,
-    "uploadedAt": "2024-01-15T10:30:00Z",
-    "createdAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 3. Download Resume
-**GET** `/resumes/{id}/download`
-
-Download resume file.
-
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
-
-#### Response (200 OK)
-```
-Content-Type: application/pdf
-Content-Disposition: attachment; filename="John_Doe_Resume_2024.pdf"
-Content-Length: 1024000
-
-<binary_file_content>
-```
-
-### 4. Get Resume Details
-**GET** `/resumes/{id}`
-
-Trả về metadata đầy đủ (name, tags, version, audit).
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Resume retrieved successfully",
-  "data": {
-    "id": 1,
-    "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "name": "John_Doe_Resume_2024.pdf",
-    "originalFilename": "John_Doe_Resume_2024.pdf",
-    "filePath": "/resumes/user_1/resume_1.pdf",
-    "fileSize": 1024000,
-    "fileType": "application/pdf",
-    "version": "1.0",
-    "isDefault": true,
-    "description": "Updated resume for 2024",
-    "tags": "senior,java,backend",
-    "isActive": true,
-    "uploadedAt": "2024-01-10T09:00:00Z",
-    "createdAt": "2024-01-10T09:00:00Z",
-    "updatedAt": "2024-01-10T09:00:00Z",
-    "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "deletedAt": null
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 5. Update Resume Metadata
-**PUT** `/resumes/{id}`
-
-#### Request Body
-```json
-{
-  "name": "John_Doe_Resume_2025.pdf",
-  "description": "Updated for 2025 season",
-  "tags": ["lead", "manager"],
-  "isDefault": true
-}
-```
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Resume updated successfully",
-  "data": {
-    "id": "e31ab668-0f3e-4ac4-a904-2acd07c05436",
-    "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "name": "John_Doe_Resume_2025.pdf",
-    "originalFilename": "John_Doe_Resume_2024.pdf",
-    "filePath": "/resumes/user_1/resume_1.pdf",
-    "fileSize": 1024000,
-    "fileType": "application/pdf",
-    "version": "1.0",
-    "isDefault": true,
-    "description": "Updated for 2025 season",
-    "tags": "lead,manager",
-    "isActive": true,
-    "uploadedAt": "2024-01-10T09:00:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 6. Delete Resume
-**DELETE** `/resumes/{id}`
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Resume deleted successfully",
-  "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-## 🎤 Interview Management APIs
-
-### 1. Get Job Interviews
-**GET** `/jobs/{jobId}/interviews`
-
-Lấy danh sách interviews của một job.
+Lấy danh sách interviews của một application.
 
 #### Request Headers
 ```
@@ -3024,8 +3063,12 @@ Authorization: Bearer <access_token>
   "data": [
     {
       "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+      "applicationId": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
       "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+      "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
       "roundNumber": 1,
+      "meetingLink": "https://meet.google.com/xxx-yyyy-zzz",
+      "location": "Office Building A, Room 101",
       "interviewTypeId": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
       "scheduledDate": "2024-01-20T14:00:00Z",
       "actualDate": null,
