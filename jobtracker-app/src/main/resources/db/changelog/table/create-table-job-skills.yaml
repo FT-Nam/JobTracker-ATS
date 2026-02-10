@@ -13,7 +13,6 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  defaultValueComputed: UUID()
                   remarks: "UUID kỹ năng công việc"
               - column:
                   name: job_id

@@ -13,7 +13,6 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  defaultValueComputed: UUID()
                   remarks: "UUID công ty"
               - column:
                   name: name

@@ -13,7 +13,6 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  defaultValueComputed: UUID()
                   remarks: "UUID lịch sử"
               - column:
                   name: application_id
@@ -34,8 +33,6 @@ databaseChangeLog:
               - column:
                   name: changed_by
                   type: varchar(36)
-                  constraints:
-                    nullable: false
                   remarks: "Người thay đổi"
               - column:
                   name: notes

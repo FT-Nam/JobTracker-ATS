@@ -13,7 +13,6 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                  defaultValueComputed: UUID()
                   remarks: "UUID quan hệ"
               - column:
                   name: role_id

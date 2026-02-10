@@ -185,6 +185,18 @@
 				<!--				</executions>-->
 			</plugin>
 
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<version>4.31.1</version>
+				<configuration>
+					<changeLogFile>src/main/resources/db/changelog/master/db.changelog-master.yaml</changeLogFile>
+					<url>jdbc:mysql://localhost:3306/jobtracker</url>
+					<username>root</username>
+					<password>123456</password>
+					<driver>com.mysql.cj.jdbc.Driver</driver>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

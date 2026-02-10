@@ -9,26 +9,26 @@ databaseChangeLog:
             referencedTableName: applications
             referencedColumnNames: id
             onDelete: CASCADE
-            constraintName: fk_application_status_history_application_id_applications
+            constraintName: fk_app_status_hist_app
         - addForeignKeyConstraint:
             baseTableName: application_status_history
             baseColumnNames: from_status_id
             referencedTableName: application_statuses
             referencedColumnNames: id
             onDelete: SET NULL
-            constraintName: fk_application_status_history_from_status_id_application_statuses
+            constraintName: fk_app_status_hist_from
         - addForeignKeyConstraint:
             baseTableName: application_status_history
             baseColumnNames: to_status_id
             referencedTableName: application_statuses
             referencedColumnNames: id
             onDelete: RESTRICT
-            constraintName: fk_application_status_history_to_status_id_application_statuses
+            constraintName: fk_app_status_hist_to
         - addForeignKeyConstraint:
             baseTableName: application_status_history
             baseColumnNames: changed_by
             referencedTableName: users
             referencedColumnNames: id
             onDelete: SET NULL
-            constraintName: fk_application_status_history_changed_by_users
+            constraintName: fk_app_status_hist_user
 
