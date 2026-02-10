@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-payments
+      author: namphan
+      changes:
+        - createTable:
+            tableName: payments
+            remarks: "Bảng lưu giao dịch thanh toán (VD: VNPAY)"
+            columns:
+              - column:
+                  name: id
+                  type: varchar(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  defaultValueComputed: UUID()
+                  remarks: "UUID payment"
+              - column:
+                  name: company_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID công ty"
+              - column:
+                  name: company_subscription_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID company subscription"
+              - column:
+                  name: amount
+                  type: decimal(15,2)
+                  constraints:
+                    nullable: false
+                  remarks: "Số tiền thanh toán"
+              - column:
+                  name: currency
+                  type: varchar(3)
+                  defaultValue: 'VND'
+                  remarks: "Đơn vị tiền tệ (VD: VND)"
+              - column:
+                  name: gateway
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                  remarks: "Cổng thanh toán (VD: VNPAY)"
+              - column:
+                  name: txn_ref
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  remarks: "Mã giao dịch phía gateway (vnp_TxnRef)"
+              - column:
+                  name: status
+                  type: "enum('INIT','SUCCESS','FAILED')"
+                  constraints:
+                    nullable: false
+                  remarks: "Trạng thái thanh toán (INIT, SUCCESS, FAILED)"
+              - column:
+                  name: paid_at
+                  type: timestamp
+                  remarks: "Thời gian thanh toán thành công"
+              - column:
+                  name: metadata
+                  type: json
+                  remarks: "Dữ liệu thêm (raw payload từ gateway, v.v.)"
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian tạo"
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian cập nhật"
+
+

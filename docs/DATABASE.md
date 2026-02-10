@@ -363,6 +363,35 @@ CREATE TABLE company_subscriptions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
+### 3.3. Payments Table (Bảng thanh toán - VNPAY, v.v.)
+
+> **Vai trò**: Lưu các giao dịch thanh toán cho subscription theo từng company.  
+> Không phụ thuộc vào gateway cụ thể, nhưng hiện tại chủ yếu dùng cho VNPAY.
+
+```sql
+CREATE TABLE payments (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID payment',
+    company_id VARCHAR(36) NOT NULL COMMENT 'UUID công ty',
+    company_subscription_id VARCHAR(36) NOT NULL COMMENT 'UUID company subscription',
+    amount DECIMAL(15,2) NOT NULL COMMENT 'Số tiền thanh toán',
+    currency VARCHAR(3) DEFAULT 'VND' COMMENT 'Đơn vị tiền tệ',
+    gateway VARCHAR(50) NOT NULL COMMENT 'Cổng thanh toán (VD: VNPAY)',
+    txn_ref VARCHAR(100) NOT NULL UNIQUE COMMENT 'Mã giao dịch phía gateway (vnp_TxnRef)',
+    status ENUM('INIT', 'SUCCESS', 'FAILED') NOT NULL COMMENT 'Trạng thái thanh toán',
+    paid_at TIMESTAMP NULL COMMENT 'Thời gian thanh toán thành công',
+    metadata JSON NULL COMMENT 'Dữ liệu thêm (raw payload từ gateway)',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian tạo',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời gian cập nhật',
+    
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+    FOREIGN KEY (company_subscription_id) REFERENCES company_subscriptions(id) ON DELETE RESTRICT,
+    
+    INDEX idx_payments_company (company_id),
+    INDEX idx_payments_subscription (company_subscription_id),
+    INDEX idx_payments_gateway_status (gateway, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
 
 ### 4. Jobs Table (Bảng Job Postings - ATS)
 

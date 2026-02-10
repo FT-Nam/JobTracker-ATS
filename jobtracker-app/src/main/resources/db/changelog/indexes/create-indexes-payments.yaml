@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-indexes-payments
+      author: namphan
+      changes:
+        - createIndex:
+            indexName: idx_payments_company
+            tableName: payments
+            columns:
+              - column:
+                  name: company_id
+        - createIndex:
+            indexName: idx_payments_subscription
+            tableName: payments
+            columns:
+              - column:
+                  name: company_subscription_id
+        - createIndex:
+            indexName: idx_payments_gateway_status
+            tableName: payments
+            columns:
+              - column:
+                  name: gateway
+              - column:
+                  name: status
+        - createIndex:
+            indexName: uk_payments_txn_ref
+            tableName: payments
+            unique: true
+            columns:
+              - column:
+                  name: txn_ref
+
+

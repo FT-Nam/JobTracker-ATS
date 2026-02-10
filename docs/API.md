@@ -1820,6 +1820,168 @@ page=0&size=20&status=ACTIVE&sort=startDate,desc
 }
 ```
 
+### 🧾 Payment APIs (Billing Transactions – VNPAY ready)
+
+> Các API này dùng để khởi tạo và tra cứu giao dịch thanh toán cho subscription.  
+> Không bind cứng vào VNPAY, nhưng đã đủ field để map `vnp_TxnRef`, `vnp_ResponseCode`, payload callback.
+
+#### 1. Init Payment (tạo URL VNPAY)
+
+**POST** `/admin/payments`
+
+Tạo bản ghi `payment` trạng thái `INIT` và build URL redirect sang VNPAY.
+
+##### Request Headers
+
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+##### Request Body
+
+```json
+{
+  "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+  "companySubscriptionId": "sub1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+  "amount": 490000,
+  "currency": "VND",
+  "gateway": "VNPAY",
+  "txnRef": null
+}
+```
+
+- **companyId**: Company trả tiền (tenant).
+- **companySubscriptionId**: Bản ghi subscription (plan + thời gian) mà payment này trả cho.
+- **amount**: Số tiền (DECIMAL), backend sẽ nhân `x100` để gửi cho VNPAY.
+- **currency**: Mặc định `VND` nếu bỏ trống.
+- **gateway**: Mặc định `"VNPAY"` nếu bỏ trống.
+- **txnRef**: Nếu null, backend tự sinh mã unique (dùng để map với `vnp_TxnRef`).
+
+##### Response (201 Created)
+
+```json
+{
+  "success": true,
+  "message": "Payment created successfully",
+  "data": {
+    "id": "pay1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+    "companySubscriptionId": "sub1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "amount": 490000,
+    "currency": "VND",
+    "gateway": "VNPAY",
+    "txnRef": "A1B2C3D4E5F6G7H8I9J0",
+    "status": "INIT",
+    "paidAt": null,
+    "metadata": null,
+    "createdAt": "2024-01-15T10:00:00Z",
+    "updatedAt": "2024-01-15T10:00:00Z"
+  },
+  "timestamp": "2024-01-15T10:00:00Z"
+}
+```
+
+Trong thực tế FE sẽ dùng thêm field `paymentUrl` (từ controller/service) để redirect sang VNPAY:
+
+```json
+{
+  "success": true,
+  "message": "Payment created successfully",
+  "data": {
+    "payment": {
+      "id": "pay1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+      "companySubscriptionId": "sub1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "amount": 490000,
+      "currency": "VND",
+      "gateway": "VNPAY",
+      "txnRef": "A1B2C3D4E5F6G7H8I9J0",
+      "status": "INIT",
+      "createdAt": "2024-01-15T10:00:00Z",
+      "updatedAt": "2024-01-15T10:00:00Z"
+    },
+    "paymentUrl": "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?...&vnp_TxnRef=A1B2C3D4E5F6G7H8I9J0&vnp_SecureHash=..."
+  },
+  "timestamp": "2024-01-15T10:00:00Z"
+}
+```
+
+> **Mapping quan trọng**:
+> - `payments.txn_ref` ⇔ `vnp_TxnRef`
+> - `payments.gateway` = `"VNPAY"`
+> - `payments.status` từ `INIT` → `SUCCESS/FAILED` sau callback.
+
+#### 2. VNPAY Return URL (Frontend redirect)
+
+**GET** `/payments/vnpay/return`
+
+Endpoint này dùng làm `vnp_ReturnUrl` để VNPAY redirect browser về sau khi user thanh toán xong.
+
+- Nhận toàn bộ query params từ VNPAY (`vnp_Amount`, `vnp_BankCode`, `vnp_ResponseCode`, `vnp_TxnRef`, `vnp_SecureHash`, ...).
+- Verify chữ ký:
+  - Bỏ `vnp_SecureHashType`, `vnp_SecureHash` khỏi map.
+  - Tính lại hash bằng secretKey (`VnPayConfig.hashAllFields`) và so sánh với `vnp_SecureHash`.
+- Lấy `vnp_TxnRef` → tìm `payments` theo `txn_ref`.
+- Nếu:
+  - Chữ ký hợp lệ **và** `vnp_ResponseCode = "00"`:
+    - Cập nhật:
+      - `payments.status = SUCCESS`
+      - `payments.paid_at = NOW()`
+      - `payments.metadata = full JSON payload từ VNPAY`
+      - (tuỳ logic sau này) cập nhật `company_subscriptions.status` từ `PENDING` → `ACTIVE`.
+  - Ngược lại:
+    - `payments.status = FAILED`
+    - `payments.metadata` vẫn lưu payload để debug.
+
+API response có thể đơn giản là redirect sang FE (SPA) với query `status=success|failed`, nên docs chỉ cần mô tả luồng, không bắt buộc trả JSON chuẩn.
+
+#### 3. Get Payment Detail (Admin)
+
+**GET** `/admin/payments/{id}`
+
+##### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "message": "Payment detail retrieved successfully",
+  "data": {
+    "id": "pay1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+    "companySubscriptionId": "sub1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "amount": 490000,
+    "currency": "VND",
+    "gateway": "VNPAY",
+    "txnRef": "A1B2C3D4E5F6G7H8I9J0",
+    "status": "SUCCESS",
+    "paidAt": "2024-01-15T10:05:00Z",
+    "metadata": "{\"vnp_ResponseCode\":\"00\",\"vnp_TransactionNo\":\"123456789\"}",
+    "createdAt": "2024-01-15T10:00:00Z",
+    "updatedAt": "2024-01-15T10:05:00Z"
+  },
+  "timestamp": "2024-01-15T10:10:00Z"
+}
+```
+
+#### 4. List Payments (Admin)
+
+**GET** `/admin/payments?page=0&size=20`
+
+Trả về toàn bộ payments trong hệ thống (phục vụ billing/report).
+
+#### 5. List Payments by Company
+
+**GET** `/companies/{companyId}/payments?page=0&size=20`
+
+Lấy danh sách payment theo từng company.
+
+#### 6. List Payments by Company Subscription
+
+**GET** `/company-subscriptions/{companySubscriptionId}/payments?page=0&size=20`
+
+Lấy lịch sử payments cho một bản ghi subscription cụ thể.
+
 ## 📋 Lookup Tables APIs
 
 > **🔄 CHUYỂN SANG ENUM**: Các lookup tables sau đã chuyển sang ENUM trong database, không cần APIs riêng:

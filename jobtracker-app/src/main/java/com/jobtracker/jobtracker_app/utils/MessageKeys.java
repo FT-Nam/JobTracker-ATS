@@ -258,4 +258,10 @@ public class MessageKeys {
     public static final String COMPANY_SUBSCRIPTION_LIST_SUCCESS = "company_subscription.list_success";
     public static final String COMPANY_SUBSCRIPTION_DETAIL_SUCCESS = "company_subscription.detail_success";
 
+    // PAYMENT
+    public static final String PAYMENT_NOT_EXISTED = "payment.not_existed";
+    public static final String PAYMENT_CREATE_SUCCESS = "payment.create_success";
+    public static final String PAYMENT_LIST_SUCCESS = "payment.list_success";
+    public static final String PAYMENT_DETAIL_SUCCESS = "payment.detail_success";
+
 }
