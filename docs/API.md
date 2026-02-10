@@ -1421,25 +1421,27 @@ Trả về thông tin chi tiết cùng metadata audit.
 > - `subscription_plans`: catalog gói hệ thống (FREE, BASIC, PRO, ENTERPRISE, ...), có metadata (price, duration_days, max_jobs, max_users, max_applications, is_active).  
 > - `company_subscriptions`: history theo thời gian cho từng company (plan_id, start_date, end_date, status = ACTIVE/EXPIRED/CANCELLED).
 
-### 1. Get Subscription Plans (System Catalog)
+### 🔵 SubscriptionPlan APIs (System Catalog)
+
+#### 1. Get Subscription Plans
 
 **GET** `/admin/subscription-plans`
 
 Lấy danh sách tất cả gói subscription mà hệ thống hỗ trợ (dùng cho UI chọn gói, pricing page, v.v.).
 
-#### Request Headers
+##### Request Headers
 ```
 Authorization: Bearer <access_token>
 ```
 
 > ⚠️ Thường chỉ **SYSTEM_ADMIN** mới được phép quản lý/nhìn toàn bộ plans.
 
-#### Query Parameters
+##### Query Parameters
 ```
 page=0&size=20&sort=price,asc&isActive=true
 ```
 
-#### Response (200 OK)
+##### Response (200 OK)
 ```json
 {
   "success": true,
@@ -1482,46 +1484,275 @@ page=0&size=20&sort=price,asc&isActive=true
 }
 ```
 
-### 2. Get Company Active Subscription
+#### 2. Create Subscription Plan
 
-**GET** `/companies/{companyId}/subscription`
+**POST** `/admin/subscription-plans`
 
-Lấy **subscription hiện tại** (ACTIVE) của một company, kèm thông tin gói.
+Tạo một subscription plan mới trong hệ thống (catalog level).
 
-#### Request Headers
+##### Request Headers
 ```
 Authorization: Bearer <access_token>
+Content-Type: application/json
 ```
 
-#### Response (200 OK)
+##### Request Body
+```json
+{
+  "code": "PRO",
+  "name": "Pro",
+  "price": 49.0,
+  "durationDays": 30,
+  "maxJobs": 50,
+  "maxUsers": 20,
+  "maxApplications": 5000,
+  "isActive": true
+}
+```
+
+##### Response (201 Created)
 ```json
 {
   "success": true,
-  "message": "Company subscription retrieved successfully",
+  "message": "Subscription plan created successfully",
   "data": {
-    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
-    "subscription": {
-      "id": "sub-uuid-1",
-      "planId": "plan-pro-uuid",
-      "plan": {
-        "code": "PRO",
-        "name": "Pro",
-        "price": 49.0,
-        "durationDays": 30,
-        "maxJobs": 50,
-        "maxUsers": 20,
-        "maxApplications": 5000
-      },
-      "startDate": "2024-01-01T00:00:00Z",
-      "endDate": "2024-01-31T23:59:59Z",
-      "status": "ACTIVE"
-    }
+    "id": "plan-pro-uuid",
+    "code": "PRO",
+    "name": "Pro",
+    "price": 49.0,
+    "durationDays": 30,
+    "maxJobs": 50,
+    "maxUsers": 20,
+    "maxApplications": 5000,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
-#### Response khi chưa có subscription (404 Not Found)
+#### 3. Get Subscription Plan by ID
+
+**GET** `/admin/subscription-plans/{id}`
+
+##### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Subscription plan detail retrieved successfully",
+  "data": {
+    "id": "plan-pro-uuid",
+    "code": "PRO",
+    "name": "Pro",
+    "price": 49.0,
+    "durationDays": 30,
+    "maxJobs": 50,
+    "maxUsers": 20,
+    "maxApplications": 5000,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+#### 4. Update Subscription Plan
+
+**PUT** `/admin/subscription-plans/{id}`
+
+##### Request Body
+```json
+{
+  "name": "Pro (Updated)",
+  "price": 59.0,
+  "durationDays": 30,
+  "maxJobs": 100,
+  "maxUsers": 50,
+  "maxApplications": 10000,
+  "isActive": true
+}
+```
+
+##### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Subscription plan updated successfully",
+  "data": {
+    "id": "plan-pro-uuid",
+    "code": "PRO",
+    "name": "Pro (Updated)",
+    "price": 59.0,
+    "durationDays": 30,
+    "maxJobs": 100,
+    "maxUsers": 50,
+    "maxApplications": 10000,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-16T09:00:00Z"
+  },
+  "timestamp": "2024-01-16T09:00:00Z"
+}
+```
+
+#### 5. Deactivate Subscription Plan
+
+**DELETE** `/admin/subscription-plans/{id}`
+
+> Thay vì xóa cứng, plan sẽ được mark `isActive = false` để giữ lịch sử billing.
+
+##### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Subscription plan deleted successfully",
+  "data": null,
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 🟠 CompanySubscription APIs (Per-company History)
+
+#### 1. Create Company Subscription (Admin)
+
+**POST** `/admin/company-subscriptions`
+
+Tạo một subscription record cho company (ví dụ: khi upgrade/downgrade plan).
+
+##### Request Headers
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+##### Request Body
+```json
+{
+  "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+  "planId": "plan-pro-uuid",
+  "startDate": "2024-01-01T00:00:00Z",
+  "endDate": "2024-01-31T23:59:59Z",
+  "status": "ACTIVE"
+}
+```
+
+##### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Company subscription created successfully",
+  "data": {
+    "id": "sub-uuid-1",
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+    "planId": "plan-pro-uuid",
+    "planCode": "PRO",
+    "planName": "Pro",
+    "status": "ACTIVE",
+    "startDate": "2024-01-01T00:00:00Z",
+    "endDate": "2024-01-31T23:59:59Z",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  "timestamp": "2024-01-01T00:00:00Z"
+}
+```
+
+#### 2. Get CompanySubscription by ID (Admin)
+
+**GET** `/admin/company-subscriptions/{id}`
+
+##### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Company subscription detail retrieved successfully",
+  "data": {
+    "id": "sub-uuid-1",
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+    "planId": "plan-pro-uuid",
+    "planCode": "PRO",
+    "planName": "Pro",
+    "status": "ACTIVE",
+    "startDate": "2024-01-01T00:00:00Z",
+    "endDate": "2024-01-31T23:59:59Z",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+#### 3. Get All CompanySubscriptions (Admin)
+
+**GET** `/admin/company-subscriptions`
+
+##### Query Parameters
+```
+page=0&size=20&sort=startDate,desc
+```
+
+##### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Company subscriptions retrieved successfully",
+  "data": [
+    {
+      "id": "sub-uuid-1",
+      "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+      "planId": "plan-pro-uuid",
+      "planCode": "PRO",
+      "planName": "Pro",
+      "status": "ACTIVE",
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": "2024-01-31T23:59:59Z"
+    }
+  ],
+  "timestamp": "2024-01-15T10:30:00Z",
+  "paginationInfo": {
+    "page": 0,
+    "size": 20,
+    "totalElements": 1,
+    "totalPages": 1
+  }
+}
+```
+
+#### 4. Get Company Active Subscription (Per-company)
+
+**GET** `/companies/{companyId}/subscription`
+
+Lấy **subscription hiện tại** (ACTIVE) của một company, kèm thông tin gói.
+
+##### Request Headers
+```
+Authorization: Bearer <access_token>
+```
+
+##### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Company subscription retrieved successfully",
+  "data": {
+    "id": "sub-uuid-1",
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+    "planId": "plan-pro-uuid",
+    "planCode": "PRO",
+    "planName": "Pro",
+    "status": "ACTIVE",
+    "startDate": "2024-01-01T00:00:00Z",
+    "endDate": "2024-01-31T23:59:59Z",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+##### Response khi chưa có subscription (404 Not Found)
 ```json
 {
   "success": false,
@@ -1536,23 +1767,23 @@ Authorization: Bearer <access_token>
 }
 ```
 
-### 3. Get Company Subscription History
+#### 5. Get Company Subscription History
 
 **GET** `/companies/{companyId}/subscriptions`
 
 Lấy toàn bộ lịch sử subscription của company (phục vụ billing/audit/reporting).
 
-#### Request Headers
+##### Request Headers
 ```
 Authorization: Bearer <access_token>
 ```
 
-#### Query Parameters
+##### Query Parameters
 ```
 page=0&size=20&status=ACTIVE&sort=startDate,desc
 ```
 
-#### Response (200 OK)
+##### Response (200 OK)
 ```json
 {
   "success": true,
@@ -1560,25 +1791,23 @@ page=0&size=20&status=ACTIVE&sort=startDate,desc
   "data": [
     {
       "id": "sub-uuid-1",
+      "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
       "planId": "plan-pro-uuid",
-      "plan": {
-        "code": "PRO",
-        "name": "Pro"
-      },
+      "planCode": "PRO",
+      "planName": "Pro",
+      "status": "ACTIVE",
       "startDate": "2024-01-01T00:00:00Z",
-      "endDate": "2024-01-31T23:59:59Z",
-      "status": "ACTIVE"
+      "endDate": "2024-01-31T23:59:59Z"
     },
     {
       "id": "sub-uuid-0",
+      "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
       "planId": "plan-free-uuid",
-      "plan": {
-        "code": "FREE",
-        "name": "Free"
-      },
+      "planCode": "FREE",
+      "planName": "Free",
+      "status": "EXPIRED",
       "startDate": "2023-10-01T00:00:00Z",
-      "endDate": "2023-12-31T23:59:59Z",
-      "status": "EXPIRED"
+      "endDate": "2023-12-31T23:59:59Z"
     }
   ],
   "timestamp": "2024-01-15T10:30:00Z",

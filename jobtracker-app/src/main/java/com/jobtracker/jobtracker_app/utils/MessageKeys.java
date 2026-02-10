@@ -243,4 +243,19 @@ public class MessageKeys {
     public static final String AUDIT_LOG_LIST_SUCCESS = "audit_log.list_success";
     public static final String AUDIT_LOG_DETAIL_SUCCESS = "audit_log.detail_success";
 
+    // SUBSCRIPTION PLAN
+    public static final String SUBSCRIPTION_PLAN_NOT_EXISTED = "subscription_plan.not_existed";
+    public static final String SUBSCRIPTION_PLAN_CREATE_SUCCESS = "subscription_plan.create_success";
+    public static final String SUBSCRIPTION_PLAN_UPDATE_SUCCESS = "subscription_plan.update_success";
+    public static final String SUBSCRIPTION_PLAN_DELETE_SUCCESS = "subscription_plan.delete_success";
+    public static final String SUBSCRIPTION_PLAN_LIST_SUCCESS = "subscription_plan.list_success";
+    public static final String SUBSCRIPTION_PLAN_DETAIL_SUCCESS = "subscription_plan.detail_success";
+
+    // COMPANY SUBSCRIPTION
+    public static final String COMPANY_SUBSCRIPTION_NOT_EXISTED = "company_subscription.not_existed";
+    public static final String COMPANY_SUBSCRIPTION_CREATE_SUCCESS = "company_subscription.create_success";
+    public static final String COMPANY_SUBSCRIPTION_UPDATE_SUCCESS = "company_subscription.update_success";
+    public static final String COMPANY_SUBSCRIPTION_LIST_SUCCESS = "company_subscription.list_success";
+    public static final String COMPANY_SUBSCRIPTION_DETAIL_SUCCESS = "company_subscription.detail_success";
+
 }
