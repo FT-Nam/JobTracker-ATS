@@ -51,29 +51,10 @@ databaseChangeLog:
                   defaultValueBoolean: false
                   remarks: "Công ty đã xác thực"
               - column:
-                  name: subscription_plan
-                  type: varchar(50)
-                  defaultValue: 'FREE'
-                  remarks: "Gói subscription"
-              - column:
-                  name: max_jobs
-                  type: int
-                  defaultValueNumeric: 5
-                  remarks: "Số jobs tối đa theo plan"
-              - column:
-                  name: max_users
-                  type: int
-                  defaultValueNumeric: 3
-                  remarks: "Số users tối đa theo plan"
-              - column:
                   name: is_active
                   type: boolean
                   defaultValueBoolean: true
                   remarks: "Company đang hoạt động"
-              - column:
-                  name: subscription_expires_at
-                  type: timestamp
-                  remarks: "Ngày hết hạn subscription"
               - column:
                   name: created_by
                   type: varchar(36)

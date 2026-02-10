@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-constraints-subscription-plans
+      author: namphan
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: company_subscriptions
+            baseColumnNames: company_id
+            referencedTableName: companies
+            referencedColumnNames: id
+            constraintName: fk_company_subscriptions_company
+        - addForeignKeyConstraint:
+            baseTableName: company_subscriptions
+            baseColumnNames: plan_id
+            referencedTableName: subscription_plans
+            referencedColumnNames: id
+            constraintName: fk_company_subscriptions_plan
+
+

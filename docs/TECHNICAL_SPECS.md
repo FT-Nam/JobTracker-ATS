@@ -1490,10 +1490,11 @@ Dựa trên database schema, có **3 patterns chính** cho audit fields:
 // Note: user_skills và job_resumes đã bỏ
 ```
 
-#### **Pattern 3: SYSTEM TABLES** (3 bảng)
+#### **Pattern 3: SYSTEM / CONFIG TABLES** (5 bảng)
 ```java
-// Có: created_at, updated_at (không có user tracking)
+// Có: created_at, updated_at (không có user tracking, không soft delete)
 - System Tables: notifications, user_sessions, audit_logs
+- Config Tables: subscription_plans, company_subscriptions
 ```
 
 ### 📋 Base Class Mapping Table
@@ -1514,12 +1515,14 @@ Dựa trên database schema, có **3 patterns chính** cho audit fields:
 | | `attachments` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 10 |
 | **BasePartialAuditEntity** | **Junction Tables (1 bảng)** | | | |
 | | `job_skills` | ✅ created_by, created_at, updated_at | ✅ is_deleted | 11 |
-| **BaseSystemEntity** | **System Tables (3 bảng)** | | | |
+| **BaseSystemEntity** | **System / Config Tables (5 bảng)** | | | |
 | | `notifications` | ✅ created_at, updated_at | ❌ No soft delete | 12 |
 | | `user_sessions` | ✅ created_at, updated_at | ❌ No soft delete | 13 |
 | | `audit_logs` | ✅ created_at | ❌ No soft delete | 14 |
+| | `subscription_plans` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 15 |
+| | `company_subscriptions` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 16 |
 | **Không có Base Class** | **History Tables (1 bảng)** | | | |
-| | `application_status_history` ➕ | ❌ No audit fields | ❌ No soft delete | 15 |
+| | `application_status_history` ➕ | ❌ No audit fields | ❌ No soft delete | 17 |
 
 ### 🎯 Implementation Summary
 
@@ -1539,11 +1542,11 @@ Dựa trên database schema, có **3 patterns chính** cho audit fields:
 // Note: user_skills và job_resumes đã bỏ
 ```
 
-#### **BaseSystemEntity** (3 bảng)
+#### **BaseSystemEntity** (System / Config Tables)
 ```java
 // No inheritance
 // Fields: created_at, updated_at (audit_logs only has created_at)
-// Usage: System-generated tables
+// Usage: System-generated tables và config tables (subscription_plans, company_subscriptions)
 ```
 
 ### 🎯 Base Class Implementation

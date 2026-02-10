@@ -1,0 +1,70 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-subscription-plans
+      author: namphan
+      changes:
+        - createTable:
+            tableName: subscription_plans
+            remarks: "Bảng gói subscription hệ thống"
+            columns:
+              - column:
+                  name: id
+                  type: varchar(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  defaultValueComputed: UUID()
+                  remarks: "UUID subscription plan"
+              - column:
+                  name: code
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  remarks: "Mã gói (FREE, BASIC, PRO, ENTERPRISE)"
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  remarks: "Tên gói hiển thị"
+              - column:
+                  name: price
+                  type: decimal(10,2)
+                  defaultValueNumeric: 0
+                  remarks: "Giá gói"
+              - column:
+                  name: duration_days
+                  type: int
+                  constraints:
+                    nullable: false
+                  remarks: "Thời lượng gói (ngày, 0 = không giới hạn)"
+              - column:
+                  name: max_jobs
+                  type: int
+                  remarks: "Số job tối đa"
+              - column:
+                  name: max_users
+                  type: int
+                  remarks: "Số user tối đa"
+              - column:
+                  name: max_applications
+                  type: int
+                  remarks: "Số application tối đa"
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  remarks: "Gói đang hoạt động"
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian tạo"
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian cập nhật"
+
+

@@ -22,12 +22,6 @@ databaseChangeLog:
               - column:
                   name: size
         - createIndex:
-            indexName: idx_companies_subscription_plan
-            tableName: companies
-            columns:
-              - column:
-                  name: subscription_plan
-        - createIndex:
             indexName: idx_companies_is_active
             tableName: companies
             columns:

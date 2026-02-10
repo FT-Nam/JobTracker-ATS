@@ -1,0 +1,57 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-company-subscriptions
+      author: namphan
+      changes:
+        - createTable:
+            tableName: company_subscriptions
+            remarks: "Bảng subscription theo thời gian cho company"
+            columns:
+              - column:
+                  name: id
+                  type: varchar(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  defaultValueComputed: UUID()
+                  remarks: "UUID company subscription"
+              - column:
+                  name: company_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID công ty"
+              - column:
+                  name: plan_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID gói subscription"
+              - column:
+                  name: start_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+                  remarks: "Ngày bắt đầu subscription"
+              - column:
+                  name: end_date
+                  type: timestamp
+                  remarks: "Ngày kết thúc subscription"
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+                  remarks: "Trạng thái subscription (ACTIVE, EXPIRED, CANCELLED)"
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian tạo"
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian cập nhật"
+
+

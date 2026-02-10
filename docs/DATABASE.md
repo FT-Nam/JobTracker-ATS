@@ -273,7 +273,8 @@ CREATE TABLE users (
 
 ### 3. Companies Table (Bảng công ty - Multi-Tenant)
 
-> **🔑 CRITICAL**: Companies = Tenants trong multi-tenant ATS system
+> **🔑 CRITICAL**: Companies = Tenants trong multi-tenant ATS system  
+> Subscription KHÔNG nằm trực tiếp trong bảng companies, mà tách ra thành các bảng riêng.
 
 ```sql
 CREATE TABLE companies (
@@ -286,13 +287,7 @@ CREATE TABLE companies (
     description TEXT COMMENT 'Mô tả công ty',
     logo_url VARCHAR(500) COMMENT 'URL logo công ty',
     is_verified BOOLEAN DEFAULT FALSE COMMENT 'Công ty đã xác thực',
-    
-    -- Subscription & Limits (ATS Specific)
-    subscription_plan VARCHAR(50) DEFAULT 'FREE' COMMENT 'FREE, BASIC, PRO, ENTERPRISE',
-    max_jobs INT DEFAULT 5 COMMENT 'Số jobs tối đa theo plan',
-    max_users INT DEFAULT 3 COMMENT 'Số users tối đa theo plan',
     is_active BOOLEAN DEFAULT TRUE COMMENT 'Company đang hoạt động',
-    subscription_expires_at TIMESTAMP NULL COMMENT 'Ngày hết hạn subscription',
     
     -- Full Audit Fields
     created_by VARCHAR(36) COMMENT 'Người tạo (FK to users)',
@@ -307,7 +302,6 @@ CREATE TABLE companies (
     INDEX idx_name (name),
     INDEX idx_industry (industry),
     INDEX idx_size (size),
-    INDEX idx_subscription_plan (subscription_plan),
     INDEX idx_is_active (is_active),
     INDEX idx_created_at (created_at),
     INDEX idx_created_by (created_by),
@@ -315,6 +309,60 @@ CREATE TABLE companies (
     INDEX idx_deleted_at (deleted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
+
+### 3.1. Subscription Plans Table (Bảng gói subscription hệ thống)
+
+> **Vai trò**: Catalog các gói của hệ thống (FREE, BASIC, PRO, ENTERPRISE, ...).  
+> Chứa toàn bộ metadata: giá, thời lượng, giới hạn, feature flags (nếu cần mở rộng sau này).
+
+```sql
+CREATE TABLE subscription_plans (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID subscription plan',
+    code VARCHAR(50) NOT NULL UNIQUE COMMENT 'FREE, BASIC, PRO, ENTERPRISE, ...',
+    name VARCHAR(100) NOT NULL COMMENT 'Tên gói hiển thị',
+    price DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT 'Giá gói',
+    duration_days INT NOT NULL COMMENT 'Thời lượng gói (ngày, 0 = không giới hạn)',
+    
+    max_jobs INT COMMENT 'Số job tối đa',
+    max_users INT COMMENT 'Số user tối đa',
+    max_applications INT COMMENT 'Số application tối đa',
+    
+    is_active BOOLEAN DEFAULT TRUE COMMENT 'Gói đang hoạt động',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian tạo',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời gian cập nhật',
+    
+    INDEX idx_code (code),
+    INDEX idx_is_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+### 3.2. Company Subscriptions Table (Bảng subscription theo thời gian cho company)
+
+> **Vai trò**: Track lịch sử subscription theo thời gian cho từng company.  
+> Đây mới là thứ company “đang dùng gói nào, trong khoảng thời gian nào”.
+
+```sql
+CREATE TABLE company_subscriptions (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID company subscription',
+    company_id VARCHAR(36) NOT NULL COMMENT 'UUID công ty',
+    plan_id VARCHAR(36) NOT NULL COMMENT 'UUID gói subscription',
+    
+    start_date TIMESTAMP NOT NULL COMMENT 'Ngày bắt đầu subscription',
+    end_date TIMESTAMP NULL COMMENT 'Ngày kết thúc subscription',
+    status VARCHAR(20) NOT NULL COMMENT 'ACTIVE, EXPIRED, CANCELLED',
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian tạo',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời gian cập nhật',
+    
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+    FOREIGN KEY (plan_id) REFERENCES subscription_plans(id) ON DELETE RESTRICT,
+    
+    INDEX idx_company_status (company_id, status),
+    INDEX idx_plan_id (plan_id),
+    INDEX idx_dates (start_date, end_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
 
 ### 4. Jobs Table (Bảng Job Postings - ATS)
 

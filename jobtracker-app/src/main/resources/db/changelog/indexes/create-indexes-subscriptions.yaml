@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-indexes-subscriptions
+      author: namphan
+      changes:
+        - createIndex:
+            indexName: idx_subscription_plans_code
+            tableName: subscription_plans
+            columns:
+              - column:
+                  name: code
+        - createIndex:
+            indexName: idx_subscription_plans_is_active
+            tableName: subscription_plans
+            columns:
+              - column:
+                  name: is_active
+        - createIndex:
+            indexName: idx_company_subscriptions_company_status
+            tableName: company_subscriptions
+            columns:
+              - column:
+                  name: company_id
+              - column:
+                  name: status
+        - createIndex:
+            indexName: idx_company_subscriptions_plan
+            tableName: company_subscriptions
+            columns:
+              - column:
+                  name: plan_id
+        - createIndex:
+            indexName: idx_company_subscriptions_dates
+            tableName: company_subscriptions
+            columns:
+              - column:
+                  name: start_date
+              - column:
+                  name: end_date
+
+

@@ -174,7 +174,7 @@ JobTracker ATS được thiết kế với kiến trúc multi-tenant, cho phép 
 - Mỗi công ty có dữ liệu riêng biệt (jobs, applications, users)
 - Data isolation thông qua `company_id`
 - Role-based access control (COMPANY_ADMIN, RECRUITER, HIRING_MANAGER, INTERVIEWER)
-- Subscription plans (FREE, BASIC, PRO, ENTERPRISE)
+- Subscription được mô hình hóa bằng lookup table `subscription_plans` và bảng history `company_subscriptions` (FREE, BASIC, PRO, ENTERPRISE, ... thay đổi linh hoạt theo business)
 
 ## 🔄 Database Migration
 
