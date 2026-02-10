@@ -39,10 +39,10 @@ databaseChangeLog:
                   remarks: "Ngày kết thúc subscription"
               - column:
                   name: status
-                  type: varchar(20)
+                  type: "enum('PENDING','ACTIVE','EXPIRED','CANCELLED')"
                   constraints:
                     nullable: false
-                  remarks: "Trạng thái subscription (ACTIVE, EXPIRED, CANCELLED)"
+                  remarks: "Trạng thái subscription (PENDING, ACTIVE, EXPIRED, CANCELLED)"
               - column:
                   name: created_at
                   type: timestamp

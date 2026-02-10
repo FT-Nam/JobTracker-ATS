@@ -52,7 +52,7 @@ public class CompanySubscriptionServiceImpl implements CompanySubscriptionServic
         }
 
         if (subscription.getStatus() == null) {
-            subscription.setStatus(SubscriptionStatus.ACTIVE);
+            subscription.setStatus(SubscriptionStatus.PENDING);
         }
 
         return companySubscriptionMapper.toCompanySubscriptionResponse(
@@ -82,7 +82,7 @@ public class CompanySubscriptionServiceImpl implements CompanySubscriptionServic
     @Override
     public CompanySubscriptionResponse getActiveByCompany(String companyId) {
         CompanySubscription subscription = companySubscriptionRepository
-                .findFirstByCompany_IdAndStatusOrderByStartDateDesc(companyId, SubscriptionStatus.ACTIVE)
+                .findLatestSubscription(companyId, SubscriptionStatus.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.COMPANY_SUBSCRIPTION_NOT_EXISTED));
         return companySubscriptionMapper.toCompanySubscriptionResponse(subscription);
     }

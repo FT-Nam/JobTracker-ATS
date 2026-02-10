@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -13,7 +15,14 @@ import java.util.Optional;
 @Repository
 public interface CompanySubscriptionRepository extends JpaRepository<CompanySubscription, String>, JpaSpecificationExecutor<CompanySubscription> {
 
-    Optional<CompanySubscription> findFirstByCompany_IdAndStatusOrderByStartDateDesc(String companyId, SubscriptionStatus status);
+
+    @Query(value = "SELECT cs " +
+            "FROM CompanySubscription cs " +
+            "WHERE cs.company.id = :companyId " +
+            "AND cs.status = :status " +
+            "ORDER BY cs.startDate DESC")
+    Optional<CompanySubscription> findLatestSubscription(@Param("companyId") String companyId,
+                                                         @Param("status") SubscriptionStatus status);
 
     Page<CompanySubscription> findByCompany_Id(String companyId, Pageable pageable);
 }

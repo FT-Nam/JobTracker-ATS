@@ -1419,7 +1419,7 @@ Trả về thông tin chi tiết cùng metadata audit.
 > **Thiết kế sau refactor**: Subscription KHÔNG còn là ENUM hay field trong `companies`.  
 > Thay vào đó:
 > - `subscription_plans`: catalog gói hệ thống (FREE, BASIC, PRO, ENTERPRISE, ...), có metadata (price, duration_days, max_jobs, max_users, max_applications, is_active).  
-> - `company_subscriptions`: history theo thời gian cho từng company (plan_id, start_date, end_date, status = ACTIVE/EXPIRED/CANCELLED).
+> - `company_subscriptions`: history theo thời gian cho từng company (plan_id, start_date, end_date, status = PENDING/ACTIVE/EXPIRED/CANCELLED).
 
 ### 🔵 SubscriptionPlan APIs (System Catalog)
 
@@ -1634,7 +1634,7 @@ Content-Type: application/json
   "planId": "plan-pro-uuid",
   "startDate": "2024-01-01T00:00:00Z",
   "endDate": "2024-01-31T23:59:59Z",
-  "status": "ACTIVE"
+  "status": "PENDING"
 }
 ```
 

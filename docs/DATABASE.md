@@ -349,7 +349,7 @@ CREATE TABLE company_subscriptions (
     
     start_date TIMESTAMP NOT NULL COMMENT 'Ngày bắt đầu subscription',
     end_date TIMESTAMP NULL COMMENT 'Ngày kết thúc subscription',
-    status VARCHAR(20) NOT NULL COMMENT 'ACTIVE, EXPIRED, CANCELLED',
+    status ENUM('PENDING', 'ACTIVE', 'EXPIRED', 'CANCELLED') NOT NULL COMMENT 'Trạng thái subscription (PENDING, ACTIVE, EXPIRED, CANCELLED)',
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian tạo',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời gian cập nhật',
