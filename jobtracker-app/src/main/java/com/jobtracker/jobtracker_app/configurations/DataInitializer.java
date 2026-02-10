@@ -9,11 +9,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jobtracker.jobtracker_app.entities.ApplicationStatus;
+import com.jobtracker.jobtracker_app.entities.Company;
 import com.jobtracker.jobtracker_app.entities.Permission;
 import com.jobtracker.jobtracker_app.entities.Role;
 import com.jobtracker.jobtracker_app.entities.RolePermission;
 import com.jobtracker.jobtracker_app.entities.User;
 import com.jobtracker.jobtracker_app.repositories.ApplicationStatusRepository;
+import com.jobtracker.jobtracker_app.repositories.CompanyRepository;
 import com.jobtracker.jobtracker_app.repositories.PermissionRepository;
 import com.jobtracker.jobtracker_app.repositories.RolePermissionRepository;
 import com.jobtracker.jobtracker_app.repositories.RoleRepository;
@@ -30,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DataInitializer implements CommandLineRunner {
     UserRepository userRepository;
+    CompanyRepository companyRepository;
     RoleRepository roleRepository;
     PermissionRepository permissionRepository;
     RolePermissionRepository rolePermissionRepository;
@@ -50,6 +53,14 @@ public class DataInitializer implements CommandLineRunner {
 
     @Transactional
     public void seedAdminUser() {
+        Company company = companyRepository.findAll().stream().findFirst().orElseGet(() -> {
+            Company c = Company.builder()
+                    .name("Default Company")
+                    .isVerified(true)
+                    .build();
+            return companyRepository.save(c);
+        });
+
         Role adminRole = new Role();
         adminRole.setName("ADMIN");
         adminRole.setDescription("Administrator role");
@@ -61,6 +72,7 @@ public class DataInitializer implements CommandLineRunner {
         admin.setPassword(passwordEncoder.encode("123456789"));
         admin.setFirstName("Admin");
         admin.setLastName("User");
+        admin.setCompany(company);
         admin.setRole(adminRole);
         userRepository.save(admin);
 

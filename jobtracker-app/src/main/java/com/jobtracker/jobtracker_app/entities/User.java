@@ -6,7 +6,12 @@ import jakarta.persistence.*;
 
 import com.jobtracker.jobtracker_app.entities.base.FullAuditEntity;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 @Entity
@@ -21,6 +26,10 @@ public class User extends FullAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    Company company;
 
     @Column(nullable = false, unique = true)
     String email;
