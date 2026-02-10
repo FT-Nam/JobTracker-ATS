@@ -11,16 +11,19 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface AttachmentMapper {
-    @Mapping(target = "job", ignore = true)
+    @Mapping(target = "company", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "application", ignore = true)
     Attachment toAttachment(AttachmentRequest request);
 
-    @Mapping(source = "job.id", target = "jobId")
+    @Mapping(source = "application.id", target = "applicationId")
+    @Mapping(source = "company.id", target = "companyId")
     @Mapping(source = "user.id", target = "userId")
     AttachmentResponse toAttachmentResponse(Attachment attachment);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "job", ignore = true)
+    @Mapping(target = "application", ignore = true)
+    @Mapping(target = "company", ignore = true)
     @Mapping(target = "user", ignore = true)
     void updateAttachment(@MappingTarget Attachment attachment, AttachmentRequest request);
 }

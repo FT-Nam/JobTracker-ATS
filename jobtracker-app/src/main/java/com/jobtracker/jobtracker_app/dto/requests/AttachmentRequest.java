@@ -1,10 +1,15 @@
 package com.jobtracker.jobtracker_app.dto.requests;
 
-import com.jobtracker.jobtracker_app.entities.Attachment;
+import com.jobtracker.jobtracker_app.enums.AttachmentType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
@@ -16,8 +21,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AttachmentRequest {
-    @NotBlank(message = "attachment.job_id.not_blank")
-    String jobId;
+
+    @NotBlank(message = "attachment.company_id.not_blank")
+    String companyId;
+
+    String applicationId;
 
     @NotBlank(message = "attachment.user_id.not_blank")
     String userId;
@@ -42,7 +50,7 @@ public class AttachmentRequest {
     String fileType;
 
     @NotNull(message = "attachment.attachment_type.not_null")
-    Attachment.AttachmentType attachmentType;
+    AttachmentType attachmentType;
 
     String description;
 
@@ -50,7 +58,3 @@ public class AttachmentRequest {
 
     LocalDateTime uploadedAt;
 }
-
-
-
-

@@ -1,7 +1,11 @@
 package com.jobtracker.jobtracker_app.dto.responses;
 
-import com.jobtracker.jobtracker_app.entities.Attachment;
-import lombok.*;
+import com.jobtracker.jobtracker_app.enums.AttachmentType;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
@@ -13,14 +17,15 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AttachmentResponse {
     String id;
-    String jobId;
+    String applicationId;
+    String companyId;
     String userId;
     String filename;
     String originalFilename;
     String filePath;
     Long fileSize;
     String fileType;
-    Attachment.AttachmentType attachmentType;
+    AttachmentType attachmentType;
     String description;
     Boolean isPublic;
     LocalDateTime uploadedAt;
@@ -30,7 +35,3 @@ public class AttachmentResponse {
     String updatedBy;
     LocalDateTime deletedAt;
 }
-
-
-
-

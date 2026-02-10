@@ -1,6 +1,7 @@
 package com.jobtracker.jobtracker_app.entities;
 
 import com.jobtracker.jobtracker_app.entities.base.FullAuditEntity;
+import com.jobtracker.jobtracker_app.enums.AttachmentType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -60,13 +61,6 @@ public class Attachment extends FullAuditEntity {
     @Column(name = "uploaded_at")
     LocalDateTime uploadedAt;
 
-    public enum AttachmentType {
-        RESUME,
-        COVER_LETTER,
-        CERTIFICATE,
-        PORTFOLIO,
-        OTHER
-    }
 }
 
 
