@@ -4,7 +4,6 @@ import java.text.ParseException;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
 import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
-import com.jobtracker.jobtracker_app.services.UserService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
 import jakarta.validation.Valid;
@@ -17,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jobtracker.jobtracker_app.dto.requests.AuthenticationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.LogoutRequest;
 import com.jobtracker.jobtracker_app.dto.requests.RefreshRequest;
-import com.jobtracker.jobtracker_app.dto.responses.ApiResponse;
-import com.jobtracker.jobtracker_app.dto.responses.AuthenticationResponse;
+import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
+import com.jobtracker.jobtracker_app.dto.responses.common.AuthenticationResponse;
 import com.jobtracker.jobtracker_app.services.AuthService;
 import com.nimbusds.jose.JOSEException;
 

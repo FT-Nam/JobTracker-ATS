@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import com.jobtracker.jobtracker_app.dto.requests.AuthenticationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.LogoutRequest;
 import com.jobtracker.jobtracker_app.dto.requests.RefreshRequest;
-import com.jobtracker.jobtracker_app.dto.responses.AuthenticationResponse;
+import com.jobtracker.jobtracker_app.dto.responses.common.AuthenticationResponse;
 import com.jobtracker.jobtracker_app.dto.responses.TokenInfo;
 import com.jobtracker.jobtracker_app.dto.responses.UserInfo;
 import com.jobtracker.jobtracker_app.entities.InvalidatedToken;

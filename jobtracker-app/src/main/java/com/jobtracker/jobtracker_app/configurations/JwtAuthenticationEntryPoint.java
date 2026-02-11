@@ -13,7 +13,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobtracker.jobtracker_app.dto.responses.ApiResponse;
+import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
 
 @Component

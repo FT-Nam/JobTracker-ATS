@@ -1,9 +1,9 @@
 package com.jobtracker.jobtracker_app.controllers;
 
 import com.jobtracker.jobtracker_app.dto.requests.NotificationRequest;
-import com.jobtracker.jobtracker_app.dto.responses.ApiResponse;
+import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.NotificationResponse;
-import com.jobtracker.jobtracker_app.dto.responses.PaginationInfo;
+import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.services.NotificationService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
@@ -71,6 +71,7 @@ public class NotificationController {
                 .build();
     }
 }
+
 
 
 

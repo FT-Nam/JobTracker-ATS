@@ -1,8 +1,8 @@
 package com.jobtracker.jobtracker_app.controllers;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
-import com.jobtracker.jobtracker_app.dto.responses.ApiResponse;
-import com.jobtracker.jobtracker_app.dto.responses.PaginationInfo;
+import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
+import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
 import com.jobtracker.jobtracker_app.services.UserService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;

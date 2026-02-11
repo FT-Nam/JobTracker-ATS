@@ -6,8 +6,8 @@ import com.jobtracker.jobtracker_app.dto.requests.AuthenticationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.LogoutRequest;
 import com.jobtracker.jobtracker_app.dto.requests.RefreshRequest;
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
-import com.jobtracker.jobtracker_app.dto.responses.AuthenticationResponse;
 import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
+import com.jobtracker.jobtracker_app.dto.responses.common.AuthenticationResponse;
 import com.nimbusds.jose.JOSEException;
 
 public interface AuthService {
