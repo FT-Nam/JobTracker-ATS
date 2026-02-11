@@ -141,7 +141,9 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
 
         Map result = cloudinary.uploader().destroy(id,
-                ObjectUtils.asMap("resource_type", "raw"));
+                ObjectUtils.asMap(
+                        "resource_type", "raw",
+                        "type", "authenticated"));
 
         if ("ok".equals(result.get("result"))) {
             attachmentRepository.deleteById(id);
