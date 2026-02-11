@@ -11,5 +11,12 @@ import java.util.Optional;
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, String>, JpaSpecificationExecutor<Application> {
     Optional<Application> findByIdAndDeletedAtIsNull(String id);
+
+    // Multi-tenant: User Company A không xem được cv của User Company B
+    // - xyz-999 thuộc company-B → không tìm thấy → throw 404
+    // - xyz-999 thuộc company-A → tìm thấy → OK
+    Optional<Application> findByIdAndCompanyId(String id, String companyId);
+
+    boolean existsByIdAndCompanyId(String id, String companyId);
 }
 

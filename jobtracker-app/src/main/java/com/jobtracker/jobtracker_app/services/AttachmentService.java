@@ -1,17 +1,28 @@
 package com.jobtracker.jobtracker_app.services;
 
 import com.jobtracker.jobtracker_app.dto.requests.AttachmentRequest;
-import com.jobtracker.jobtracker_app.dto.responses.AttachmentResponse;
+import com.jobtracker.jobtracker_app.dto.requests.AttachmentUploadRequest;
+import com.jobtracker.jobtracker_app.dto.responses.attachment.AttachmentCreationResponse;
+import com.jobtracker.jobtracker_app.dto.responses.attachment.AttachmentResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.List;
+
 public interface AttachmentService {
-    AttachmentResponse create(AttachmentRequest request);
-    AttachmentResponse getById(String id);
-    Page<AttachmentResponse> getAll(Pageable pageable);
-    AttachmentResponse update(String id, AttachmentRequest request);
-    void delete(String id);
+    AttachmentCreationResponse uploadAttachment(String applicationId, AttachmentUploadRequest request)
+            throws IOException;
+
+    URI downloadAttachment(String id);
+
+    Page<AttachmentResponse> getApplicationAttachments(String applicationId, Pageable pageable);
+
+    void delete(String id) throws IOException;
 }
+
+
 
 
 

@@ -264,4 +264,8 @@ public class MessageKeys {
     public static final String PAYMENT_LIST_SUCCESS = "payment.list_success";
     public static final String PAYMENT_DETAIL_SUCCESS = "payment.detail_success";
 
+    // FILE
+    public static final String UPLOAD_FILE_FAILED = "file.upload_failed";
+    public static final String DELETE_FILE_FAILED = "file.delete_failed";
+
 }

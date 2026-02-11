@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Attachment extends FullAuditEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
     @ManyToOne

@@ -1,4 +1,4 @@
-package com.jobtracker.jobtracker_app.dto.responses;
+package com.jobtracker.jobtracker_app.dto.responses.attachment;
 
 import com.jobtracker.jobtracker_app.enums.AttachmentType;
 import lombok.AccessLevel;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AttachmentResponse {
+public class AttachmentCreationResponse {
     String id;
     String applicationId;
     String companyId;
@@ -30,8 +30,4 @@ public class AttachmentResponse {
     Boolean isPublic;
     LocalDateTime uploadedAt;
     LocalDateTime createdAt;
-    LocalDateTime updatedAt;
-    String createdBy;
-    String updatedBy;
-    LocalDateTime deletedAt;
 }

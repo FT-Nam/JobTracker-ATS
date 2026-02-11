@@ -1,7 +1,8 @@
 package com.jobtracker.jobtracker_app.mappers;
 
 import com.jobtracker.jobtracker_app.dto.requests.AttachmentRequest;
-import com.jobtracker.jobtracker_app.dto.responses.AttachmentResponse;
+import com.jobtracker.jobtracker_app.dto.responses.attachment.AttachmentCreationResponse;
+import com.jobtracker.jobtracker_app.dto.responses.attachment.AttachmentResponse;
 import com.jobtracker.jobtracker_app.entities.Attachment;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -19,13 +20,10 @@ public interface AttachmentMapper {
     @Mapping(source = "application.id", target = "applicationId")
     @Mapping(source = "company.id", target = "companyId")
     @Mapping(source = "user.id", target = "userId")
+    AttachmentCreationResponse toAttachmentCreationResponse(Attachment attachment);
+
     AttachmentResponse toAttachmentResponse(Attachment attachment);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "application", ignore = true)
-    @Mapping(target = "company", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    void updateAttachment(@MappingTarget Attachment attachment, AttachmentRequest request);
 }
 
 
