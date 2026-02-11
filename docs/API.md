@@ -1434,12 +1434,8 @@ Lấy danh sách tất cả gói subscription mà hệ thống hỗ trợ (dùng
 Authorization: Bearer <access_token>
 ```
 
-> ⚠️ Thường chỉ **SYSTEM_ADMIN** mới được phép quản lý/nhìn toàn bộ plans.
-
-##### Query Parameters
-```
-page=0&size=20&sort=price,asc&isActive=true
-```
+> ⚠️ Thường chỉ **SYSTEM_ADMIN** mới được phép quản lý/nhìn toàn bộ plans.  
+> **Lookup/config data → trả về List, không paginate.**
 
 ##### Response (200 OK)
 ```json
@@ -1475,12 +1471,6 @@ page=0&size=20&sort=price,asc&isActive=true
     }
   ],
   "timestamp": "2024-01-15T10:30:00Z",
-  "paginationInfo": {
-    "page": 0,
-    "size": 20,
-    "totalElements": 2,
-    "totalPages": 1
-  }
 }
 ```
 
@@ -2042,10 +2032,7 @@ Lấy danh sách application statuses cùng metadata (display_name, color, sort_
 Authorization: Bearer <access_token>
 ```
 
-#### Query Parameters
-```
-page=0&size=20&sort=sortOrder,asc&isActive=true
-```
+> **Lookup/config data → trả về List, không paginate.**
 
 #### Response (200 OK)
 ```json
@@ -2083,12 +2070,6 @@ page=0&size=20&sort=sortOrder,asc&isActive=true
     }
   ],
   "timestamp": "2024-01-15T10:30:00Z",
-  "paginationInfo": {
-    "page": 0,
-    "size": 20,
-    "totalElements": 6,
-    "totalPages": 1
-  }
 }
 ```
 
@@ -2195,10 +2176,7 @@ Lấy danh sách roles cùng metadata để gán cho user.
 Authorization: Bearer <access_token>
 ```
 
-#### Query Parameters
-```
-page=0&size=20&sort=name,asc&isActive=true&search=admin
-```
+> **Lookup/config data (RBAC) → trả về List, không paginate.**
 
 #### Response (200 OK)
 ```json
@@ -2218,12 +2196,6 @@ page=0&size=20&sort=name,asc&isActive=true&search=admin
     }
   ],
   "timestamp": "2024-01-15T10:30:00Z",
-  "paginationInfo": {
-    "page": 0,
-    "size": 20,
-    "totalElements": 2,
-    "totalPages": 1
-  }
 }
 ```
 
@@ -3605,19 +3577,6 @@ Lấy danh sách attachments của application.
 **DELETE** `/attachments/{id}`
 
 Xóa attachment.
-
-#### Response (200 OK)
-```json
-{
-  "success": true,
-  "message": "Attachment deleted successfully",
-  "data": null,
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 4. Delete Attachment
-**DELETE** `/attachments/{id}`
 
 #### Response (200 OK)
 ```json
