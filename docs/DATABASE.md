@@ -238,6 +238,7 @@ CREATE TABLE users (
     last_name VARCHAR(100) NOT NULL COMMENT 'Họ',
     phone VARCHAR(20) COMMENT 'Số điện thoại',
     avatar_url VARCHAR(500) COMMENT 'URL ảnh đại diện',
+    avatar_public_id VARCHAR(255) COMMENT 'Cloudinary public ID ảnh đại diện',
     role_id VARCHAR(36) NOT NULL COMMENT 'UUID vai trò người dùng',
     is_active BOOLEAN DEFAULT TRUE COMMENT 'Trạng thái hoạt động',
     email_verified BOOLEAN DEFAULT FALSE COMMENT 'Email đã xác thực',
@@ -523,10 +524,11 @@ CREATE TABLE applications (
     job_id VARCHAR(36) NOT NULL COMMENT 'UUID công việc',
     company_id VARCHAR(36) NOT NULL COMMENT 'UUID công ty (Multi-tenant)',
     
-    -- Candidate Info (từ CV/Email)
+    -- Candidate Info (từ CV/Email hoặc Candidate Self-Service Portal)
     candidate_name VARCHAR(255) NOT NULL COMMENT 'Tên ứng viên',
     candidate_email VARCHAR(255) NOT NULL COMMENT 'Email ứng viên',
     candidate_phone VARCHAR(20) COMMENT 'Số điện thoại ứng viên',
+    application_token VARCHAR(100) UNIQUE COMMENT 'Token để candidate track status (cho public API, không cần login)',
     
     -- Application Status Workflow
     status_id VARCHAR(36) NOT NULL COMMENT 'UUID trạng thái ứng tuyển (FK to application_statuses)',
@@ -545,7 +547,7 @@ CREATE TABLE applications (
     assigned_to VARCHAR(36) COMMENT 'HR/Recruiter được assign (FK to users)',
     
     -- Full Audit Fields
-    created_by VARCHAR(36) COMMENT 'Người tạo',
+    created_by VARCHAR(36) COMMENT 'Người tạo (NULL nếu candidate tự apply qua public API)',
     updated_by VARCHAR(36) COMMENT 'Người cập nhật',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -561,6 +563,7 @@ CREATE TABLE applications (
     INDEX idx_job_id (job_id),
     INDEX idx_company_id (company_id),
     INDEX idx_candidate_email (candidate_email),
+    INDEX idx_application_token (application_token), -- For public API status tracking
     INDEX idx_status_id (status_id),
     INDEX idx_assigned_to (assigned_to),
     INDEX idx_applied_date (applied_date),
@@ -686,11 +689,11 @@ CREATE TABLE interviews (
 
 ### ~~9. Job Resumes Table~~ ❌ **REMOVED**
 
-> **Lý do**: ATS không cần candidates upload CV. CV nhận qua email, HR tự upload vào attachments.
+> **Lý do**: Modern ATS không cần bảng riêng cho resumes. CVs được lưu trong `attachments` table (candidates tự upload hoặc HR upload thủ công).
 
 ### ~~10. Resumes Table~~ ❌ **REMOVED**
 
-> **Lý do**: Thay thế bằng `applications.resume_file_path`. Không cần bảng riêng.
+> **Lý do**: Thay thế bằng `applications.resume_file_path` và `attachments` table. Candidates tự upload CV qua public API, hoặc HR upload thủ công khi nhận CV qua email.
 
 ### 10. Attachments Table (Bảng file đính kèm - ATS) 🔄
 
@@ -701,7 +704,7 @@ CREATE TABLE attachments (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID file đính kèm',
     application_id VARCHAR(36) NULL COMMENT 'UUID ứng tuyển',
     company_id VARCHAR(36) NOT NULL COMMENT 'UUID công ty (Multi-tenant)',
-    user_id VARCHAR(36) NOT NULL COMMENT 'UUID người dùng upload',
+    user_id VARCHAR(36) NULL COMMENT 'UUID người dùng upload (NULL nếu candidate upload qua public API)',
     filename VARCHAR(255) NOT NULL COMMENT 'Tên file',
     original_filename VARCHAR(255) NOT NULL COMMENT 'Tên file gốc',
     file_path VARCHAR(500) NOT NULL COMMENT 'Đường dẫn file trên Dropbox',
@@ -723,7 +726,7 @@ CREATE TABLE attachments (
     -- Foreign Keys
     FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL, -- NULL allowed for public candidate uploads
     
     -- Indexes
     INDEX idx_application_id (application_id),

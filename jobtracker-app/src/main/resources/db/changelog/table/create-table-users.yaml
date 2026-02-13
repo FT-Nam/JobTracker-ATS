@@ -51,6 +51,10 @@ databaseChangeLog:
                   type: varchar(500)
                   remarks: "URL ảnh đại diện"
               - column:
+                  name: avatar_public_id
+                  type: varchar(255)
+                  remarks: "Cloudinary public ID ảnh đại diện"
+              - column:
                   name: role_id
                   type: varchar(36)
                   constraints:

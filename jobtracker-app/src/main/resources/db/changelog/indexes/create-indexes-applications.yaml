@@ -22,6 +22,12 @@ databaseChangeLog:
               - column:
                   name: candidate_email
         - createIndex:
+            indexName: idx_applications_application_token
+            tableName: applications
+            columns:
+              - column:
+                  name: application_token
+        - createIndex:
             indexName: idx_applications_status_id
             tableName: applications
             columns:

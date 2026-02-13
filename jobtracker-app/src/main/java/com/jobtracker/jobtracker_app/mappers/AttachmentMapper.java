@@ -19,7 +19,7 @@ public interface AttachmentMapper {
 
     @Mapping(source = "application.id", target = "applicationId")
     @Mapping(source = "company.id", target = "companyId")
-    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.id", target = "userId", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     AttachmentCreationResponse toAttachmentCreationResponse(Attachment attachment);
 
     AttachmentResponse toAttachmentResponse(Attachment attachment);

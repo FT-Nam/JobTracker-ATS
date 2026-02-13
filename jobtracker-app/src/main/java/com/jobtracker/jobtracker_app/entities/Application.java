@@ -37,6 +37,9 @@ public class Application extends FullAuditEntity {
     @Column(name = "candidate_phone", length = 20)
     String candidatePhone;
 
+    @Column(name = "application_token", unique = true, length = 100)
+    String applicationToken;
+
     @ManyToOne
     @JoinColumn(name = "status_id", nullable = false)
     ApplicationStatus status;

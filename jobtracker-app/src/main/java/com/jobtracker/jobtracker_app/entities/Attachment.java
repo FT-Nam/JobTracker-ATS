@@ -29,7 +29,7 @@ public class Attachment extends FullAuditEntity {
     Company company;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     User user;
 
     @Column(nullable = false, length = 255)

@@ -27,9 +27,7 @@ databaseChangeLog:
               - column:
                   name: user_id
                   type: varchar(36)
-                  constraints:
-                    nullable: false
-                  remarks: "UUID người dùng upload"
+                  remarks: "UUID người dùng upload (NULL nếu candidate upload qua public API)"
               - column:
                   name: filename
                   type: varchar(255)

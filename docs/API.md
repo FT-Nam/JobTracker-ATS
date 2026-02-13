@@ -956,11 +956,135 @@ Authorization: Bearer <access_token>
 
 ### ~~8. Manage Job Resumes~~ ❌ **REMOVED**
 
-> **Lý do**: ATS không cần candidates upload CV. CVs được lưu trong `applications.resume_file_path` hoặc `attachments` table.
+> **Lý do**: Modern ATS không cần bảng riêng cho resumes. CVs được lưu trong `attachments` table:
+> - **Workflow chính**: Candidates tự upload CV qua public API `/public/jobs/{jobId}/apply`
+> - **Workflow phụ**: HR upload CV thủ công khi nhận qua email
 
 ## 📝 Applications Management APIs (CORE ATS) ➕
 
-> **🔑 CORE**: Applications là core entity của ATS. Candidates apply to job postings, HR/Recruiter quản lý applications qua workflow (NEW → SCREENING → INTERVIEWING → OFFERED → HIRED/REJECTED).
+> **🔑 CORE**: Applications là core entity của ATS. **Modern ATS = Candidate Self-Service Portal**: Candidates tự apply online qua trang công ty mà không cần login. HR/Recruiter quản lý applications qua workflow (NEW → SCREENING → INTERVIEWING → OFFERED → HIRED/REJECTED).
+> 
+> **Workflow chính**: Candidate Self-Service (apply online, upload CV/attachments)  
+> **Workflow phụ**: HR manual upload (khi nhận CV qua email)
+
+### 🔓 Public APIs (Candidate Self-Service - Không cần Authentication)
+
+#### 1. Apply to Job (Public - Candidate Self-Service)
+**POST** `/public/jobs/{jobId}/apply`
+
+Candidates tự apply online mà không cần login. Đây là **workflow chính** của Modern ATS.
+
+> ⚠️ **Public endpoint**: Không yêu cầu `Authorization` header.  
+> ✅ **Security**: Rate limiting, CAPTCHA (optional), email verification token
+
+#### Request Headers
+```
+Content-Type: multipart/form-data
+```
+
+#### Request Body (Form Data)
+```
+candidateName: "John Doe"
+candidateEmail: "john.doe@example.com"
+candidatePhone: "+1234567890"
+coverLetter: "I am interested in this position..."
+resume: <file> (PDF, DOC, DOCX - max 10MB)
+attachments: <files> (optional - certificates, portfolio, etc.)
+```
+
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Application submitted successfully",
+  "data": {
+    "id": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "jobTitle": "Senior Java Developer",
+    "candidateName": "John Doe",
+    "candidateEmail": "john.doe@example.com",
+    "status": {
+      "name": "NEW",
+      "displayName": "Mới",
+      "color": "#3B82F6"
+    },
+    "appliedDate": "2024-01-15",
+    "applicationToken": "app_token_xxx" // Token để candidate track status
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+> **Lưu ý**: 
+> - Application được tạo với `status = NEW` tự động
+> - `created_by` = NULL (candidate không có account)
+> - Email confirmation được gửi đến candidate
+> - Application token cho phép candidate track status mà không cần login
+
+#### 2. Upload Additional Attachments (Public - After Application)
+**POST** `/public/applications/{applicationToken}/attachments`
+
+Candidates có thể upload thêm attachments (certificates, portfolio) sau khi đã apply.
+
+> ⚠️ **Public endpoint**: Chỉ cần `applicationToken` (không phải JWT), không cần login
+
+#### Request Headers
+```
+Content-Type: multipart/form-data
+```
+
+#### Request Body (Form Data)
+```
+file: <file>
+attachmentType: CERTIFICATE | PORTFOLIO | OTHER
+description: "AWS Certification"
+```
+
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Attachment uploaded successfully",
+  "data": {
+    "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "applicationId": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "filename": "aws_certificate.pdf",
+    "attachmentType": "CERTIFICATE",
+    "fileSize": 256000,
+    "uploadedAt": "2024-01-15T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+#### 3. Track Application Status (Public)
+**GET** `/public/applications/{applicationToken}/status`
+
+Candidates có thể track status của application bằng token (không cần login).
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Application status retrieved successfully",
+  "data": {
+    "id": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+    "jobTitle": "Senior Java Developer",
+    "candidateName": "John Doe",
+    "candidateEmail": "john.doe@example.com",
+    "status": {
+      "name": "SCREENING",
+      "displayName": "Sàng lọc",
+      "color": "#8B5CF6"
+    },
+    "appliedDate": "2024-01-15",
+    "updatedAt": "2024-01-16T10:30:00Z"
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 🔐 Protected APIs (HR/Recruiter Management - Yêu cầu Authentication)
 
 ### 1. Get All Applications
 **GET** `/applications`
@@ -1059,10 +1183,13 @@ Lấy thông tin chi tiết một application.
 }
 ```
 
-### 3. Create Application (Manual Entry)
+### 3. Create Application (Manual Entry - HR Workflow)
 **POST** `/applications`
 
-HR/Recruiter tạo application thủ công (khi nhận CV qua email).
+HR/Recruiter tạo application thủ công khi nhận CV qua email. Đây là **workflow phụ** (backup workflow), không phải workflow chính.
+
+> ⚠️ **Protected endpoint**: Yêu cầu `Authorization: Bearer <access_token>`  
+> 📝 **Use case**: HR nhận CV qua email → Upload vào system thủ công → Tạo application
 
 #### Request Body
 ```json
@@ -3481,10 +3608,13 @@ page=0&size=20&entityType=JOB&action=UPDATE&startDate=2024-01-01&endDate=2024-01
 
 > **🔄 SEMANTIC CHANGE**: Attachments belong to Applications (CVs, certificates), không phải Jobs.
 
-### 1. Upload Application Attachment
+### 1. Upload Application Attachment (HR Workflow)
 **POST** `/applications/{applicationId}/attachments`
 
-Upload file đính kèm cho application (CV, certificate, portfolio).
+HR/Recruiter upload file đính kèm cho application (CV, certificate, portfolio). Đây là **workflow phụ** cho HR manual upload.
+
+> ⚠️ **Protected endpoint**: Yêu cầu `Authorization: Bearer <access_token>`  
+> 📝 **Use case**: HR nhận CV qua email → Upload vào system → Link với application
 
 #### Request Headers
 ```

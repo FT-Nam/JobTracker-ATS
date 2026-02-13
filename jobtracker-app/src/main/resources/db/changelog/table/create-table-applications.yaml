@@ -43,6 +43,12 @@ databaseChangeLog:
                   type: varchar(20)
                   remarks: "Số điện thoại ứng viên"
               - column:
+                  name: application_token
+                  type: varchar(100)
+                  constraints:
+                    unique: true
+                  remarks: "Token để candidate track status (cho public API, không cần login)"
+              - column:
                   name: status_id
                   type: varchar(36)
                   constraints:
@@ -81,7 +87,7 @@ databaseChangeLog:
               - column:
                   name: created_by
                   type: varchar(36)
-                  remarks: "Người tạo"
+                  remarks: "Người tạo (NULL nếu candidate tự apply qua public API)"
               - column:
                   name: updated_by
                   type: varchar(36)

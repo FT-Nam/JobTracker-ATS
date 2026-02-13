@@ -299,6 +299,14 @@ com.jobtracker
 
 ## 📋 ATS Workflow Architecture
 
+### 🎯 Modern ATS = Candidate Self-Service Portal
+
+**Core Principle**: Modern ATS là **Candidate Self-Service Portal**, không phải Document Management System.
+
+- **Primary Workflow**: Candidates tự apply online qua trang công ty mà **không cần login**
+- **Secondary Workflow**: HR có thể manually upload CVs từ email (backup workflow)
+- **Automated Workflow**: Sau khi application được tạo, workflow tự động (status updates, notifications, interviews)
+
 ### Application Lifecycle (CORE ATS)
 ```
 1. Job Posting Created (DRAFT)
@@ -318,10 +326,14 @@ com.jobtracker
 
 ### Các thành phần ATS chính
 - **Applications**: Entity cốt lõi - ứng viên ứng tuyển vào job postings
+  - **Primary Workflow**: Candidate Self-Service Portal (public API, không cần login)
+  - **Secondary Workflow**: HR Manual Upload (protected API, khi nhận CV qua email)
 - **Application Status History**: Dấu vết audit cho thay đổi trạng thái
-- **Comments**: Cộng tác nhóm về ứng viên
+- **Comments**: Cộng tác nhóm về ứng viên (HR/Recruiter only)
 - **Interviews**: Nhiều vòng phỏng vấn cho mỗi application
 - **Attachments**: CV, chứng chỉ, portfolio
+  - **Public Upload**: Candidates tự upload qua public API (user_id = NULL)
+  - **HR Upload**: HR upload thủ công khi nhận CV qua email (user_id = HR user_id)
 - **Notifications**: Cập nhật thời gian thực về trạng thái application
 
 ### Luồng dữ liệu Multi-Tenant
@@ -352,9 +364,39 @@ Publish Job → Event Publishing → NotificationService → Email/WebSocket
 ```
 
 ### 3. Application Workflow (CORE ATS) ➕
+
+#### Primary Workflow: Candidate Self-Service Portal (Public API)
 ```
-Candidate Applies → ApplicationController → ApplicationService → ApplicationRepository
-                ↓
+Candidate Applies Online (Public API - No Auth)
+    ↓
+POST /public/jobs/{jobId}/apply
+    ↓
+Upload CV + Attachments (Public API)
+    ↓
+Application Created (status = NEW, created_by = NULL)
+    ↓
+Email Confirmation → Candidate receives application_token
+    ↓
+Candidate Tracks Status (Public API with token)
+    ↓
+HR Reviews → Status Updates → Automated Workflow
+```
+
+#### Secondary Workflow: HR Manual Upload (Protected API)
+```
+HR Receives CV via Email
+    ↓
+POST /applications (Protected - HR Auth Required)
+    ↓
+Upload Attachments (Protected - HR Auth Required)
+    ↓
+Application Created (status = NEW, created_by = HR user_id)
+    ↓
+HR Manages → Status Updates → Automated Workflow
+```
+
+#### Common Workflow (After Application Created)
+```
 Status Update (NEW → SCREENING → INTERVIEWING → OFFERED → HIRED/REJECTED)
                 ↓
 ApplicationStatusHistory → Comments → Interviews → Attachments
@@ -363,12 +405,35 @@ Event Publishing → NotificationService → Email/WebSocket
 ```
 
 ### 4. File Upload Flow (Attachments to Applications)
+
+#### Public Upload Flow (Candidate Self-Service)
 ```
-Upload Attachment → AttachmentController → AttachmentService → CloudinaryService → Cloudinary API
-                ↓
-Image Optimization → CDN URL Generation → Link to Application → ApplicationRepository → Database
-                ↓
-File URL (CDN) ← Database Update ← File Metadata (public_id, format, size)
+Candidate Uploads CV/Attachments (Public API - No Auth)
+    ↓
+POST /public/jobs/{jobId}/apply (multipart/form-data)
+    ↓
+AttachmentController (Public) → AttachmentService → CloudinaryService → Cloudinary API
+    ↓
+File Validation (size, type, virus scan) → Upload to Cloudinary
+    ↓
+CDN URL Generation → Link to Application (user_id = NULL)
+    ↓
+Database Update → File Metadata (public_id, format, size, user_id = NULL)
+```
+
+#### Protected Upload Flow (HR Manual Upload)
+```
+HR Uploads CV/Attachments (Protected API - Auth Required)
+    ↓
+POST /applications/{applicationId}/attachments (multipart/form-data)
+    ↓
+AttachmentController (Protected) → AttachmentService → CloudinaryService → Cloudinary API
+    ↓
+File Validation → Upload to Cloudinary
+    ↓
+CDN URL Generation → Link to Application (user_id = HR user_id)
+    ↓
+Database Update → File Metadata (public_id, format, size, user_id = HR user_id)
 ```
 
 ## 🚀 Performance Considerations
