@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local configuration & environment files
+src/main/resources/application-dev.yaml
+.env*
