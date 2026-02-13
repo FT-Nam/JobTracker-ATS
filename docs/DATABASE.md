@@ -46,6 +46,7 @@ JobTracker ATS (Applicant Tracking System) sử dụng **MySQL 8.0** làm databa
 - **interview_results** table → ENUM trong `interviews.result` (PASSED, FAILED, PENDING)
 - **notification_types** table → ENUM trong `notifications.type` (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, etc.)
 - **notification_priorities** table → ENUM trong `notifications.priority` (HIGH, MEDIUM, LOW)
+- **attachment_types** → ENUM trong `attachments.attachment_type` (RESUME, COVER_LETTER, CERTIFICATE, PORTFOLIO, OTHER)
 
 ### ➕ **THÊM MỚI (5% - ATS specific)**
 - **applications** table (CORE ATS) - Candidates apply to jobs
@@ -72,6 +73,75 @@ JobTracker ATS (Applicant Tracking System) sử dụng **MySQL 8.0** làm databa
 2. **applications table** - Core ATS entity
 3. **jobs semantic change** - From "applied" to "posting"
 4. **interviews.application_id** - Link to applications, not jobs
+
+## 📊 **ENUM VALUES REFERENCE**
+
+Tất cả các ENUM values được sử dụng trong database:
+
+### 1. Job Status ENUM (`jobs.job_status`)
+- `DRAFT` - Nháp, chưa publish
+- `PUBLISHED` - Đã publish, đang tuyển
+- `PAUSED` - Tạm dừng tuyển
+- `CLOSED` - Đã đóng tuyển
+- `FILLED` - Đã tuyển đủ người
+
+### 2. Job Type ENUM (`jobs.job_type`)
+- `FULL_TIME` - Toàn thời gian
+- `PART_TIME` - Bán thời gian
+- `CONTRACT` - Hợp đồng
+- `INTERNSHIP` - Thực tập
+- `FREELANCE` - Freelance
+
+### 3. Interview Type ENUM (`interviews.interview_type`)
+- `PHONE` - Phỏng vấn qua điện thoại
+- `VIDEO` - Phỏng vấn qua video call
+- `IN_PERSON` - Phỏng vấn trực tiếp
+- `TECHNICAL` - Phỏng vấn kỹ thuật
+- `HR` - Phỏng vấn HR
+- `FINAL` - Phỏng vấn cuối
+
+### 4. Interview Status ENUM (`interviews.status`)
+- `SCHEDULED` - Đã lên lịch
+- `COMPLETED` - Đã hoàn thành
+- `CANCELLED` - Đã hủy
+- `RESCHEDULED` - Đã lên lịch lại
+
+### 5. Interview Result ENUM (`interviews.result`)
+- `PASSED` - Đạt
+- `FAILED` - Không đạt
+- `PENDING` - Chờ kết quả
+
+### 6. Notification Type ENUM (`notifications.type`)
+- `APPLICATION_RECEIVED` - Nhận được đơn ứng tuyển
+- `INTERVIEW_SCHEDULED` - Đã lên lịch phỏng vấn
+- `INTERVIEW_REMINDER` - Nhắc nhở phỏng vấn
+- `STATUS_CHANGE` - Thay đổi trạng thái
+- `DEADLINE_REMINDER` - Nhắc nhở deadline
+- `COMMENT_ADDED` - Có comment mới
+- `ASSIGNMENT_CHANGED` - Thay đổi người phụ trách
+
+### 7. Notification Priority ENUM (`notifications.priority`)
+- `HIGH` - Ưu tiên cao
+- `MEDIUM` - Ưu tiên trung bình
+- `LOW` - Ưu tiên thấp
+
+### 8. Attachment Type ENUM (`attachments.attachment_type`)
+- `RESUME` - CV/Resume
+- `COVER_LETTER` - Thư xin việc
+- `CERTIFICATE` - Chứng chỉ
+- `PORTFOLIO` - Portfolio
+- `OTHER` - Khác
+
+### 9. Subscription Status ENUM (`company_subscriptions.status`)
+- `PENDING` - Chờ thanh toán
+- `ACTIVE` - Đang hoạt động
+- `EXPIRED` - Đã hết hạn
+- `CANCELLED` - Đã hủy
+
+### 10. Payment Status ENUM (`payments.status`)
+- `INIT` - Khởi tạo
+- `SUCCESS` - Thành công
+- `FAILED` - Thất bại
 
 ## 🏗️ Database Schema
 
@@ -545,6 +615,9 @@ CREATE TABLE applications (
     
     -- Assignment
     assigned_to VARCHAR(36) COMMENT 'HR/Recruiter được assign (FK to users)',
+    
+    -- Document Upload Control
+    allow_additional_uploads BOOLEAN DEFAULT FALSE COMMENT 'Cho phép candidate upload thêm documents (chỉ khi HR yêu cầu)',
     
     -- Full Audit Fields
     created_by VARCHAR(36) COMMENT 'Người tạo (NULL nếu candidate tự apply qua public API)',

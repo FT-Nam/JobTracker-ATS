@@ -988,9 +988,13 @@ candidateName: "John Doe"
 candidateEmail: "john.doe@example.com"
 candidatePhone: "+1234567890"
 coverLetter: "I am interested in this position..."
-resume: <file> (PDF, DOC, DOCX - max 10MB)
-attachments: <files> (optional - certificates, portfolio, etc.)
+resume: <file> (PDF - max 5B) [REQUIRED]
 ```
+
+> **Lưu ý về Attachments:**
+> - ✅ **Khi apply**: Chỉ upload CV (resume) - đây là bắt buộc
+> - ❌ **Không upload** certificates/portfolio khi apply lần đầu
+> - 📋 **Sau khi apply**: Nếu HR yêu cầu thêm documents (khi status = SCREENING/INTERVIEWING), candidate sẽ upload qua API `/public/applications/{applicationToken}/attachments`
 
 #### Response (201 Created)
 ```json
@@ -1021,12 +1025,34 @@ attachments: <files> (optional - certificates, portfolio, etc.)
 > - Email confirmation được gửi đến candidate
 > - Application token cho phép candidate track status mà không cần login
 
-#### 2. Upload Additional Attachments (Public - After Application)
+#### 2. Upload Additional Attachments (Public - HR Request Only)
 **POST** `/public/applications/{applicationToken}/attachments`
 
-Candidates có thể upload thêm attachments (certificates, portfolio) sau khi đã apply.
+Candidates chỉ có thể upload thêm attachments (certificates, portfolio) **khi HR yêu cầu** trong quá trình review.
 
 > ⚠️ **Public endpoint**: Chỉ cần `applicationToken` (không phải JWT), không cần login
+
+> 📋 **Business Logic - Chỉ cho phép upload khi HR đã yêu cầu:**
+> 
+> **Điều kiện upload:**
+> - ✅ Application status phải là: `SCREENING` hoặc `INTERVIEWING` (HR đang review)
+> - ✅ **VÀ** `allow_additional_uploads = true` (HR đã set flag yêu cầu documents)
+> 
+> **Workflow:**
+> 1. Candidate apply → Upload CV (RESUME) - **Bắt buộc khi apply**
+>    - `allow_additional_uploads = false` (mặc định)
+> 2. HR review → Status chuyển sang SCREENING/INTERVIEWING
+> 3. HR yêu cầu thêm documents → Set `allow_additional_uploads = true` (qua API hoặc UI)
+>    - HR có thể set flag này khi:
+>      - Comment với `requestDocuments = true`
+>      - Hoặc qua API `PATCH /applications/{id}` với `allowAdditionalUploads: true`
+> 4. Candidate thấy flag được bật → Upload thêm documents qua API này
+> 5. Sau khi upload xong → HR có thể set `allow_additional_uploads = false` để tắt
+> 
+> **Lý do**: 
+> - Tránh spam upload, chỉ upload khi HR thực sự yêu cầu
+> - HR có control hoàn toàn về việc khi nào cho phép upload
+> - Candidate không thể tự ý upload khi chỉ thấy status = SCREENING/INTERVIEWING
 
 #### Request Headers
 ```
@@ -1053,6 +1079,53 @@ description: "AWS Certification"
     "fileSize": 256000,
     "uploadedAt": "2024-01-15T10:30:00Z"
   },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+#### Error Responses
+
+**403 Forbidden** - Không cho phép upload (status không đúng hoặc HR chưa yêu cầu)
+```json
+{
+  "success": false,
+  "message": "Cannot upload attachments. HR has not requested additional documents yet. Please wait for HR to request documents before uploading.",
+  "errors": [
+    {
+      "field": "allowAdditionalUploads",
+      "message": "Attachments can only be uploaded when: 1) Application status is SCREENING or INTERVIEWING, AND 2) HR has set allowAdditionalUploads = true. Current status: NEW, allowAdditionalUploads: false"
+    }
+  ],
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+**403 Forbidden** - Status không đúng (không phải SCREENING/INTERVIEWING)
+```json
+{
+  "success": false,
+  "message": "Cannot upload attachments. Application status must be SCREENING or INTERVIEWING.",
+  "errors": [
+    {
+      "field": "applicationStatus",
+      "message": "Attachments can only be uploaded when application status is SCREENING or INTERVIEWING. Current status: OFFERED"
+    }
+  ],
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+**404 Not Found** - Application token không hợp lệ
+```json
+{
+  "success": false,
+  "message": "Application not found",
+  "errors": [
+    {
+      "field": "applicationToken",
+      "message": "Invalid application token"
+    }
+  ],
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
@@ -1291,16 +1364,22 @@ Assign application cho HR/Recruiter để xử lý.
 ### 6. Update Application Details
 **PUT** `/applications/{id}`
 
-Cập nhật thông tin application (notes, rating, etc.).
+Cập nhật thông tin application (notes, rating, allowAdditionalUploads, etc.).
 
 #### Request Body
 ```json
 {
   "notes": "Updated notes after phone screening",
   "rating": 5,
-  "coverLetter": "Updated cover letter"
+  "coverLetter": "Updated cover letter",
+  "allowAdditionalUploads": true
 }
 ```
+
+> **Lưu ý về `allowAdditionalUploads`:**
+> - HR set `allowAdditionalUploads = true` khi yêu cầu candidate upload thêm documents
+> - Candidate chỉ có thể upload khi flag này = `true` VÀ status = `SCREENING` hoặc `INTERVIEWING`
+> - Sau khi candidate upload xong, HR có thể set `allowAdditionalUploads = false` để tắt
 
 #### Response (200 OK)
 ```json
@@ -2109,6 +2188,7 @@ Lấy lịch sử payments cho một bản ghi subscription cụ thể.
 > - **Interview Results** → ENUM trong `interviews.result` (PASSED, FAILED, PENDING)
 > - **Notification Types** → ENUM trong `notifications.type` (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, etc.)
 > - **Notification Priorities** → ENUM trong `notifications.priority` (HIGH, MEDIUM, LOW)
+> - **Attachment Types** → ENUM trong `attachments.attachmentType` (RESUME, COVER_LETTER, CERTIFICATE, PORTFOLIO, OTHER)
 
 > **✅ LOOKUP TABLE**: Application Statuses giữ lại lookup table vì cần metadata (display_name, color, sort_order) và flexibility:
 > - **Application Statuses** → Lookup table `application_statuses` (NEW, SCREENING, INTERVIEWING, OFFERED, HIRED, REJECTED)
