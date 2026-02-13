@@ -3,7 +3,7 @@ package com.jobtracker.jobtracker_app.controllers;
 import java.text.ParseException;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
-import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
+import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
 import jakarta.validation.Valid;

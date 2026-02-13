@@ -1,7 +1,10 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.jobtracker.jobtracker_app.dto.requests.ChangePasswordRequest;
-import org.springframework.dao.DataIntegrityViolationException;
+import com.jobtracker.jobtracker_app.dto.responses.user.UploadAvatarResponse;
+import com.jobtracker.jobtracker_app.validator.file.FileValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
+import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 import com.jobtracker.jobtracker_app.entities.Role;
 import com.jobtracker.jobtracker_app.entities.User;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
@@ -27,8 +30,10 @@ import com.jobtracker.jobtracker_app.services.cache.PermissionCacheService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Optional;
+import java.io.IOException;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +45,8 @@ public class UserServiceImpl implements UserService {
     RoleRepository roleRepository;
     PermissionCacheService permissionCacheService;
     PasswordEncoder passwordEncoder;
+    Cloudinary cloudinary;
+    FileValidator imageFileValidator;
 
     // ADMIN
     @Override
@@ -166,6 +173,57 @@ public class UserServiceImpl implements UserService {
         user.restore();
         userRepository.save(user);
     }
+
+    // USER
+    @Override
+    @Transactional
+    public UploadAvatarResponse uploadAvatar(MultipartFile file) throws IOException {
+
+        imageFileValidator.validate(file);
+
+        String userId = getAuthenticationId();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        String folderPath = "jobtracker_ats/user/" + userId + "/avatars";
+
+        Map<?, ?> result = cloudinary.uploader().upload(
+                file.getInputStream(),
+                ObjectUtils.asMap(
+                        "folder", folderPath,
+                        "resource_type", "image"
+                )
+        );
+
+        String newUrl = (String) result.get("secure_url");
+        String newPublicId = (String) result.get("public_id");
+
+        if (newUrl == null || newPublicId == null) {
+            throw new AppException(ErrorCode.UPLOAD_FILE_FAILED);
+        }
+
+        String oldPublicId = user.getAvatarPublicId();
+
+        try {
+            user.setAvatarUrl(newUrl);
+            user.setAvatarPublicId(newPublicId);
+            userRepository.save(user);
+        } catch (Exception e) {
+            // Rollback nếu db false
+            cloudinary.uploader().destroy(newPublicId, ObjectUtils.emptyMap());
+            throw e;
+        }
+
+        if (oldPublicId != null) {
+            cloudinary.uploader().destroy(oldPublicId, ObjectUtils.emptyMap());
+        }
+
+        return UploadAvatarResponse.builder()
+                .avatarUrl(newUrl)
+                .build();
+    }
+
 
     private String getAuthenticationId(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

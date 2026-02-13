@@ -267,5 +267,8 @@ public class MessageKeys {
     // FILE
     public static final String UPLOAD_FILE_FAILED = "file.upload_failed";
     public static final String DELETE_FILE_FAILED = "file.delete_failed";
+    public static final String FILE_EMPTY = "file.empty";
+    public static final String FILE_TOO_LARGE = "file.too_large";
+    public static final String INVALID_FILE_TYPE = "file.invalid_type";
 
 }

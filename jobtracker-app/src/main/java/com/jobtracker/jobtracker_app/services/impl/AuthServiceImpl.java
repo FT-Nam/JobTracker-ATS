@@ -8,7 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
-import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
+import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 import com.jobtracker.jobtracker_app.entities.Role;
 import com.jobtracker.jobtracker_app.mappers.UserMapper;
 import com.jobtracker.jobtracker_app.repositories.RoleRepository;
@@ -22,7 +22,7 @@ import com.jobtracker.jobtracker_app.dto.requests.LogoutRequest;
 import com.jobtracker.jobtracker_app.dto.requests.RefreshRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.AuthenticationResponse;
 import com.jobtracker.jobtracker_app.dto.responses.TokenInfo;
-import com.jobtracker.jobtracker_app.dto.responses.UserInfo;
+import com.jobtracker.jobtracker_app.dto.responses.user.UserInfo;
 import com.jobtracker.jobtracker_app.entities.InvalidatedToken;
 import com.jobtracker.jobtracker_app.entities.User;
 import com.jobtracker.jobtracker_app.exceptions.AppException;

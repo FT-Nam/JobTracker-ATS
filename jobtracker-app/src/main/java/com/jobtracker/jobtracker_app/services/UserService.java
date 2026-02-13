@@ -1,13 +1,16 @@
 package com.jobtracker.jobtracker_app.services;
 
 import com.jobtracker.jobtracker_app.dto.requests.ChangePasswordRequest;
+import com.jobtracker.jobtracker_app.dto.responses.user.UploadAvatarResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
-import org.springframework.data.repository.query.Param;
+import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 public interface UserService {
     UserResponse create(UserCreationRequest request);
@@ -29,6 +32,6 @@ public interface UserService {
 
     void restore(String id);
 
-    // Upload Avatar ...
+    UploadAvatarResponse uploadAvatar(MultipartFile file) throws IOException;
 
 }

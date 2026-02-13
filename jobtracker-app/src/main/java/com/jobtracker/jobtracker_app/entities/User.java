@@ -48,6 +48,9 @@ public class User extends FullAuditEntity {
     @Column(name = "avatar_url", length = 500)
     String avatarUrl;
 
+    @Column(name = "avatar_public_id", length = 255)
+    String avatarPublicId;
+
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     Role role;

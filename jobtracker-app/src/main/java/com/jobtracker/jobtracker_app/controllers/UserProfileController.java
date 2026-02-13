@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
-import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
+import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 import com.jobtracker.jobtracker_app.services.UserService;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
 

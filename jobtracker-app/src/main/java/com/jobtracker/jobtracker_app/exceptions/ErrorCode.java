@@ -52,7 +52,11 @@ public enum ErrorCode {
     PAYMENT_NOT_EXISTED(MessageKeys.PAYMENT_NOT_EXISTED, HttpStatus.NOT_FOUND),
 
     UPLOAD_FILE_FAILED(MessageKeys.UPLOAD_FILE_FAILED, HttpStatus.INTERNAL_SERVER_ERROR),
-    DELETE_FILE_FAILED(MessageKeys.DELETE_FILE_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
+    DELETE_FILE_FAILED(MessageKeys.DELETE_FILE_FAILED, HttpStatus.INTERNAL_SERVER_ERROR),
+
+    FILE_EMPTY(MessageKeys.FILE_EMPTY, HttpStatus.BAD_REQUEST),
+    FILE_TOO_LARGE(MessageKeys.FILE_TOO_LARGE, HttpStatus.BAD_REQUEST),
+    INVALID_FILE_TYPE(MessageKeys.INVALID_FILE_TYPE, HttpStatus.BAD_REQUEST);
 
     private final String message;
     private final HttpStatus httpStatus;

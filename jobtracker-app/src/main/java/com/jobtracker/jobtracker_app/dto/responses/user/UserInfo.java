@@ -1,4 +1,4 @@
-package com.jobtracker.jobtracker_app.dto.responses;
+package com.jobtracker.jobtracker_app.dto.responses.user;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

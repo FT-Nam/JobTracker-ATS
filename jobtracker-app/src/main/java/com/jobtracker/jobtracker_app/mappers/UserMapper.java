@@ -4,7 +4,7 @@ import org.mapstruct.*;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.responses.UserResponse;
+import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 import com.jobtracker.jobtracker_app.entities.User;
 
 @Mapper(componentModel = "spring")
