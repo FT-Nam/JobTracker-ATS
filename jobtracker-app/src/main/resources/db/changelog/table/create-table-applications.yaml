@@ -85,6 +85,11 @@ databaseChangeLog:
                   type: varchar(36)
                   remarks: "Người được assign"
               - column:
+                  name: allow_additional_uploads
+                  type: boolean
+                  defaultValue: false
+                  remarks: "Cho phép candidate upload thêm documents (chỉ khi HR yêu cầu)"
+              - column:
                   name: created_by
                   type: varchar(36)
                   remarks: "Người tạo (NULL nếu candidate tự apply qua public API)"

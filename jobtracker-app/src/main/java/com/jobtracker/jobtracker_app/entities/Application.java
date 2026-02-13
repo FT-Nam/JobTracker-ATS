@@ -65,5 +65,8 @@ public class Application extends FullAuditEntity {
     @ManyToOne
     @JoinColumn(name = "assigned_to")
     User assignedTo;
+
+    @Column(name = "allow_additional_uploads")
+    Boolean allowAdditionalUploads = false;
 }
 
