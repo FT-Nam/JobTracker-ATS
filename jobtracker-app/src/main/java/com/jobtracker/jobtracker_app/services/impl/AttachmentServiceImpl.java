@@ -18,6 +18,7 @@ import com.jobtracker.jobtracker_app.repositories.AttachmentRepository;
 import com.jobtracker.jobtracker_app.repositories.CompanyRepository;
 import com.jobtracker.jobtracker_app.repositories.UserRepository;
 import com.jobtracker.jobtracker_app.services.AttachmentService;
+import com.jobtracker.jobtracker_app.validator.file.FileValidator;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -43,18 +44,23 @@ public class AttachmentServiceImpl implements AttachmentService {
     CompanyRepository companyRepository;
     UserRepository userRepository;
     Cloudinary cloudinary;
+    FileValidator pdfFileValidator;
 
     @Override
     @Transactional
     public AttachmentCreationResponse uploadAttachment(String applicationId,
                                                        AttachmentUploadRequest request) throws IOException {
+        pdfFileValidator.validate(request.getFile());
+
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Map result = cloudinary.uploader().upload(request.getFile().getBytes(),
+        String folderPath = "jobtracker_ats/applications/" + applicationId + "/cv";
+
+        Map<?,?> result = cloudinary.uploader().upload(request.getFile().getBytes(),
                 ObjectUtils.asMap(
                         "use_filename", true,
                         "unique_filename", true,
-                        "folder", "jobtracker_ats",
+                        "folder", folderPath,
                         "type", "authenticated",
                         "resource_type", "raw"
                 ));
@@ -63,6 +69,8 @@ public class AttachmentServiceImpl implements AttachmentService {
             throw new AppException(ErrorCode.UPLOAD_FILE_FAILED);
         }
 
+        String publicId = (String) result.get("public_id");
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -70,7 +78,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                 .orElseThrow(()-> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
         Attachment attachment = Attachment.builder()
-                .id((String) result.get("public_id"))
+                .id(publicId)
                 .application(application)
                 .company(user.getCompany())
                 .user(user)
@@ -78,13 +86,24 @@ public class AttachmentServiceImpl implements AttachmentService {
                 .originalFilename((String) result.get("original_filename"))
                 .filePath((String) result.get("secure_url"))
                 .fileSize((Long) result.get("bytes"))
-                .fileType(result.get("resource_type") + "/" + result.get("format"))
+                .fileType(request.getFile().getContentType())
                 .attachmentType(request.getAttachmentType())
                 .description(request.getDescription())
                 .uploadedAt(LocalDateTime.now())
                 .build();
 
-        return attachmentMapper.toAttachmentCreationResponse(attachmentRepository.save(attachment));
+        Attachment saved = null;
+
+        try{
+            saved = attachmentRepository.save(attachment);
+        } catch (Exception e) {
+            // rollback file nếu DB fail
+            cloudinary.uploader().destroy(publicId,
+                    ObjectUtils.asMap("resource_type", "raw", "type", "authenticated"));
+            throw e;
+        }
+
+        return attachmentMapper.toAttachmentCreationResponse(saved);
     }
 
     @Override
