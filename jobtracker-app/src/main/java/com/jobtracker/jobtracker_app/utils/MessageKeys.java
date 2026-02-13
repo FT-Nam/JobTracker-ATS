@@ -58,6 +58,9 @@ public class MessageKeys {
     // PASSWORD
     public static final String PASSWORD_CHANGE_SUCCESS = "password.change_success";
 
+    // AVATAR
+    public static final String USER_AVATAR_UPLOAD_SUCCESS = "user.avatar_upload_success";
+
     // JOB STATUS
     public static final String JOB_STATUS_NOT_EXISTED = "job_status.not_existed";
     public static final String JOB_STATUS_CREATE_SUCCESS = "job_status.create_success";

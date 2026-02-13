@@ -5,9 +5,11 @@ import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
+import com.jobtracker.jobtracker_app.dto.responses.user.UploadAvatarResponse;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 import com.jobtracker.jobtracker_app.services.UserService;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
@@ -15,6 +17,8 @@ import com.jobtracker.jobtracker_app.utils.MessageKeys;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,5 +53,11 @@ public class UserProfileController {
                 .build();
     }
 
-    // Upload Avatar đợi DropBox
+    @PostMapping("/avatar")
+    public ApiResponse<UploadAvatarResponse> uploadAvatar(@RequestParam("file") MultipartFile file) throws IOException {
+        return ApiResponse.<UploadAvatarResponse>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_AVATAR_UPLOAD_SUCCESS))
+                .data(userService.uploadAvatar(file))
+                .build();
+    }
 }
