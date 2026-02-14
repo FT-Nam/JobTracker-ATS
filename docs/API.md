@@ -2,7 +2,7 @@
 
 ## 📋 Tổng quan API
 
-JobTracker ATS (Applicant Tracking System) cung cấp RESTful API với thiết kế REST chuẩn, sử dụng JSON cho data exchange và OAuth2/JWT cho authentication. API được thiết kế cho **multi-tenant architecture** với data isolation theo company.
+JobTracker ATS (Applicant Tracking System) cung cấp RESTful API với thiết kế REST chuẩn, sử dụng JSON cho data exchange và JWT cho authentication. API được thiết kế cho **B2B multi-tenant SaaS** với data isolation theo company.
 
 ### 🎯 API Design Principles
 - **RESTful**: Tuân thủ REST conventions
@@ -10,7 +10,7 @@ JobTracker ATS (Applicant Tracking System) cung cấp RESTful API với thiết 
 - **Multi-Tenant**: Data isolation bằng `company_id` trong mọi requests
 - **Versioned**: API versioning với `/api/v1`
 - **Consistent**: Uniform response format
-- **Secure**: HTTPS, OAuth2, JWT, input validation, RBAC
+- **Secure**: HTTPS, JWT, input validation, RBAC, email verification
 - **Documented**: OpenAPI 3.0 specification
 
 ### 🔧 Base Configuration
@@ -28,15 +28,24 @@ X-Company-Id: <company_id> (Optional - auto-extracted from user context)
 
 ## 🔐 Authentication APIs
 
-### 1. User Registration
+> **🔑 B2B SaaS Auth Flow**: 
+> - **Email + Password** (bắt buộc)
+> - **Email Verification** (bắt buộc)
+> - **Invite-based User Creation**: Admin tạo user → Gửi invite email → User set password → Email verified
+> - **Không có Google OAuth** (trừ enterprise SSO - story khác)
+
+### 1. Company Self-Signup (Company Admin Registration)
 **POST** `/auth/register`
 
-Đăng ký tài khoản người dùng mới.
+Đăng ký công ty mới và tạo Company Admin user. Đây là **mô hình 1 - Self Signup** (phổ biến cho SaaS B2B).
+
+> ⚠️ **Lưu ý**: Chỉ dành cho Company Admin tự signup. Các users khác được tạo qua invite flow.
 
 #### Request Body
 ```json
 {
-  "email": "user@example.com",
+  "companyName": "Acme Corp",
+  "email": "admin@acme.com",
   "password": "SecurePassword123!",
   "firstName": "John",
   "lastName": "Doe",
@@ -48,24 +57,31 @@ X-Company-Id: <company_id> (Optional - auto-extracted from user context)
 ```json
 {
   "success": true,
-  "message": "User registered successfully",
+  "message": "Company and admin user created successfully. Please verify your email.",
   "data": {
-    "id": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "email": "user@example.com",
-    "firstName": "John",
-    "lastName": "Doe",
-    "phone": "+1234567890",
-    "avatarUrl": null,
-    "roleName": "USER",
-    "isActive": true,
-    "emailVerified": false,
-    "googleId": null,
-    "lastLoginAt": null,
-    "createdAt": "2024-01-15T10:30:00Z"
+    "company": {
+      "id": "c1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "name": "Acme Corp"
+    },
+    "user": {
+      "id": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+      "email": "admin@acme.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "roleName": "COMPANY_ADMIN",
+      "emailVerified": false,
+      "isActive": true
+    }
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
+
+> **Flow sau registration**:
+> 1. System tạo Company
+> 2. System tạo Admin user với `email_verified = false`
+> 3. System gửi email verification token
+> 4. User click link trong email → Verify email → `email_verified = true` → User có thể login
 
 #### Error Response (400 Bad Request)
 ```json
@@ -124,15 +140,17 @@ X-Company-Id: <company_id> (Optional - auto-extracted from user context)
 }
 ```
 
-### 3. Google OAuth Login
-**POST** `/auth/google`
+### 3. Email Verification
+**POST** `/auth/verify-email`
 
-Đăng nhập với Google OAuth2.
+Xác thực email với token từ email verification link.
+
+> ⚠️ **Bắt buộc**: User phải verify email trước khi có thể login (trừ khi được Admin tạo và verify sẵn).
 
 #### Request Body
 ```json
 {
-  "idToken": "google_id_token_here"
+  "token": "email_verification_token_here"
 }
 ```
 
@@ -140,29 +158,47 @@ X-Company-Id: <company_id> (Optional - auto-extracted from user context)
 ```json
 {
   "success": true,
-  "message": "Google login successful",
+  "message": "Email verified successfully",
   "data": {
-    "user": {
-      "id": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-      "email": "user@gmail.com",
-      "firstName": "John",
-      "lastName": "Doe",
-      "roleName": "USER",
-      "avatarUrl": "https://lh3.googleusercontent.com/...",
-      "googleId": "123456789"
-    },
-    "tokens": {
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "expiresIn": "2024-01-15T11:30:00Z",
-      "refreshExpiresIn": "2024-02-15T10:30:00Z"
-    }
+    "email": "admin@acme.com",
+    "emailVerified": true
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
-### 4. Refresh Token
+#### Error Response (400 Bad Request)
+```json
+{
+  "success": false,
+  "message": "Invalid or expired verification token",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 4. Resend Verification Email
+**POST** `/auth/resend-verification`
+
+Gửi lại email verification.
+
+#### Request Body
+```json
+{
+  "email": "admin@acme.com"
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Verification email sent",
+  "data": null,
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 5. Refresh Token
 **POST** `/auth/refresh`
 
 Làm mới access token bằng refresh token.
@@ -404,7 +440,9 @@ Authorization: Bearer <access_token>
 
 ## 👥 Admin User Management APIs
 
-> Chỉ dành cho ADMIN để quản lý bảng `users`.
+> **🔑 Invite-based User Creation**: Admin tạo user → System gửi invite email → User click link → Set password → Email verified
+> 
+> Chỉ dành cho **COMPANY_ADMIN** hoặc **HR** (có quyền) để quản lý users trong company của mình.
 
 ### 1. Get Users
 **GET** `/admin/users`
@@ -443,10 +481,15 @@ Query hỗ trợ `role`, `status`, `search`, `createdFrom`.
 }
 ```
 
-### 2. Create User
-**POST** `/admin/users`
+### 2. Invite User (Create User via Invite)
+**POST** `/admin/users/invite`
 
-Tạo user mới theo đầy đủ schema bảng `users`.
+Tạo user mới và gửi invite email. Đây là **flow chuẩn B2B SaaS** (Jira, Linear, Slack).
+
+> **Flow**:
+> 1. Admin tạo user → `email_verified = false`, `password = NULL`
+> 2. System gửi invite email với token
+> 3. User click link trong email → Set password → `email_verified = true` → User active
 
 #### Request Headers
 ```
@@ -457,43 +500,87 @@ Content-Type: application/json
 #### Request Body
 ```json
 {
-  "email": "new.user@jobtracker.com",
-  "password": "TempPassword123!",
+  "email": "new.user@company.com",
   "firstName": "New",
   "lastName": "User",
   "phone": "+12065551212",
-  "avatarUrl": "https://cdn.jobtracker.com/avatars/new_user.png",
   "roleId": "34d9a2e3-1a30-4a1a-b1ad-4b6d2619f1ce",
-  "isActive": true,
-  "emailVerified": false,
-  "googleId": null
+  "isBillable": true
 }
 ```
+
+> **Lưu ý**:
+> - `password` không cần trong request (user sẽ set qua invite link)
+> - `isBillable`: `true` cho ADMIN/HR, `false` cho INTERVIEWER
+> - System tự động set `email_verified = false`, `password = NULL`, `is_active = false`
 
 #### Response (201 Created)
 ```json
 {
   "success": true,
-  "message": "User created successfully",
+  "message": "User invited successfully. Invitation email sent.",
   "data": {
     "id": "8b54b7f1-3f14-43a6-9a9a-5fefdc136d91",
-    "email": "new.user@jobtracker.com",
+    "email": "new.user@company.com",
     "firstName": "New",
     "lastName": "User",
     "phone": "+12065551212",
-    "avatarUrl": "https://cdn.jobtracker.com/avatars/new_user.png",
-    "roleId": "34d9a2e3-1a30-4a1a-b1ad-4b6d2619f1ce",
-    "isActive": true,
+    "roleName": "HR",
+    "isActive": false,
     "emailVerified": false,
-    "googleId": null,
-    "lastLoginAt": null,
+    "isBillable": true,
+    "inviteSentAt": "2024-01-20T08:00:00Z",
     "createdAt": "2024-01-20T08:00:00Z"
   },
   "timestamp": "2024-01-20T08:00:00Z"
 }
 ```
 
-> Server sẽ hash `password` theo chuẩn (BCrypt) trước khi lưu xuống cột `password`. Trường audit `createdAt` được populate tự động.
+### 3. Accept Invite (Set Password)
+**POST** `/auth/accept-invite`
+
+User nhận invite email, click link, và set password. Sau khi set password, `email_verified = true` và `is_active = true`.
+
+> ⚠️ **Public endpoint**: Không cần authentication (chỉ cần invite token).
+
+#### Request Body
+```json
+{
+  "token": "invite_token_from_email",
+  "password": "SecurePassword123!"
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Invitation accepted. Email verified. You can now login.",
+  "data": {
+    "email": "new.user@company.com",
+    "emailVerified": true,
+    "isActive": true
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 4. Resend Invite
+**POST** `/admin/users/{userId}/resend-invite`
+
+Gửi lại invite email cho user chưa verify.
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Invitation email resent",
+  "data": null,
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 5. Get User Details
 
 ### 3. Get User Details
 **GET** `/admin/users/{id}`
@@ -1000,30 +1087,41 @@ resume: <file> (PDF - max 5B) [REQUIRED]
 ```json
 {
   "success": true,
-  "message": "Application submitted successfully",
-  "data": {
-    "id": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
-    "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-    "jobTitle": "Senior Java Developer",
-    "candidateName": "John Doe",
-    "candidateEmail": "john.doe@example.com",
-    "status": {
-      "name": "NEW",
-      "displayName": "Mới",
-      "color": "#3B82F6"
-    },
-    "appliedDate": "2024-01-15",
-    "applicationToken": "app_token_xxx" // Token để candidate track status
-  },
+  "message": "Đơn ứng tuyển đã được gửi thành công! Chúng tôi sẽ liên hệ với bạn qua email.",
+  "data": null,
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
+
+> **Lưu ý**: 
+> - Response đơn giản, không expose thông tin không cần thiết
+> - Candidate đã biết jobTitle, candidateName, email (họ vừa submit)
+> - Application được tạo với `status = NEW` tự động
+> - Email confirmation được gửi sau đó với `applicationToken` để candidate track status
+> - CV scoring được xử lý trong background (2-3 giây), không cần trả về trong response
 
 > **Lưu ý**: 
 > - Application được tạo với `status = NEW` tự động
 > - `created_by` = NULL (candidate không có account)
 > - Email confirmation được gửi đến candidate
 > - Application token cho phép candidate track status mà không cần login
+> - **CV Scoring**: CV được xử lý **synchronous** (2-3 giây) → Match score có ngay trong response
+> - `matchScore = null` nếu parsing failed hoặc chưa có CV
+
+> **🔍 CV Scoring Process (Synchronous - 2-3 giây)**:
+> 
+> Sau khi upload CV, system tự động tính match score ngay trong request:
+> 1. **PDF Parsing**: Extract text từ CV (PDF) → ~1-2 giây
+> 2. **Load Job Skills**: Query `job_skills` table → ~100ms
+> 3. **Skill Matching**: Normalize, tokenize, match skills → ~500ms
+> 4. **Score Calculation**: Tính điểm (0-100) → ~100ms
+> 5. **Save Results**: Lưu `matchScore` và breakdown vào response
+> 
+> **Total**: ~2-3 giây (sync processing, không cần async)
+> 
+> **Response**:
+> - `matchScore`: Integer 0-100 (hoặc `null` nếu failed)
+> - `matchScoreDetails`: Breakdown skills (hoặc `null` nếu failed)
 
 #### 2. Upload Additional Attachments (Public - HR Request Only)
 **POST** `/public/applications/{applicationToken}/attachments`
@@ -1133,7 +1231,9 @@ description: "AWS Certification"
 #### 3. Track Application Status (Public)
 **GET** `/public/applications/{applicationToken}/status`
 
-Candidates có thể track status của application bằng token (không cần login).
+Candidates có thể track status của application bằng token (không cần login). 
+
+> ⚠️ **Lưu ý**: API này **KHÔNG** trả về match score, missing skills, hoặc các thông tin nội bộ. Chỉ trả về thông tin cần thiết cho candidate.
 
 #### Response (200 OK)
 ```json
@@ -1157,12 +1257,17 @@ Candidates có thể track status của application bằng token (không cần l
 }
 ```
 
+> **Lưu ý**: 
+> - **KHÔNG** trả về `matchScore`, `matchScoreDetails`, `missingSkills` - đây là thông tin nội bộ cho HR
+> - Chỉ trả về thông tin cần thiết: status, job title, applied date
+> - Candidates không cần biết điểm số hay thiếu skill gì
+
 ### 🔐 Protected APIs (HR/Recruiter Management - Yêu cầu Authentication)
 
 ### 1. Get All Applications
 **GET** `/applications`
 
-Lấy danh sách tất cả applications của company với pagination và filtering.
+Lấy danh sách tất cả applications của company với pagination và filtering. Hỗ trợ filter/sort theo match score.
 
 #### Request Headers
 ```
@@ -1172,7 +1277,24 @@ Authorization: Bearer <access_token>
 #### Query Parameters
 ```
 page=0&size=20&sort=appliedDate,desc&status=NEW&jobId=xxx&assignedTo=xxx&search=john
+&sortBy=matchScore&sortOrder=desc&minMatchScore=50&maxMatchScore=100
 ```
+
+**Query Parameters:**
+- `page`: Page number (default: 0)
+- `size`: Page size (default: 20)
+- `sort`: Sort field và direction (default: `appliedDate,desc`)
+  - Available fields: `appliedDate`, `matchScore`, `candidateName`, `createdAt`
+- `status`: Filter by application status (NEW, SCREENING, INTERVIEWING, etc.)
+- `jobId`: Filter by job ID
+- `assignedTo`: Filter by assigned HR/Recruiter user ID
+- `search`: Search by candidate name or email
+- `sortBy`: Sort by field (optional, overrides `sort` param)
+  - `matchScore`: Sort by match score (highest first)
+  - `appliedDate`: Sort by applied date
+- `sortOrder`: `asc` or `desc` (default: `desc`)
+- `minMatchScore`: Filter applications với match score >= value (0-100)
+- `maxMatchScore`: Filter applications với match score <= value (0-100)
 
 #### Response (200 OK)
 ```json
@@ -1202,6 +1324,17 @@ page=0&size=20&sort=appliedDate,desc&status=NEW&jobId=xxx&assignedTo=xxx&search=
       "rating": 4,
       "assignedTo": "user1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
       "assignedToName": "Jane Recruiter",
+      "matchScore": 82,
+      "matchScoreDetails": {
+        "matchedRequiredCount": 3,
+        "totalRequiredCount": 4,
+        "matchedOptionalCount": 2,
+        "totalOptionalCount": 5,
+        "matchedRequiredSkills": ["Java", "Spring Boot", "MySQL"],
+        "missingRequiredSkills": ["Docker"],
+        "matchedOptionalSkills": ["Git", "JUnit"],
+        "missingOptionalSkills": ["AWS", "Redis", "Kubernetes"]
+      },
       "createdAt": "2024-01-15T10:30:00Z",
       "updatedAt": "2024-01-15T10:30:00Z"
     }
@@ -1219,7 +1352,11 @@ page=0&size=20&sort=appliedDate,desc&status=NEW&jobId=xxx&assignedTo=xxx&search=
 ### 2. Get Application by ID
 **GET** `/applications/{id}`
 
-Lấy thông tin chi tiết một application.
+Lấy thông tin chi tiết một application, bao gồm full match score breakdown.
+
+> **🔍 Match Score Details**: Response bao gồm đầy đủ thông tin về CV scoring:
+> - `matchScore`: Điểm khớp (0-100)
+> - `matchScoreDetails`: Breakdown chi tiết skills matched/missing
 
 #### Response (200 OK)
 ```json
@@ -1249,12 +1386,37 @@ Lấy thông tin chi tiết một application.
     "rating": 4,
     "assignedTo": "user1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
     "assignedToName": "Jane Recruiter",
+    "matchScore": 82,
+    "matchScoreDetails": {
+      "matchedRequiredCount": 3,
+      "totalRequiredCount": 4,
+      "matchedOptionalCount": 2,
+      "totalOptionalCount": 5,
+      "matchedRequiredSkills": ["Java", "Spring Boot", "MySQL"],
+      "missingRequiredSkills": ["Docker"],
+      "matchedOptionalSkills": ["Git", "JUnit"],
+      "missingOptionalSkills": ["AWS", "Redis", "Kubernetes"]
+    },
     "createdAt": "2024-01-15T10:30:00Z",
     "updatedAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
+
+> **📊 Match Score Breakdown Explanation**:
+> - **matchScore**: 82/100 - Điểm khớp tổng thể giữa CV và Job Description
+> - **matchedRequiredCount**: 3/4 - Đã match 3 trong 4 required skills
+> - **matchedOptionalCount**: 2/5 - Đã match 2 trong 5 optional skills
+> - **matchedRequiredSkills**: Danh sách required skills đã tìm thấy trong CV
+> - **missingRequiredSkills**: Danh sách required skills chưa tìm thấy trong CV (cần cải thiện)
+> - **matchedOptionalSkills**: Danh sách optional skills đã tìm thấy trong CV
+> - **missingOptionalSkills**: Danh sách optional skills chưa tìm thấy trong CV
+> 
+> **Cách tính score**:
+> - Required skills: 3/4 = 75% (weight: 70%)
+> - Optional skills: 2/5 = 40% (weight: 30%)
+> - Final score: (75 × 0.7) + (40 × 0.3) = 52.5 + 12 = 64.5 → **82** (rounded)
 
 ### 3. Create Application (Manual Entry - HR Workflow)
 **POST** `/applications`
@@ -1299,11 +1461,14 @@ HR/Recruiter tạo application thủ công khi nhận CV qua email. Đây là **
       "color": "#3B82F6"
     },
     "appliedDate": "2024-01-15",
+    "matchScore": null,
+    "matchScoreDetails": null,
     "createdAt": "2024-01-15T10:30:00Z"
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
+
 
 ### 4. Update Application Status
 **PATCH** `/applications/{id}/status`
@@ -3044,7 +3209,14 @@ Authorization: Bearer <access_token>
 ### 2. Create Interview
 **POST** `/applications/{applicationId}/interviews`
 
-Tạo interview mới cho application.
+Tạo interview mới cho application với nhiều interviewers.
+
+> **👥 Multiple Interviewers**: Một interview có thể có nhiều interviewers (array `interviewerIds`).
+> 
+> **⏰ Schedule Validation**: System tự động validate trùng lịch cho từng interviewer:
+> - Nếu interviewer đã có interview khác trong khoảng thời gian `scheduledDate` ± `durationMinutes` → Reject với error
+> - Chỉ validate cho interviews có status = `SCHEDULED` hoặc `RESCHEDULED`
+> - Validate overlap: Nếu interview A từ 10:00-11:00 và interview B từ 10:30-11:30 → Trùng lịch (overlap)
 
 #### Request Headers
 ```
@@ -3058,13 +3230,35 @@ Authorization: Bearer <access_token>
   "interviewType": "TECHNICAL",
   "scheduledDate": "2024-01-20T14:00:00Z",
   "durationMinutes": 60,
-  "interviewerName": "Jane Smith",
-  "interviewerEmail": "jane.smith@google.com",
-  "interviewerPosition": "Senior Engineer",
+  "interviewerIds": [
+    "user-id-1",
+    "user-id-2"
+  ],
+  "primaryInterviewerId": "user-id-1",
   "status": "SCHEDULED",
   "meetingLink": "https://meet.google.com/xxx-yyyy-zzz",
   "location": "Office Building A, Room 101",
-  "notes": "Technical interview"
+  "notes": "Technical interview with 2 interviewers"
+}
+```
+
+> **Lưu ý**:
+> - `interviewerIds`: Array các `user_id` với role = `INTERVIEWER` (bắt buộc, ít nhất 1 interviewer)
+> - `primaryInterviewerId`: Interviewer chính (optional, nếu không set thì lấy interviewer đầu tiên)
+> - `interviewerName`, `interviewerEmail`, `interviewerPosition`: Deprecated, không cần nữa (dùng `interviewerIds`)
+
+#### Error Response (400 Bad Request - Schedule Conflict)
+```json
+{
+  "success": false,
+  "message": "Schedule conflict detected",
+  "errors": [
+    {
+      "field": "interviewerIds",
+      "message": "Interviewer user-id-2 already has an interview scheduled at 2024-01-20T14:00:00Z with duration 60 minutes"
+    }
+  ],
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -3083,15 +3277,26 @@ Authorization: Bearer <access_token>
     "scheduledDate": "2024-01-20T14:00:00Z",
     "actualDate": null,
     "durationMinutes": 60,
-    "interviewerName": "Jane Smith",
-    "interviewerEmail": "jane.smith@google.com",
-    "interviewerPosition": "Senior Engineer",
+    "interviewers": [
+      {
+        "id": "user-id-1",
+        "name": "Jane Smith",
+        "email": "jane.smith@company.com",
+        "isPrimary": true
+      },
+      {
+        "id": "user-id-2",
+        "name": "John Doe",
+        "email": "john.doe@company.com",
+        "isPrimary": false
+      }
+    ],
     "status": "SCHEDULED",
     "result": null,
     "meetingLink": "https://meet.google.com/xxx-yyyy-zzz",
     "location": "Office Building A, Room 101",
     "feedback": null,
-    "notes": "Technical interview",
+    "notes": "Technical interview with 2 interviewers",
     "questionsAsked": null,
     "answersGiven": null,
     "rating": null,
@@ -3108,7 +3313,7 @@ Authorization: Bearer <access_token>
 ### 3. Update Interview
 **PUT** `/interviews/{id}`
 
-Cập nhật thông tin interview.
+Cập nhật thông tin interview. Có thể cập nhật `interviewerIds` và `scheduledDate` (sẽ validate trùng lịch lại).
 
 #### Request Headers
 ```

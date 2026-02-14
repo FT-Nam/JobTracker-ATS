@@ -297,13 +297,23 @@ CREATE TABLE application_statuses (
 ### 2. Users Table (Bảng người dùng - Multi-Tenant)
 
 > **🔑 CRITICAL**: Mỗi user thuộc về 1 company. `company_id` là multi-tenant key.
+> 
+> **💰 BILLABLE USERS**: Field `is_billable` phân biệt users tính vào plan limit:
+> - `ADMIN`, `HR` → `is_billable = true` (tính vào quota)
+> - `INTERVIEWER` → `is_billable = false` (không tính vào quota)
+> 
+> **🔐 AUTH FLOW**: B2B SaaS invite-only:
+> - Email + Password (bắt buộc)
+> - Email Verification (bắt buộc)
+> - Admin tạo user → `email_verified = false`, `password = NULL` → Gửi invite email → User set password → `email_verified = true`
+> - Không có Google OAuth (trừ enterprise SSO)
 
 ```sql
 CREATE TABLE users (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID người dùng',
     company_id VARCHAR(36) NOT NULL COMMENT 'UUID công ty (Multi-tenant key)',
     email VARCHAR(255) NOT NULL COMMENT 'Email đăng nhập',
-    password VARCHAR(255) COMMENT 'Mật khẩu đã hash (null nếu dùng OAuth)',
+    password VARCHAR(255) COMMENT 'Mật khẩu đã hash (null khi user chưa set password qua invite)',
     first_name VARCHAR(100) NOT NULL COMMENT 'Tên',
     last_name VARCHAR(100) NOT NULL COMMENT 'Họ',
     phone VARCHAR(20) COMMENT 'Số điện thoại',
@@ -312,7 +322,7 @@ CREATE TABLE users (
     role_id VARCHAR(36) NOT NULL COMMENT 'UUID vai trò người dùng',
     is_active BOOLEAN DEFAULT TRUE COMMENT 'Trạng thái hoạt động',
     email_verified BOOLEAN DEFAULT FALSE COMMENT 'Email đã xác thực',
-    google_id VARCHAR(100) COMMENT 'Google OAuth ID',
+    is_billable BOOLEAN DEFAULT TRUE COMMENT 'Có tính vào quota plan hay không (Admin/HR = true, Interviewer = false)',
     last_login_at TIMESTAMP NULL COMMENT 'Lần đăng nhập cuối',
     
     -- Full Audit Fields
@@ -329,8 +339,8 @@ CREATE TABLE users (
     -- Indexes
     INDEX idx_company_id (company_id),
     INDEX idx_email (email),
-    INDEX idx_google_id (google_id),
     INDEX idx_role_id (role_id),
+    INDEX idx_is_billable (is_billable),
     INDEX idx_created_at (created_at),
     INDEX idx_created_by (created_by),
     INDEX idx_updated_by (updated_by),
@@ -338,9 +348,23 @@ CREATE TABLE users (
     
     -- Composite Indexes (Multi-tenant queries)
     UNIQUE KEY uk_company_email (company_id, email),
-    INDEX idx_company_role_active (company_id, role_id, is_active)
+    INDEX idx_company_role_active (company_id, role_id, is_active),
+    INDEX idx_company_billable_active (company_id, is_billable, is_active, deleted_at) COMMENT 'Index cho query COUNT billable users (plan limit check)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
+
+> **💰 Plan Limit Check Query**:
+> ```sql
+> SELECT COUNT(*) 
+> FROM users
+> WHERE company_id = ?
+>   AND is_billable = true
+>   AND deleted_at IS NULL;
+> ```
+> 
+> **Logic `is_billable`**:
+> - `COMPANY_ADMIN`, `HR`, `RECRUITER` → `is_billable = true` (tính vào quota)
+> - `INTERVIEWER` → `is_billable = false` (không tính vào quota)
 
 ### 3. Companies Table (Bảng công ty - Multi-Tenant)
 
@@ -619,6 +643,11 @@ CREATE TABLE applications (
     -- Document Upload Control
     allow_additional_uploads BOOLEAN DEFAULT FALSE COMMENT 'Cho phép candidate upload thêm documents (chỉ khi HR yêu cầu)',
     
+    -- CV Scoring & Matching
+    match_score INT COMMENT 'Điểm khớp giữa CV và JD (0-100), tính tự động khi upload CV (sync processing, 2-3 giây). NULL nếu parsing failed hoặc chưa có CV',
+    extracted_text TEXT COMMENT 'Text đã extract từ CV (PDF parsing)',
+    matched_skills JSON COMMENT 'Breakdown skills matched: {matchedRequired: [], missingRequired: [], matchedOptional: [], missingOptional: []}',
+    
     -- Full Audit Fields
     created_by VARCHAR(36) COMMENT 'Người tạo (NULL nếu candidate tự apply qua public API)',
     updated_by VARCHAR(36) COMMENT 'Người cập nhật',
@@ -646,7 +675,9 @@ CREATE TABLE applications (
     -- Composite Indexes (Multi-tenant + ATS queries)
     INDEX idx_company_job_status (company_id, job_id, status_id),
     INDEX idx_assigned_status (assigned_to, status_id),
-    INDEX idx_company_status_date (company_id, status_id, applied_date)
+    INDEX idx_company_status_date (company_id, status_id, applied_date),
+    INDEX idx_match_score (match_score) COMMENT 'Index cho filter/sort by match score',
+    INDEX idx_job_match_score (job_id, match_score) COMMENT 'Index cho query applications by job với sort by match score'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
@@ -702,6 +733,14 @@ CREATE TABLE comments (
 ### 9. Interviews Table (Bảng phỏng vấn - ATS) 🔄
 
 > **🔄 SEMANTIC CHANGE**: Interview belongs to APPLICATION, không phải job
+> 
+> **👥 MULTIPLE INTERVIEWERS**: Một interview có thể có nhiều interviewers (many-to-many qua bảng `interview_interviewers`).
+> 
+> **⏰ SCHEDULE VALIDATION**: Validate trùng lịch cho từng interviewer (không phải cho interview):
+> - Một interviewer (user với role = INTERVIEWER) không thể có 2 interviews cùng thời gian (trùng `scheduled_date` và `duration_minutes`)
+> - Validate khi tạo/cập nhật interview: Check tất cả interviewers trong `interview_interviewers` table
+> - Chỉ validate cho interviews có status = `SCHEDULED` hoặc `RESCHEDULED`
+> - Validate overlap: Nếu interview A từ 10:00-11:00 và interview B từ 10:30-11:30 → Trùng lịch (overlap)
 
 ```sql
 CREATE TABLE interviews (
@@ -714,9 +753,9 @@ CREATE TABLE interviews (
     scheduled_date TIMESTAMP NOT NULL COMMENT 'Thời gian phỏng vấn dự kiến',
     actual_date TIMESTAMP NULL COMMENT 'Thời gian phỏng vấn thực tế',
     duration_minutes INT COMMENT 'Thời lượng phỏng vấn (phút)',
-    interviewer_name VARCHAR(255) COMMENT 'Tên người phỏng vấn',
-    interviewer_email VARCHAR(255) COMMENT 'Email người phỏng vấn',
-    interviewer_position VARCHAR(255) COMMENT 'Vị trí người phỏng vấn',
+    interviewer_name VARCHAR(255) COMMENT 'Tên người phỏng vấn chính (deprecated - dùng interview_interviewers)',
+    interviewer_email VARCHAR(255) COMMENT 'Email người phỏng vấn chính (deprecated - dùng interview_interviewers)',
+    interviewer_position VARCHAR(255) COMMENT 'Vị trí người phỏng vấn chính (deprecated - dùng interview_interviewers)',
     status ENUM('SCHEDULED', 'COMPLETED', 'CANCELLED', 'RESCHEDULED') NOT NULL DEFAULT 'SCHEDULED' COMMENT 'Trạng thái phỏng vấn',
     result ENUM('PASSED', 'FAILED', 'PENDING') NULL COMMENT 'Kết quả phỏng vấn',
     feedback TEXT COMMENT 'Phản hồi từ nhà tuyển dụng',
@@ -759,6 +798,80 @@ CREATE TABLE interviews (
     INDEX idx_application_round (application_id, round_number)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
+
+### 9.1. Interview Interviewers Table (Junction Table - Many-to-Many) ➕
+
+> **🔑 CRITICAL**: Bảng junction để support nhiều interviewers cho 1 interview.
+> 
+> **⏰ SCHEDULE VALIDATION**: Validate trùng lịch dựa trên bảng này:
+> - Query: Check xem interviewer có interview nào khác trong khoảng thời gian `scheduled_date` ± `duration_minutes` không
+> - Chỉ validate cho interviews có status = `SCHEDULED` hoặc `RESCHEDULED`
+> - Validate overlap: Nếu interview A từ 10:00-11:00 và interview B từ 10:30-11:30 → Trùng lịch (overlap)
+
+```sql
+CREATE TABLE interview_interviewers (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID interview interviewer',
+    interview_id VARCHAR(36) NOT NULL COMMENT 'UUID phỏng vấn',
+    interviewer_id VARCHAR(36) NOT NULL COMMENT 'UUID interviewer (FK to users, role = INTERVIEWER)',
+    company_id VARCHAR(36) NOT NULL COMMENT 'UUID công ty (Multi-tenant)',
+    is_primary BOOLEAN DEFAULT FALSE COMMENT 'Interviewer chính (primary interviewer)',
+    
+    -- Partial Audit Fields (Junction Table)
+    created_by VARCHAR(36) COMMENT 'Người tạo (FK to users)',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian tạo',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời gian cập nhật',
+    is_deleted BOOLEAN DEFAULT FALSE COMMENT 'Đã xóa (soft delete)',
+    
+    -- Foreign Keys
+    FOREIGN KEY (interview_id) REFERENCES interviews(id) ON DELETE CASCADE,
+    FOREIGN KEY (interviewer_id) REFERENCES users(id) ON DELETE RESTRICT,
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+    
+    -- Indexes
+    UNIQUE KEY uk_interview_interviewer (interview_id, interviewer_id),
+    INDEX idx_interview_id (interview_id),
+    INDEX idx_interviewer_id (interviewer_id),
+    INDEX idx_company_id (company_id),
+    INDEX idx_is_primary (is_primary),
+    INDEX idx_created_by (created_by),
+    INDEX idx_is_deleted (is_deleted),
+    
+    -- Composite Index for Schedule Validation
+    INDEX idx_interviewer_schedule_validation (interviewer_id, is_deleted) COMMENT 'Index cho schedule validation query'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+> **💰 SCHEDULE VALIDATION QUERY** (Check trùng lịch cho interviewer):
+> ```sql
+> -- Check xem interviewer có interview nào khác trùng lịch không
+> SELECT COUNT(*) 
+> FROM interview_interviewers ii
+> INNER JOIN interviews i ON ii.interview_id = i.id
+> WHERE ii.interviewer_id = ?  -- Interviewer cần check
+>   AND ii.interview_id != ?    -- Exclude current interview (khi update)
+>   AND ii.is_deleted = false
+>   AND i.deleted_at IS NULL
+>   AND i.status IN ('SCHEDULED', 'RESCHEDULED')
+>   AND (
+>     -- Check overlap: new interview overlaps with existing interview
+>     -- Case 1: New interview starts before existing ends
+>     (i.scheduled_date <= ? AND DATE_ADD(i.scheduled_date, INTERVAL i.duration_minutes MINUTE) > ?)
+>     OR
+>     -- Case 2: New interview ends after existing starts
+>     (? < DATE_ADD(i.scheduled_date, INTERVAL i.duration_minutes MINUTE) AND DATE_ADD(?, INTERVAL ? MINUTE) >= i.scheduled_date)
+>   );
+> ```
+> 
+> **Parameters**:
+> - `?` (1st): `interviewer_id` cần check
+> - `?` (2nd): `interview_id` hiện tại (khi update, exclude chính nó)
+> - `?` (3rd, 4th): `new_scheduled_date` (start time của interview mới)
+> - `?` (5th, 6th): `new_scheduled_date` và `new_duration_minutes` (end time của interview mới)
+> 
+> **Logic**:
+> - Nếu COUNT > 0 → Interviewer đã có interview khác trùng lịch → Reject
+> - Validate cho TẤT CẢ interviewers trong array khi tạo/cập nhật interview
+> - Ví dụ: Interview A (10:00-11:00) và Interview B (10:30-11:30) → Overlap → Reject
 
 ### ~~9. Job Resumes Table~~ ❌ **REMOVED**
 
@@ -1738,6 +1851,18 @@ interviews.company_id → companies.id
 ```
 - **Mục đích**: Multi-tenant isolation
 - **Cardinality**: 1:N (1 company → N interviews)
+
+#### **5.4. Interviews ↔ Users (Many-to-Many) - Interviewers** ➕
+```sql
+-- Quan hệ: 1 interview có thể có nhiều interviewers, 1 interviewer có thể có nhiều interviews
+interview_interviewers.interview_id → interviews.id
+interview_interviewers.interviewer_id → users.id (role = INTERVIEWER)
+```
+- **Mục đích**: Support nhiều interviewers cho 1 interview và validate trùng lịch
+- **Cardinality**: M:N (1 interview → N interviewers, 1 interviewer → N interviews)
+- **Junction Table**: `interview_interviewers`
+- **Additional Fields**: `is_primary` (interviewer chính)
+- **Schedule Validation**: Validate trùng lịch dựa trên `interviewer_id`, `scheduled_date`, `duration_minutes`
 - **Foreign Key**: `interviews.company_id` → `companies.id`
 
 #### ~~**5.4. Interview Types ↔ Interviews**~~ ❌ **CHUYỂN SANG ENUM**
