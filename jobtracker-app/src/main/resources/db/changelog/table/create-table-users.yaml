@@ -71,9 +71,10 @@ databaseChangeLog:
                   defaultValueBoolean: false
                   remarks: "Email đã xác thực"
               - column:
-                  name: google_id
-                  type: varchar(100)
-                  remarks: "Google OAuth ID"
+                  name: is_billable
+                  type: boolean
+                  defaultValueBoolean: true
+                  remarks: "Có tính vào quota plan hay không (Admin/HR = true, Interviewer = false)"
               - column:
                   name: last_login_at
                   type: timestamp

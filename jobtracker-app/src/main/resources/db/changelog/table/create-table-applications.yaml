@@ -90,6 +90,18 @@ databaseChangeLog:
                   defaultValue: false
                   remarks: "Cho phép candidate upload thêm documents (chỉ khi HR yêu cầu)"
               - column:
+                  name: match_score
+                  type: int
+                  remarks: "Điểm khớp giữa CV và JD (0-100), tính tự động khi upload CV. NULL nếu parsing failed hoặc chưa có CV"
+              - column:
+                  name: extracted_text
+                  type: text
+                  remarks: "Text đã extract từ CV (PDF parsing)"
+              - column:
+                  name: matched_skills
+                  type: json
+                  remarks: "Breakdown skills matched: {matchedRequired: [], missingRequired: [], matchedOptional: [], missingOptional: []}"
+              - column:
                   name: created_by
                   type: varchar(36)
                   remarks: "Người tạo (NULL nếu candidate tự apply qua public API)"

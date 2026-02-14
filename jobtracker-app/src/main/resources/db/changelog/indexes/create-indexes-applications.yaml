@@ -85,4 +85,18 @@ databaseChangeLog:
                   name: status_id
               - column:
                   name: applied_date
+        - createIndex:
+            indexName: idx_applications_match_score
+            tableName: applications
+            columns:
+              - column:
+                  name: match_score
+        - createIndex:
+            indexName: idx_applications_job_match_score
+            tableName: applications
+            columns:
+              - column:
+                  name: job_id
+              - column:
+                  name: match_score
 
