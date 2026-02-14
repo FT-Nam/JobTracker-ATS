@@ -71,9 +71,10 @@ JobTracker ATS (Applicant Tracking System) sử dụng kiến trúc **Monolithic
 
 #### Security
 - **Spring Security 6**: Xác thực và Phân quyền
-- **OAuth2 Resource Server**: Xác thực JWT token từ Authorization Server
-- **OAuth2 Client**: Tích hợp đăng nhập Google
+- **JWT**: Token-based authentication (không dùng OAuth2 Resource Server)
 - **BCrypt**: Băm mật khẩu
+- **Email Verification**: Bắt buộc verify email trước khi login
+- **Invite-based User Creation**: Admin tạo user → Gửi invite email → User set password
 - **CORS**: Chia sẻ tài nguyên đa nguồn gốc
 - **Bảo mật Multi-Tenant**: Cô lập dữ liệu theo công ty với `@Filter` và lọc `company_id`
 - **RBAC**: Kiểm soát truy cập dựa trên vai trò (COMPANY_ADMIN, RECRUITER, HIRING_MANAGER, INTERVIEWER)
@@ -93,8 +94,7 @@ JobTracker ATS (Applicant Tracking System) sử dụng kiến trúc **Monolithic
 
 #### External Integrations
 - **Cloudinary API**: Dịch vụ lưu trữ file và quản lý media
-- **Google OAuth2**: Đăng nhập xã hội
-- **Brevo API**: Gửi email và quản lý email marketing
+- **Brevo API**: Gửi email transactional (invite, verification, notifications)
 
 #### Scheduling & Events
 - **Spring @Scheduled**: Cron jobs cho nhắc nhở
@@ -179,10 +179,12 @@ JobTracker ATS (Applicant Tracking System) sử dụng kiến trúc **Monolithic
 - **Retry Logic**: Xử lý email thất bại với retry mechanism
 - **SMTP Alternative**: Có thể dùng SMTP relay nếu cần
 
-#### Authentication: Google OAuth2
-- **OAuth2 Client**: Đăng nhập xã hội
-- **User Profile**: Tích hợp tài khoản Google
-- **Token Management**: Access/refresh tokens
+#### Authentication: Email + Password (B2B SaaS)
+- **Email + Password**: Core authentication method
+- **Email Verification**: Bắt buộc verify email trước khi login
+- **Invite-based Onboarding**: Admin tạo user → Gửi invite email → User set password
+- **JWT Token Management**: Access/refresh tokens
+- **Không có Google OAuth**: Chỉ dùng cho enterprise SSO (story khác)
 
 ## 🏛️ Kiến trúc Backend (Monolithic)
 
@@ -347,13 +349,41 @@ Database Query → WHERE company_id = :tenantId → Trả về dữ liệu cô l
 
 ## 🔄 Data Flow
 
-### 1. Authentication Flow (Multi-Tenant)
+### 1. Authentication Flow (B2B SaaS Multi-Tenant)
 ```
-User Login → OAuth2 Authorization Server → JWT Token (with company_id) → Resource Server Validation
+User Login (Email + Password) → JWT Token Generation (with company_id, role, permissions)
                 ↓
 Extract company_id from JWT → Set Tenant Context → User Info
                 ↓
-OAuth2UserService ← Token Validation ← JWT Claims (company_id, role, permissions)
+JWT Validation → UserService ← Token Claims (company_id, role, permissions)
+```
+
+#### Company Creation Flow (Model 1 - Self Signup)
+```
+Company Admin Self-Signup → POST /auth/register
+                ↓
+System tạo Company + Admin user (email_verified = false)
+                ↓
+System gửi email verification token
+                ↓
+Admin click link → Verify email → email_verified = true
+                ↓
+Admin login → JWT Token → Access system
+```
+
+#### User Creation Flow (Invite-based)
+```
+Admin tạo user → POST /admin/users/invite
+                ↓
+System tạo user (email_verified = false, password = NULL, is_active = false)
+                ↓
+System gửi invite email với token
+                ↓
+User click link → POST /auth/accept-invite (set password)
+                ↓
+email_verified = true, is_active = true
+                ↓
+User login → JWT Token → Access system
 ```
 
 ### 2. Job Posting Flow (ATS)
@@ -404,7 +434,358 @@ ApplicationStatusHistory → Comments → Interviews → Attachments
 Event Publishing → NotificationService → Email/WebSocket
 ```
 
-### 4. File Upload Flow (Attachments to Applications)
+### 4. CV Scoring & Matching Flow (Automatic Skill Matching) ➕
+
+> **🔑 CORE FEATURE**: Tự động tính điểm khớp giữa CV và Job Description dựa trên skills matching.
+
+#### Overview
+Khi candidate upload CV (PDF), system tự động:
+1. Extract text từ PDF
+2. Load job skills từ database
+3. Match skills trong CV với job requirements
+4. Tính match score (0-100)
+5. Lưu kết quả vào `applications` table
+
+---
+
+## 🔁 Upload Application Flow
+
+### Step 1 – HR nhập application thủ công hoặc candidate tự ứng tuyển qua trang công ty
+
+**Workflow 1: Candidate Self-Service (Public API)**
+```
+POST /public/jobs/{jobId}/apply
+    ↓
+Candidate upload CV (PDF) + thông tin cá nhân
+    ↓
+Application created (status = NEW, created_by = NULL)
+    ↓
+resume_file_path saved → Trigger CV Scoring (Async)
+```
+
+**Workflow 2: HR Manual Upload (Protected API)**
+```
+POST /applications
+    ↓
+HR upload CV (PDF) + nhập thông tin candidate
+    ↓
+Application created (status = NEW, created_by = HR user_id)
+    ↓
+resume_file_path saved → Trigger CV Scoring (Async)
+```
+
+### Step 2 – File Storage
+
+```
+CV File (PDF) → CloudinaryService
+    ↓
+Upload to Cloudinary → Get public URL
+    ↓
+Save resume_file_path to applications table
+    ↓
+File stored in Cloudinary CDN
+```
+
+### Step 3 – PDF Parsing
+
+**Using Apache PDFBox:**
+- Extract raw text from PDF
+- No formatting retained
+- No layout analysis
+- Pure text extraction only
+
+**Output:**
+- `String cvText` (raw text từ PDF)
+
+**Save to:**
+- `applications.extracted_text` (TEXT column)
+
+### Step 4 – Load Job Skills
+
+**Query database:**
+```sql
+SELECT 
+    js.id,
+    js.job_id,
+    js.skill_id,
+    js.is_required,
+    js.proficiency_level,
+    s.name as skill_name
+FROM job_skills js
+INNER JOIN skills s ON js.skill_id = s.id
+WHERE js.job_id = ?
+  AND js.is_deleted = false
+ORDER BY js.is_required DESC, s.name ASC
+```
+
+**Each job skill contains:**
+- `skillName` (from `skills.name`)
+- `isRequired` (boolean from `job_skills.is_required`)
+- `proficiencyLevel` (optional, from `job_skills.proficiency_level`)
+
+**Group by:**
+- **Required skills**: `isRequired = true`
+- **Optional skills**: `isRequired = false`
+
+### Step 5 – CV Scoring Process
+
+#### 5.1 Normalize Text
+
+**Purpose:**
+- Handle CV viết tiếng Việt có dấu
+- Tránh mismatch do casing
+
+**Process:**
+1. Convert to lowercase
+   ```
+   cvText = cvText.toLowerCase()
+   ```
+
+2. Remove Vietnamese diacritics
+   ```
+   á → a
+   ệ → e
+   ư → u
+   đ → d
+   ```
+   (Sử dụng library như `java.text.Normalizer` hoặc custom function)
+
+3. Keep raw word boundaries
+   - Không thay đổi cấu trúc từ
+   - Chỉ normalize để matching dễ hơn
+
+**Output:** Normalized `cvText` string
+
+#### 5.2 Tokenization
+
+**Process:**
+1. Split text using non-word regex: `\W+`
+   ```
+   tokens = cvText.split("\\W+")
+   ```
+
+2. Store into `Set<String> tokens`
+   ```
+   Set<String> tokens = new HashSet<>(Arrays.asList(words))
+   ```
+
+**Purpose:**
+- Used for fast single-word matching (O(1) lookup)
+- Efficient for checking if skill name exists in CV
+
+#### 5.3 Skill Matching Logic
+
+**For each skill:**
+
+1. **Normalize skill name**
+   - Convert to lowercase
+   - Remove Vietnamese diacritics
+   - Example: "Spring Boot" → "spring boot", "Java" → "java"
+
+2. **Check match:**
+   
+   **Case A: Single word skill** (e.g., "Java", "Docker")
+   ```
+   if (tokens.contains(normalizedSkillName)) {
+       matched = true
+   }
+   ```
+   - O(1) lookup trong token set
+   
+   **Case B: Multi-word skill** (e.g., "Spring Boot", "React Native")
+   ```
+   Pattern pattern = Pattern.compile("\\b" + normalizedSkillName + "\\b", Pattern.CASE_INSENSITIVE)
+   if (pattern.matcher(cvText).find()) {
+       matched = true
+   }
+   ```
+   - Use word-boundary regex (`\b`) để match exact phrase
+   - Case-insensitive matching
+   
+   **Case C: Not matched → Check aliases** (optional, future enhancement)
+   - Có thể thêm bảng `skill_aliases` để map "JS" → "JavaScript"
+   - Hiện tại chưa implement
+
+3. **Rules:**
+   - Each skill only counted once (first match wins)
+   - No keyword frequency boosting (không tính số lần xuất hiện)
+   - Case-insensitive matching
+
+**Output:**
+- `List<String> matchedRequiredSkills`
+- `List<String> matchedOptionalSkills`
+- `List<String> missingRequiredSkills`
+- `List<String> missingOptionalSkills`
+
+#### 5.4 Required vs Optional
+
+**Skills are divided into:**
+- **Required skills** (`isRequired = true`)
+- **Optional skills** (`isRequired = false`)
+
+**Matching done separately for both groups:**
+```
+matchedRequiredCount = matchedRequiredSkills.size()
+totalRequiredCount = requiredSkills.size()
+
+matchedOptionalCount = matchedOptionalSkills.size()
+totalOptionalCount = optionalSkills.size()
+```
+
+#### 5.5 Score Calculation Rules
+
+**Case 1 – Only Required Skills Exist**
+```
+if (totalOptionalCount == 0) {
+    score = (matchedRequiredCount / totalRequiredCount) * 100
+}
+```
+- Chỉ tính dựa trên required skills
+- 100% weight cho required
+
+**Case 2 – Only Optional Skills Exist**
+```
+else if (totalRequiredCount == 0) {
+    score = (matchedOptionalCount / totalOptionalCount) * 100
+}
+```
+- Chỉ tính dựa trên optional skills
+- 100% weight cho optional
+
+**Case 3 – Both Exist**
+```
+else {
+    requiredScore = (matchedRequiredCount / totalRequiredCount) * 100
+    optionalScore = (matchedOptionalCount / totalOptionalCount) * 100
+    score = (requiredScore × 0.7) + (optionalScore × 0.3)
+}
+```
+- Required skills: 70% weight
+- Optional skills: 30% weight
+- Weighted average
+
+**Final score:**
+```
+matchScore = Math.round(score)  // Integer 0-100
+```
+
+---
+
+## 📊 Output Structure
+
+**Each application returns:**
+
+```json
+{
+  "matchScore": 82,
+  "matchedRequiredCount": 3,
+  "totalRequiredCount": 4,
+  "matchedOptionalCount": 2,
+  "totalOptionalCount": 5,
+  "matchedRequiredSkills": ["Java", "Spring Boot", "MySQL"],
+  "missingRequiredSkills": ["Docker"],
+  "matchedOptionalSkills": ["Git", "JUnit"],
+  "missingOptionalSkills": ["AWS", "Redis", "Kubernetes"]
+}
+```
+
+**Purpose:**
+- **Explainable scoring**: HR biết thiếu skill gì
+- **Không black box**: Transparent scoring logic
+- **Actionable**: HR có thể filter/sort applications theo match score
+
+---
+
+## 🔌 API Integration Points
+
+### APIs that Trigger CV Scoring
+
+**1. POST `/public/jobs/{jobId}/apply`** (Public - Candidate Self-Service)
+- **When**: Sau khi candidate upload CV và application được tạo thành công
+- **Process**: Background processing (2-3 giây, không block response)
+- **Response**: Simple success message (không expose match score cho candidate)
+
+**2. POST `/applications`** (Protected - HR Manual Upload)
+- **When**: Sau khi HR upload CV và application được tạo thành công
+- **Process**: Background processing (2-3 giây)
+- **Response**: Application created (match score được tính trong background)
+
+**3. PUT `/applications/{id}/resume`** (Protected - HR Update CV)
+- **When**: HR upload CV mới cho application đã tồn tại
+- **Process**: Re-trigger CV scoring với CV mới (background)
+- **Response**: Application updated (match score được update trong background)
+
+### APIs that Return Match Score
+
+**1. GET `/applications/{id}`**
+- **Response includes**: Full match score breakdown
+- **Fields**: `matchScore`, `matchedRequiredSkills`, `missingRequiredSkills`, etc.
+
+**2. GET `/applications`** (List Applications)
+- **Query params**: 
+  - `sortBy=matchScore` (sort by match score)
+  - `minMatchScore=50` (filter by minimum score)
+- **Response**: List applications với match score
+
+**3. GET `/jobs/{jobId}/applications`**
+- **Response**: Applications cho job với match scores
+- **Default sort**: `matchScore DESC` (highest first)
+
+---
+
+## 🗄️ Database Schema
+
+**Fields in `applications` table:**
+
+```sql
+-- CV Scoring & Matching
+match_score INT COMMENT 'Điểm khớp giữa CV và JD (0-100), tính tự động khi upload CV (background processing, 2-3 giây). NULL nếu parsing failed hoặc chưa có CV',
+extracted_text TEXT COMMENT 'Text đã extract từ CV (PDF parsing)',
+matched_skills JSON COMMENT 'Breakdown skills matched: {
+  matchedRequired: ["Java", "Spring Boot"],
+  missingRequired: ["Docker"],
+  matchedOptional: ["MySQL"],
+  missingOptional: ["AWS", "Redis"]
+}',
+```
+
+**Indexes:**
+```sql
+INDEX idx_applications_match_score (match_score) COMMENT 'Index cho filter/sort by match score',
+INDEX idx_applications_job_match_score (job_id, match_score) COMMENT 'Index cho query applications by job với sort by match score',
+```
+
+---
+
+## ⚙️ Background Processing
+
+**Implementation:**
+- CV scoring chạy trong **background** (không block API response)
+- Processing time: 2-3 giây (PDF parsing: 1-2s, skill matching: 500ms)
+- Sử dụng Spring `@Async` hoặc background thread
+- Không cần status field vì `matchScore = null` đã đủ rõ (failed hoặc chưa có)
+
+**Flow:**
+```
+API Response (201 Created) → Simple success message
+    ↓
+Background Job Triggered (non-blocking)
+    ↓
+PDF Parsing → Text Extraction (~1-2 giây)
+    ↓
+Load Job Skills → Skill Matching (~500ms)
+    ↓
+Calculate Score → Save Results (~100ms)
+    ↓
+Update Application: matchScore = 82 (hoặc null nếu failed)
+```
+
+**Error Handling:**
+- Nếu PDF parsing fails → `matchScore = NULL` (đủ rõ, không cần status)
+- Nếu không có job skills → `matchScore = NULL`
+- Retry mechanism (optional): Retry 3 times với exponential backoff
+
+### 5. File Upload Flow (Attachments to Applications)
 
 #### Public Upload Flow (Candidate Self-Service)
 ```
@@ -413,7 +794,7 @@ Candidate Uploads CV/Attachments (Public API - No Auth)
 POST /public/jobs/{jobId}/apply (multipart/form-data)
     ↓
 AttachmentController (Public) → AttachmentService → CloudinaryService → Cloudinary API
-    ↓
+                ↓
 File Validation (size, type, virus scan) → Upload to Cloudinary
     ↓
 CDN URL Generation → Link to Application (user_id = NULL)
@@ -428,7 +809,7 @@ HR Uploads CV/Attachments (Protected API - Auth Required)
 POST /applications/{applicationId}/attachments (multipart/form-data)
     ↓
 AttachmentController (Protected) → AttachmentService → CloudinaryService → Cloudinary API
-    ↓
+                ↓
 File Validation → Upload to Cloudinary
     ↓
 CDN URL Generation → Link to Application (user_id = HR user_id)
