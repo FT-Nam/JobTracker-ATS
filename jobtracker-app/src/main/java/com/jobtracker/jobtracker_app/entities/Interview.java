@@ -9,6 +9,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "interviews")
@@ -51,15 +52,6 @@ public class Interview extends FullAuditEntity {
     @Column(name = "duration_minutes")
     Integer durationMinutes;
 
-    @Column(name = "interviewer_name", length = 255)
-    String interviewerName;
-
-    @Column(name = "interviewer_email", length = 255)
-    String interviewerEmail;
-
-    @Column(name = "interviewer_position", length = 255)
-    String interviewerPosition;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
     InterviewStatus status = InterviewStatus.SCHEDULED;
@@ -88,6 +80,9 @@ public class Interview extends FullAuditEntity {
 
     @Column(length = 255)
     String location;
+
+    @OneToMany(mappedBy = "interview", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<InterviewInterviewer> interviewers;
 }
 
 

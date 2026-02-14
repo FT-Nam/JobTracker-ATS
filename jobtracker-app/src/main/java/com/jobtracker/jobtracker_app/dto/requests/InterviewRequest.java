@@ -40,14 +40,11 @@ public class InterviewRequest {
     @Min(value = 1, message = "interview.duration_minutes.min")
     Integer durationMinutes;
 
-    @Size(max = 255, message = "interview.interviewer_name.size")
-    String interviewerName;
+    @NotEmpty(message = "interview.interviewer_ids.not_empty")
+    @Size(min = 1, message = "interview.interviewer_ids.min_size")
+    java.util.List<String> interviewerIds; 
 
-    @Size(max = 255, message = "interview.interviewer_email.size")
-    String interviewerEmail;
-
-    @Size(max = 255, message = "interview.interviewer_position.size")
-    String interviewerPosition;
+    String primaryInterviewerId;
 
     InterviewStatus status;
 

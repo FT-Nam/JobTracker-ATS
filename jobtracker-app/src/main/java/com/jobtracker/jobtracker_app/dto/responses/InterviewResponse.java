@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -23,9 +24,7 @@ public class InterviewResponse {
     LocalDateTime scheduledDate;
     LocalDateTime actualDate;
     Integer durationMinutes;
-    String interviewerName;
-    String interviewerEmail;
-    String interviewerPosition;
+    List<InterviewerResponse> interviewers;
     InterviewStatus status;
     InterviewResult result;
     String feedback;
