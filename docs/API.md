@@ -3185,9 +3185,20 @@ Authorization: Bearer <access_token>
       "scheduledDate": "2024-01-20T14:00:00Z",
       "actualDate": null,
       "durationMinutes": 60,
-      "interviewerName": "Jane Smith",
-      "interviewerEmail": "jane.smith@google.com",
-      "interviewerPosition": "Senior Engineer",
+      "interviewers": [
+        {
+          "id": "user-id-1",
+          "name": "Jane Smith",
+          "email": "jane.smith@company.com",
+          "isPrimary": true
+        },
+        {
+          "id": "user-id-2",
+          "name": "John Doe",
+          "email": "john.doe@company.com",
+          "isPrimary": false
+        }
+      ],
       "status": "SCHEDULED",
       "result": null,
       "feedback": null,
@@ -3245,7 +3256,6 @@ Authorization: Bearer <access_token>
 > **Lưu ý**:
 > - `interviewerIds`: Array các `user_id` với role = `INTERVIEWER` (bắt buộc, ít nhất 1 interviewer)
 > - `primaryInterviewerId`: Interviewer chính (optional, nếu không set thì lấy interviewer đầu tiên)
-> - `interviewerName`, `interviewerEmail`, `interviewerPosition`: Deprecated, không cần nữa (dùng `interviewerIds`)
 
 #### Error Response (400 Bad Request - Schedule Conflict)
 ```json
@@ -3347,9 +3357,14 @@ Authorization: Bearer <access_token>
     "scheduledDate": "2024-01-20T14:00:00Z",
     "actualDate": "2024-01-20T14:30:00Z",
     "durationMinutes": 60,
-    "interviewerName": "Jane Smith",
-    "interviewerEmail": "jane.smith@google.com",
-    "interviewerPosition": "Senior Engineer",
+    "interviewers": [
+      {
+        "id": "user-id-1",
+        "name": "Jane Smith",
+        "email": "jane.smith@company.com",
+        "isPrimary": true
+      }
+    ],
     "status": "COMPLETED",
     "result": "PASSED",
     "feedback": "Great technical skills, good communication",
@@ -3385,9 +3400,14 @@ Trả về đầy đủ thông tin của một interview (bao gồm audit, feedb
     "scheduledDate": "2024-01-20T14:00:00Z",
     "actualDate": "2024-01-20T14:30:00Z",
     "durationMinutes": 60,
-    "interviewerName": "Jane Smith",
-    "interviewerEmail": "jane.smith@google.com",
-    "interviewerPosition": "Senior Engineer",
+    "interviewers": [
+      {
+        "id": "user-id-1",
+        "name": "Jane Smith",
+        "email": "jane.smith@company.com",
+        "isPrimary": true
+      }
+    ],
     "status": "COMPLETED",
     "result": "PASSED",
     "feedback": "Great technical skills, good communication",
