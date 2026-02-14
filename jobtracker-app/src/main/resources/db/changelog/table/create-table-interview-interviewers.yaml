@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-interview-interviewers
+      author: namphan
+      changes:
+        - createTable:
+            tableName: interview_interviewers
+            remarks: "Bảng junction - nhiều interviewers cho 1 interview"
+            columns:
+              - column:
+                  name: id
+                  type: varchar(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "UUID interview interviewer"
+              - column:
+                  name: interview_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID phỏng vấn"
+              - column:
+                  name: interviewer_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID interviewer (FK to users, role = INTERVIEWER)"
+              - column:
+                  name: company_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID công ty"
+              - column:
+                  name: is_primary
+                  type: boolean
+                  defaultValueBoolean: false
+                  remarks: "Interviewer chính (primary interviewer)"
+              - column:
+                  name: created_by
+                  type: varchar(36)
+                  remarks: "Người tạo"
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian tạo"
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian cập nhật"
+              - column:
+                  name: is_deleted
+                  type: boolean
+                  defaultValueBoolean: false
+                  remarks: "Đã xóa (soft delete)"
+

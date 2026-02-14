@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-constraints-interview-interviewers
+      author: namphan
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: interview_interviewers
+            baseColumnNames: interview_id
+            referencedTableName: interviews
+            referencedColumnNames: id
+            onDelete: CASCADE
+            constraintName: fk_interview_interviewers_interview_id_interviews
+        - addForeignKeyConstraint:
+            baseTableName: interview_interviewers
+            baseColumnNames: interviewer_id
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            constraintName: fk_interview_interviewers_interviewer_id_users
+        - addForeignKeyConstraint:
+            baseTableName: interview_interviewers
+            baseColumnNames: company_id
+            referencedTableName: companies
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            constraintName: fk_interview_interviewers_company_id_companies
+

@@ -36,6 +36,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/table/create-table-interviews.yaml
   - include:
+      file: db/changelog/table/create-table-interview-interviewers.yaml
+  - include:
       file: db/changelog/table/create-table-attachments.yaml
   - include:
       file: db/changelog/table/create-table-notifications.yaml
@@ -75,6 +77,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/foreign-keys/add-constraints-interviews.yaml
   - include:
+      file: db/changelog/foreign-keys/add-constraints-interview-interviewers.yaml
+  - include:
       file: db/changelog/foreign-keys/add-constraints-attachments.yaml
   - include:
       file: db/changelog/foreign-keys/add-constraints-notifications.yaml
@@ -113,6 +117,8 @@ databaseChangeLog:
       file: db/changelog/indexes/create-indexes-job-skills.yaml
   - include:
       file: db/changelog/indexes/create-indexes-interviews.yaml
+  - include:
+      file: db/changelog/indexes/create-indexes-interview-interviewers.yaml
   - include:
       file: db/changelog/indexes/create-indexes-attachments.yaml
   - include:
