@@ -61,8 +61,8 @@ public class User extends FullAuditEntity {
     @Column(name = "email_verified")
     Boolean emailVerified = false;
 
-    @Column(name = "google_id", unique = true, length = 100)
-    String googleId;
+    @Column(name = "is_billable")
+    Boolean isBillable = true;
 
     @Column(name = "last_login_at")
     LocalDateTime lastLoginAt;

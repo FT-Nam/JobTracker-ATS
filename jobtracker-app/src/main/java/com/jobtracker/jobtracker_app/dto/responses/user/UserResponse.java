@@ -20,7 +20,7 @@ public class UserResponse {
     String roleName;
     Boolean isActive;
     Boolean emailVerified;
-    String googleId;
+    Boolean isBillable;
     LocalDateTime lastLoginAt;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

@@ -68,5 +68,14 @@ public class Application extends FullAuditEntity {
 
     @Column(name = "allow_additional_uploads")
     Boolean allowAdditionalUploads = false;
+
+    @Column(name = "match_score")
+    Integer matchScore;
+
+    @Column(name = "extracted_text", columnDefinition = "TEXT")
+    String extractedText;
+
+    @Column(name = "matched_skills", columnDefinition = "JSON")
+    String matchedSkills;
 }
 
