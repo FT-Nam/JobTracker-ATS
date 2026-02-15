@@ -1,0 +1,102 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-email-outbox
+      author: namphan
+      changes:
+        - createTable:
+            tableName: email_outbox
+            remarks: "Bảng outbox cho async email sending"
+            columns:
+              - column:
+                  name: id
+                  type: varchar(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "UUID email outbox"
+              - column:
+                  name: email_type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                  remarks: "Loại email (WELCOME, PAYMENT_SUCCESS, INTERVIEW_SCHEDULE, OFFER_LETTER, REJECTION)"
+              - column:
+                  name: aggregate_type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                  remarks: "Loại entity liên quan (USER, APPLICATION, INTERVIEW, etc.)"
+              - column:
+                  name: aggregate_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID của entity liên quan"
+              - column:
+                  name: company_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID công ty (Multi-tenant)"
+              - column:
+                  name: to_email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                  remarks: "Email người nhận"
+              - column:
+                  name: subject
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+                  remarks: "Tiêu đề email"
+              - column:
+                  name: body
+                  type: text
+                  constraints:
+                    nullable: false
+                  remarks: "Nội dung email"
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+                  defaultValue: "PENDING"
+                  remarks: "Trạng thái email (PENDING, SENT, FAILED)"
+              - column:
+                  name: retry_count
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValueNumeric: 0
+                  remarks: "Số lần retry"
+              - column:
+                  name: max_retries
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValueNumeric: 3
+                  remarks: "Số lần retry tối đa"
+              - column:
+                  name: next_retry_at
+                  type: timestamp
+                  remarks: "Thời gian retry tiếp theo"
+              - column:
+                  name: sent_at
+                  type: timestamp
+                  remarks: "Thời gian gửi thành công"
+              - column:
+                  name: failed_reason
+                  type: text
+                  remarks: "Lý do thất bại"
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian tạo"
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian cập nhật"
+

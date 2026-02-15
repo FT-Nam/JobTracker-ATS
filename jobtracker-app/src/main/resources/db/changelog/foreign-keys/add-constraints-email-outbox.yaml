@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-constraints-email-outbox
+      author: namphan
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: email_outbox
+            baseColumnNames: company_id
+            referencedTableName: companies
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            constraintName: fk_email_outbox_company_id_companies
+

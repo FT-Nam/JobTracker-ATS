@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-indexes-email-outbox
+      author: namphan
+      changes:
+        - createIndex:
+            indexName: idx_email_outbox_status_retry
+            tableName: email_outbox
+            columns:
+              - column:
+                  name: status
+              - column:
+                  name: next_retry_at
+        - createIndex:
+            indexName: idx_email_outbox_aggregate
+            tableName: email_outbox
+            columns:
+              - column:
+                  name: aggregate_type
+              - column:
+                  name: aggregate_id
+        - createIndex:
+            indexName: idx_email_outbox_company
+            tableName: email_outbox
+            columns:
+              - column:
+                  name: company_id
+        - createIndex:
+            indexName: idx_email_outbox_email_type
+            tableName: email_outbox
+            columns:
+              - column:
+                  name: email_type
+        - createIndex:
+            indexName: idx_email_outbox_created_at
+            tableName: email_outbox
+            columns:
+              - column:
+                  name: created_at
+
