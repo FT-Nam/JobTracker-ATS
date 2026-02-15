@@ -1522,15 +1522,16 @@ Dựa trên database schema, có **3 patterns chính** cho audit fields:
 | | `job_skills` | ✅ created_by, created_at, updated_at | ✅ is_deleted | 13 |
 | | `role_permissions` ➕ | ✅ created_by, created_at, updated_at | ✅ is_deleted | 14 |
 | | `interview_interviewers` ➕ | ✅ created_by, created_at, updated_at | ✅ is_deleted | 15 |
-| **BaseSystemEntity** | **System / Config Tables (6 bảng)** | | | |
+| **BaseSystemEntity** | **System / Config Tables (7 bảng)** | | | |
 | | `notifications` | ✅ created_at, updated_at | ❌ No soft delete | 16 |
 | | `user_sessions` | ✅ created_at, updated_at | ❌ No soft delete | 17 |
 | | `audit_logs` | ✅ created_at | ❌ No soft delete | 18 |
 | | `subscription_plans` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 19 |
 | | `company_subscriptions` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 20 |
 | | `payments` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 21 |
+| | `email_outbox` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 22 |
 | **Không có Base Class** | **History Tables (1 bảng)** | | | |
-| | `application_status_history` ➕ | ❌ No audit fields | ❌ No soft delete | 22 |
+| | `application_status_history` ➕ | ❌ No audit fields | ❌ No soft delete | 23 |
 
 ### 🎯 Implementation Summary
 

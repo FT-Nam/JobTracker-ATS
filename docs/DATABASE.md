@@ -143,6 +143,18 @@ Tất cả các ENUM values được sử dụng trong database:
 - `SUCCESS` - Thành công
 - `FAILED` - Thất bại
 
+### 11. Email Status ENUM (`email_outbox.status`) ➕
+- `PENDING` - Đang chờ gửi
+- `SENT` - Đã gửi thành công
+- `FAILED` - Gửi thất bại
+
+### 12. Email Type ENUM (`email_outbox.email_type`) ➕
+- `WELCOME` - Email chào mừng
+- `PAYMENT_SUCCESS` - Email xác nhận thanh toán thành công
+- `INTERVIEW_SCHEDULE` - Email lên lịch phỏng vấn
+- `OFFER_LETTER` - Email thư mời làm việc
+- `REJECTION` - Email từ chối ứng viên
+
 ## 🏗️ Database Schema
 
 ### 1. Lookup Tables (Bảng tra cứu)
@@ -1093,6 +1105,52 @@ CREATE TABLE invalidated_token (
 >   - Check xem `jit` có trong `invalidated_token` không
 >   - Nếu có → Token đã bị invalidate → Reject request
 > - Cleanup: Có thể chạy scheduled job để xóa các records có `expiry_time < NOW()` (tokens đã expired)
+
+### 14. Email Outbox Table (Bảng outbox cho async email sending) ➕
+
+> **Vai trò**: Outbox pattern cho async email sending với retry mechanism.  
+> **Pattern**: Transactional Outbox - đảm bảo email được gửi sau khi transaction commit thành công.
+
+```sql
+CREATE TABLE email_outbox (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID email outbox',
+    email_type VARCHAR(50) NOT NULL COMMENT 'Loại email (WELCOME, PAYMENT_SUCCESS, INTERVIEW_SCHEDULE, OFFER_LETTER, REJECTION)',
+    aggregate_type VARCHAR(50) NOT NULL COMMENT 'Loại entity liên quan (USER, APPLICATION, INTERVIEW, etc.)',
+    aggregate_id VARCHAR(36) NOT NULL COMMENT 'UUID của entity liên quan',
+    company_id VARCHAR(36) NOT NULL COMMENT 'UUID công ty (Multi-tenant)',
+    to_email VARCHAR(255) NOT NULL COMMENT 'Email người nhận',
+    subject VARCHAR(500) NOT NULL COMMENT 'Tiêu đề email',
+    body TEXT NOT NULL COMMENT 'Nội dung email',
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT 'Trạng thái email (PENDING, SENT, FAILED)',
+    retry_count INT NOT NULL DEFAULT 0 COMMENT 'Số lần retry',
+    max_retries INT NOT NULL DEFAULT 3 COMMENT 'Số lần retry tối đa',
+    next_retry_at TIMESTAMP NULL COMMENT 'Thời gian retry tiếp theo',
+    sent_at TIMESTAMP NULL COMMENT 'Thời gian gửi thành công',
+    failed_reason TEXT NULL COMMENT 'Lý do thất bại',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian tạo',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời gian cập nhật',
+    
+    -- Foreign Keys
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+    
+    -- Indexes
+    INDEX idx_status_retry (status, next_retry_at) COMMENT 'Index cho query pending emails cần retry',
+    INDEX idx_aggregate (aggregate_type, aggregate_id) COMMENT 'Index cho query theo entity liên quan',
+    INDEX idx_company (company_id) COMMENT 'Multi-tenant index',
+    INDEX idx_email_type (email_type) COMMENT 'Index cho filter theo loại email',
+    INDEX idx_created_at (created_at) COMMENT 'Index cho cleanup old emails'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+> **💡 Outbox Pattern Flow**:
+> 1. **Write Transaction**: Business logic tạo record trong `email_outbox` với `status = PENDING` trong cùng transaction
+> 2. **Background Processor**: Scheduled job query `email_outbox` với `status = PENDING` và `next_retry_at <= NOW()`
+> 3. **Send Email**: Processor gửi email qua email service (Brevo, SendGrid, etc.)
+> 4. **Update Status**: 
+>    - Nếu thành công → `status = SENT`, `sent_at = NOW()`
+>    - Nếu thất bại → `retry_count++`, `next_retry_at = NOW() + exponential_backoff`, `failed_reason = error`
+> 5. **Retry Logic**: Retry tối đa `max_retries` lần, sau đó `status = FAILED`
+> 6. **Cleanup**: Scheduled job xóa các email đã gửi thành công sau 30 ngày
 
 ### 15. Audit Logs Table (Bảng log audit - ATS) 🔄
 
