@@ -31,7 +31,7 @@ public class User extends FullAuditEntity {
     @JoinColumn(name = "company_id", nullable = false)
     Company company;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 255)
     String email;
 
     String password;
@@ -56,7 +56,7 @@ public class User extends FullAuditEntity {
     Role role;
 
     @Column(name = "is_active")
-    Boolean isActive = false;
+    Boolean isActive = true;
 
     @Column(name = "email_verified")
     Boolean emailVerified = false;

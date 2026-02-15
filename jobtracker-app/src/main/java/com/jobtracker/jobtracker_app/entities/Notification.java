@@ -62,7 +62,7 @@ public class Notification extends SystemAuditEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "priority", nullable = false, length = 50)
-    NotificationPriority priority;
+    NotificationPriority priority = NotificationPriority.MEDIUM;
 
     @Column(columnDefinition = "JSON")
     String metadata;

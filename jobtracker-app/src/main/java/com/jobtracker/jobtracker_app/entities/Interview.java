@@ -75,7 +75,7 @@ public class Interview extends FullAuditEntity {
     @Column
     Integer rating;
 
-    @Column(length = 500)
+    @Column(name = "meeting_link", length = 500)
     String meetingLink;
 
     @Column(length = 255)

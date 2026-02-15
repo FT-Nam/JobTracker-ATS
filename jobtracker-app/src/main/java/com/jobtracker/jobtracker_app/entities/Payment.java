@@ -35,7 +35,7 @@ public class Payment extends SystemAuditEntity {
     BigDecimal amount;
 
     @Column(length = 3)
-    String currency;
+    String currency = "VND";
 
     @Column(nullable = false, length = 50)
     String gateway;

@@ -22,7 +22,7 @@ public class Permission extends FullAuditEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(length = 50, unique = true, nullable = false)
+    @Column(length = 100, unique = true, nullable = false)
     String name;
 
     @Column(length = 100, nullable = false)
@@ -31,6 +31,7 @@ public class Permission extends FullAuditEntity {
     @Column(length = 50, nullable = false)
     String action;
 
+    @Column(length = 255)
     String description;
 
     @Column(name = "is_active")

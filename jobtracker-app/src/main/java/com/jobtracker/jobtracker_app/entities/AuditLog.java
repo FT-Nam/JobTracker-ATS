@@ -21,6 +21,10 @@ public class AuditLog extends BaseEntity {
     @JoinColumn(name = "user_id")
     User user;
 
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    Company company;
+
     @Column(name = "entity_type", nullable = false, length = 100)
     String entityType;
 

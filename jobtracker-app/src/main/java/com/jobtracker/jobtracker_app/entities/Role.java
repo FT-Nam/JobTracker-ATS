@@ -26,6 +26,7 @@ public class Role extends FullAuditEntity {
     @Column(length = 50, unique = true, nullable = false)
     String name;
 
+    @Column(length = 255)
     String description;
 
     @OneToMany(mappedBy = "role")

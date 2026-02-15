@@ -3,17 +3,21 @@ package com.jobtracker.jobtracker_app.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "application_status_history")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+// Không có audit field theo docs, chỉ có created_at
 public class ApplicationStatusHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -39,6 +43,7 @@ public class ApplicationStatusHistory {
     String notes;
 
     @Column(name = "created_at")
+    @CreatedDate
     LocalDateTime createdAt;
 }
 

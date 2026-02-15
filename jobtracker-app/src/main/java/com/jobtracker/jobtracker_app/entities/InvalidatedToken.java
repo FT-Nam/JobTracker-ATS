@@ -1,25 +1,25 @@
 package com.jobtracker.jobtracker_app.entities;
 
-import java.util.Date;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
 import com.jobtracker.jobtracker_app.entities.base.FullAuditEntity;
-
+import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
+@Entity
 @Table(name = "invalidated_token")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@Entity
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class InvalidatedToken extends FullAuditEntity {
     @Id
+    @Column(length = 255)
     String id;
 
-    Date expiryTime;
+    @Column(name = "expiry_time", nullable = false)
+    LocalDateTime expiryTime;
 }
