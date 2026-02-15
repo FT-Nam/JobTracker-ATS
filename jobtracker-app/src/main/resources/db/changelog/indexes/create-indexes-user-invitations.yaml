@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-indexes-user-invitations
+      author: namphan
+      changes:
+        - createIndex:
+            indexName: idx_user_invitations_user_id
+            tableName: user_invitations
+            columns:
+              - column:
+                  name: user_id
+        - createIndex:
+            indexName: idx_user_invitations_company_id
+            tableName: user_invitations
+            columns:
+              - column:
+                  name: company_id
+        - createIndex:
+            indexName: idx_user_invitations_token
+            tableName: user_invitations
+            columns:
+              - column:
+                  name: token
+        - createIndex:
+            indexName: idx_user_invitations_expires_at
+            tableName: user_invitations
+            columns:
+              - column:
+                  name: expires_at
+        - createIndex:
+            indexName: idx_user_invitations_used_at
+            tableName: user_invitations
+            columns:
+              - column:
+                  name: used_at
+        - createIndex:
+            indexName: idx_user_invitations_sent_at
+            tableName: user_invitations
+            columns:
+              - column:
+                  name: sent_at
+        - createIndex:
+            indexName: idx_user_invitations_deleted_at
+            tableName: user_invitations
+            columns:
+              - column:
+                  name: deleted_at
+        - createIndex:
+            indexName: idx_user_invitations_user_unused
+            tableName: user_invitations
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: used_at
+              - column:
+                  name: expires_at
+              - column:
+                  name: deleted_at
+

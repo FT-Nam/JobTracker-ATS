@@ -1,0 +1,74 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-user-invitations
+      author: namphan
+      changes:
+        - createTable:
+            tableName: user_invitations
+            remarks: "Bảng lời mời người dùng"
+            columns:
+              - column:
+                  name: id
+                  type: varchar(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "UUID invitation"
+              - column:
+                  name: user_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID người dùng được mời"
+              - column:
+                  name: company_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                  remarks: "UUID công ty (Multi-tenant key)"
+              - column:
+                  name: token
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  remarks: "Invite token (random string hoặc UUID)"
+              - column:
+                  name: expires_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+                  remarks: "Thời gian hết hạn (thường 7 ngày)"
+              - column:
+                  name: used_at
+                  type: timestamp
+                  remarks: "Thời gian user đã accept invite (null nếu chưa dùng)"
+              - column:
+                  name: sent_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+                  remarks: "Thời gian gửi email invite"
+              - column:
+                  name: created_by
+                  type: varchar(36)
+                  remarks: "Người tạo (FK to users - Admin)"
+              - column:
+                  name: updated_by
+                  type: varchar(36)
+                  remarks: "Người cập nhật cuối (FK to users)"
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian tạo"
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian cập nhật"
+              - column:
+                  name: deleted_at
+                  type: timestamp
+                  remarks: "Thời gian xóa (soft delete)"
+

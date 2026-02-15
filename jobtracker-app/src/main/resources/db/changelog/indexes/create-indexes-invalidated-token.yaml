@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-indexes-invalidated-token
+      author: namphan
+      changes:
+        - createIndex:
+            indexName: idx_invalidated_token_expiry_time
+            tableName: invalidated_token
+            columns:
+              - column:
+                  name: expiry_time
+        - createIndex:
+            indexName: idx_invalidated_token_deleted_at
+            tableName: invalidated_token
+            columns:
+              - column:
+                  name: deleted_at
+        - createIndex:
+            indexName: idx_invalidated_token_expiry_deleted
+            tableName: invalidated_token
+            columns:
+              - column:
+                  name: expiry_time
+              - column:
+                  name: deleted_at
+

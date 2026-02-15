@@ -44,6 +44,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/table/create-table-user-sessions.yaml
   - include:
+      file: db/changelog/table/create-table-invalidated-token.yaml
+  - include:
       file: db/changelog/table/create-table-audit-logs.yaml
 
   - include:
@@ -85,6 +87,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/foreign-keys/add-constraints-user-sessions.yaml
   - include:
+      file: db/changelog/foreign-keys/add-constraints-invalidated-token.yaml
+  - include:
       file: db/changelog/foreign-keys/add-constraints-audit-logs.yaml
 
   - include:
@@ -125,6 +129,8 @@ databaseChangeLog:
       file: db/changelog/indexes/create-indexes-notifications.yaml
   - include:
       file: db/changelog/indexes/create-indexes-user-sessions.yaml
+  - include:
+      file: db/changelog/indexes/create-indexes-invalidated-token.yaml
   - include:
       file: db/changelog/indexes/create-indexes-audit-logs.yaml
 
