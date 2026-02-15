@@ -1001,7 +1001,100 @@ CREATE TABLE user_sessions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 13. Audit Logs Table (Bảng log audit - ATS) 🔄
+### 13. User Invitations Table (Bảng lời mời người dùng) ➕
+
+> **🔑 INVITE FLOW**: Lưu trữ invite tokens cho user onboarding:
+> - Admin tạo user → System tạo record trong `user_invitations` với token
+> - System gửi email với invite link chứa token
+> - User click link → `POST /auth/accept-invite` với token → Set password → `used_at` được set
+> - Token có expiration (thường 7 ngày), có thể resend để tạo token mới
+
+```sql
+CREATE TABLE user_invitations (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID invitation',
+    user_id VARCHAR(36) NOT NULL COMMENT 'UUID người dùng được mời',
+    company_id VARCHAR(36) NOT NULL COMMENT 'UUID công ty (Multi-tenant key)',
+    token VARCHAR(255) NOT NULL UNIQUE COMMENT 'Invite token (random string hoặc UUID)',
+    expires_at TIMESTAMP NOT NULL COMMENT 'Thời gian hết hạn (thường 7 ngày)',
+    used_at TIMESTAMP NULL COMMENT 'Thời gian user đã accept invite (null nếu chưa dùng)',
+    sent_at TIMESTAMP NOT NULL COMMENT 'Thời gian gửi email invite',
+    
+    -- Full Audit Fields
+    created_by VARCHAR(36) COMMENT 'Người tạo (FK to users - Admin)',
+    updated_by VARCHAR(36) COMMENT 'Người cập nhật cuối (FK to users)',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian tạo',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời gian cập nhật',
+    deleted_at TIMESTAMP NULL COMMENT 'Thời gian xóa (soft delete)',
+    
+    -- Foreign Keys
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL,
+    
+    -- Indexes
+    INDEX idx_user_id (user_id),
+    INDEX idx_company_id (company_id),
+    INDEX idx_token (token),
+    INDEX idx_expires_at (expires_at),
+    INDEX idx_used_at (used_at),
+    INDEX idx_sent_at (sent_at),
+    INDEX idx_deleted_at (deleted_at),
+    
+    -- Composite Indexes
+    INDEX idx_user_unused (user_id, used_at, expires_at, deleted_at) COMMENT 'Index cho query tìm unused valid invitations'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+> **💡 Token Generation Logic**:
+> - Token được generate khi Admin tạo user qua `POST /admin/users/invite`
+> - Token format: Random UUID hoặc secure random string (32-64 chars)
+> - Expiration: 7 ngày từ lúc tạo
+> - Mỗi user có thể có nhiều invitations (nếu resend), nhưng chỉ 1 token active (chưa used và chưa expired)
+> - Khi user accept invite → `used_at` được set → Token không thể dùng lại
+
+### 14. Invalidated Tokens Table (Bảng tokens đã vô hiệu hóa) ➕
+
+> **🔑 JWT TOKEN INVALIDATION**: Lưu trữ các JWT tokens đã bị invalidate khi user logout:
+> - Khi user logout → System lấy JWT ID (jit) và expiry time từ access token
+> - System lưu vào bảng `invalidated_token` với `id = jit` và `expiry_time = token expiry`
+> - Khi verify token → System check xem token có trong `invalidated_token` không
+> - Sau khi token expired → Có thể cleanup các records cũ (expiry_time < NOW())
+
+```sql
+CREATE TABLE invalidated_token (
+    id VARCHAR(255) PRIMARY KEY COMMENT 'JWT ID (jit) - Unique identifier của JWT token',
+    expiry_time TIMESTAMP NOT NULL COMMENT 'Thời gian hết hạn của token (từ JWT claims)',
+    
+    -- Full Audit Fields
+    created_by VARCHAR(36) COMMENT 'Người tạo (FK to users)',
+    updated_by VARCHAR(36) COMMENT 'Người cập nhật cuối (FK to users)',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian tạo',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời gian cập nhật',
+    deleted_at TIMESTAMP NULL COMMENT 'Thời gian xóa (soft delete)',
+    
+    -- Foreign Keys
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL,
+    
+    -- Indexes
+    INDEX idx_expiry_time (expiry_time),
+    INDEX idx_deleted_at (deleted_at),
+    INDEX idx_expiry_deleted (expiry_time, deleted_at) COMMENT 'Index cho cleanup query expired tokens'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+> **💡 Token Invalidation Logic**:
+> - Khi user logout qua `POST /auth/logout`:
+>   - System parse access token → Lấy `jit` (JWT ID) và `expiry_time`
+>   - Insert vào `invalidated_token` với `id = jit`, `expiry_time = token expiry`
+>   - Delete refresh token từ Redis cache
+> - Khi verify token (trong authentication filter):
+>   - Check xem `jit` có trong `invalidated_token` không
+>   - Nếu có → Token đã bị invalidate → Reject request
+> - Cleanup: Có thể chạy scheduled job để xóa các records có `expiry_time < NOW()` (tokens đã expired)
+
+### 15. Audit Logs Table (Bảng log audit - ATS) 🔄
 
 > **🔄 SEMANTIC CHANGE**: Thêm company_id cho multi-tenant audit
 

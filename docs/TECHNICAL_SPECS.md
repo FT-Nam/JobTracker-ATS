@@ -1475,18 +1475,19 @@ spring:
 
 Dựa trên database schema, có **3 patterns chính** cho audit fields:
 
-#### **Pattern 1: FULL AUDIT** (10 bảng)
+#### **Pattern 1: FULL AUDIT** (13 bảng)
 ```java
 // Có: created_by, updated_by, created_at, updated_at
-- Lookup Tables (2 bảng): roles, permissions (RBAC)
+- Lookup Tables (3 bảng): roles, permissions (RBAC), application_statuses
 - Core Business Entities (8 bảng): users, companies, jobs, skills, interviews, applications, comments, attachments
+- Auth/Token Tables (2 bảng): user_invitations, invalidated_token
 // Note: Các lookup tables khác (job_statuses, job_types, etc.) đã chuyển sang ENUM
 ```
 
-#### **Pattern 2: PARTIAL AUDIT** (1 bảng)  
+#### **Pattern 2: PARTIAL AUDIT** (3 bảng)  
 ```java
 // Có: created_by, created_at, updated_at (không có updated_by)
-- Junction Tables: job_skills
+- Junction Tables: job_skills, role_permissions, interview_interviewers
 // Note: user_skills và job_resumes đã bỏ
 ```
 
@@ -1501,9 +1502,10 @@ Dựa trên database schema, có **3 patterns chính** cho audit fields:
 
 | **Base Class** | **Tables** | **Audit Fields** | **Soft Delete** | **Count** |
 |---|---|---|---|---|
-| **BaseFullAuditEntity** | **Lookup Tables (2 bảng - chỉ RBAC)** | | | |
+| **BaseFullAuditEntity** | **Lookup Tables (3 bảng)** | | | |
 | | `roles` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 1 |
 | | `permissions` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 2 |
+| | `application_statuses` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 3 |
 | | **Core Business Entities (8 bảng)** | | | |
 | | `users` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 3 |
 | | `companies` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 4 |
@@ -1513,33 +1515,39 @@ Dựa trên database schema, có **3 patterns chính** cho audit fields:
 | | `applications` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 8 |
 | | `comments` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 9 |
 | | `attachments` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 10 |
-| **BasePartialAuditEntity** | **Junction Tables (1 bảng)** | | | |
-| | `job_skills` | ✅ created_by, created_at, updated_at | ✅ is_deleted | 11 |
+| | **Auth/Token Tables (2 bảng)** | | | |
+| | `user_invitations` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 11 |
+| | `invalidated_token` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 12 |
+| **BasePartialAuditEntity** | **Junction Tables (3 bảng)** | | | |
+| | `job_skills` | ✅ created_by, created_at, updated_at | ✅ is_deleted | 13 |
+| | `role_permissions` ➕ | ✅ created_by, created_at, updated_at | ✅ is_deleted | 14 |
+| | `interview_interviewers` ➕ | ✅ created_by, created_at, updated_at | ✅ is_deleted | 15 |
 | **BaseSystemEntity** | **System / Config Tables (6 bảng)** | | | |
-| | `notifications` | ✅ created_at, updated_at | ❌ No soft delete | 12 |
-| | `user_sessions` | ✅ created_at, updated_at | ❌ No soft delete | 13 |
-| | `audit_logs` | ✅ created_at | ❌ No soft delete | 14 |
-| | `subscription_plans` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 15 |
-| | `company_subscriptions` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 16 |
-| | `payments` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 17 |
+| | `notifications` | ✅ created_at, updated_at | ❌ No soft delete | 16 |
+| | `user_sessions` | ✅ created_at, updated_at | ❌ No soft delete | 17 |
+| | `audit_logs` | ✅ created_at | ❌ No soft delete | 18 |
+| | `subscription_plans` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 19 |
+| | `company_subscriptions` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 20 |
+| | `payments` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 21 |
 | **Không có Base Class** | **History Tables (1 bảng)** | | | |
-| | `application_status_history` ➕ | ❌ No audit fields | ❌ No soft delete | 18 |
+| | `application_status_history` ➕ | ❌ No audit fields | ❌ No soft delete | 22 |
 
 ### 🎯 Implementation Summary
 
-#### **BaseFullAuditEntity** (10 bảng)
+#### **BaseFullAuditEntity** (13 bảng)
 ```java
 // Extends: BaseSoftDeleteEntity
 // Fields: created_by, updated_by, created_at, updated_at, deleted_at
-// Usage: RBAC lookup tables (roles, permissions) + core business entities
+// Usage: Lookup tables (roles, permissions, application_statuses) + core business entities + auth/token tables
 // Note: Các lookup tables khác (job_statuses, job_types, etc.) đã chuyển sang ENUM
+// Auth/Token Tables: user_invitations (invite tokens), invalidated_token (JWT invalidation)
 ```
 
-#### **BasePartialAuditEntity** (1 bảng)
+#### **BasePartialAuditEntity** (3 bảng)
 ```java
 // Extends: BaseBooleanDeleteEntity  
 // Fields: created_by, created_at, updated_at, is_deleted
-// Usage: Junction tables only (job_skills)
+// Usage: Junction tables (job_skills, role_permissions, interview_interviewers)
 // Note: user_skills và job_resumes đã bỏ
 ```
 
@@ -1674,7 +1682,7 @@ public abstract class BaseBooleanDeleteEntity {
 
 ### 📋 Entity Implementation Examples
 
-#### Lookup Tables (2 bảng - chỉ RBAC)
+#### Lookup Tables (3 bảng)
 ```java
 @Entity
 @Table(name = "roles")
@@ -1708,6 +1716,35 @@ public class Permission extends BaseFullAuditEntity {
     
     private String resource; // JOB, APPLICATION, INTERVIEW, etc.
     private String action; // CREATE, READ, UPDATE, DELETE
+    
+    // Business fields only, audit fields inherited
+}
+
+@Entity
+@Table(name = "application_statuses")
+public class ApplicationStatus extends BaseFullAuditEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36)
+    private String id;
+    
+    @Column(nullable = false, unique = true, length = 50)
+    private String name; // NEW, SCREENING, INTERVIEWING, OFFERED, HIRED, REJECTED
+    
+    @Column(name = "display_name", nullable = false, length = 100)
+    private String displayName;
+    
+    @Column(length = 255)
+    private String description;
+    
+    @Column(length = 7)
+    private String color = "#6B7280";
+    
+    @Column(name = "sort_order")
+    private Integer sortOrder = 0;
+    
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
     
     // Business fields only, audit fields inherited
 }
@@ -1762,7 +1799,56 @@ public class Application extends BaseFullAuditEntity {
 }
 ```
 
-#### Junction Tables (1 bảng)
+#### Auth/Token Tables (2 bảng) ➕
+```java
+@Entity
+@Table(name = "user_invitations")
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = "string"))
+@Filter(name = "tenantFilter", condition = "company_id = :tenantId")
+public class UserInvitation extends BaseFullAuditEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36)
+    private String id;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user; // User được mời
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company; // Multi-tenant key
+    
+    @Column(name = "token", nullable = false, unique = true, length = 255)
+    private String token; // Invite token
+    
+    @Column(name = "expires_at", nullable = false)
+    private LocalDateTime expiresAt; // Thời gian hết hạn (7 ngày)
+    
+    @Column(name = "used_at")
+    private LocalDateTime usedAt; // Thời gian user đã accept (null nếu chưa dùng)
+    
+    @Column(name = "sent_at", nullable = false)
+    private LocalDateTime sentAt; // Thời gian gửi email
+    
+    // Audit fields inherited from BaseFullAuditEntity
+}
+
+@Entity
+@Table(name = "invalidated_token")
+public class InvalidatedToken extends BaseFullAuditEntity {
+    @Id
+    @Column(name = "id", length = 255)
+    private String id; // JWT ID (jit) - không dùng UUID generation
+    
+    @Column(name = "expiry_time", nullable = false)
+    private Date expiryTime; // Thời gian hết hạn của token (từ JWT claims)
+    
+    // Audit fields inherited from BaseFullAuditEntity
+}
+```
+
+#### Junction Tables (3 bảng)
 ```java
 @Entity
 @Table(name = "job_skills")
@@ -1775,6 +1861,57 @@ public class JobSkill extends BasePartialAuditEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id", nullable = false)
     private Job job;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "skill_id", nullable = false)
+    private Skill skill;
+    
+    // Business fields only, audit fields inherited
+}
+
+@Entity
+@Table(name = "role_permissions", 
+       uniqueConstraints = @UniqueConstraint(name = "uk_role_permission", columnNames = {"role_id", "permission_id"}))
+public class RolePermission extends BasePartialAuditEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36)
+    private String id;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "permission_id", nullable = false)
+    private Permission permission;
+    
+    // Business fields only, audit fields inherited
+}
+
+@Entity
+@Table(name = "interview_interviewers",
+       uniqueConstraints = @UniqueConstraint(name = "uk_interview_interviewer", columnNames = {"interview_id", "interviewer_id"}))
+public class InterviewInterviewer extends BasePartialAuditEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36)
+    private String id;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "interview_id", nullable = false)
+    private Interview interview;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "interviewer_id", nullable = false)
+    private User interviewer; // User with role = INTERVIEWER
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company; // Multi-tenant key
+    
+    @Column(name = "is_primary")
+    private Boolean isPrimary = false; // Primary interviewer flag
     
     // Business fields only, audit fields inherited
 }

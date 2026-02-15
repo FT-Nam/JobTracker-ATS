@@ -240,9 +240,25 @@ Làm mới access token bằng refresh token.
 
 Đăng xuất và vô hiệu hóa token.
 
+> **Token Invalidation Flow**:
+> 1. System parse access token từ Authorization header
+> 2. System lấy JWT ID (`jit`) và `expiry_time` từ token claims
+> 3. System lưu vào bảng `invalidated_token` với `id = jit` và `expiry_time = token expiry`
+> 4. System xóa refresh token từ Redis cache (nếu có)
+> 5. Token đã bị invalidate → Không thể dùng lại cho các requests sau
+> 
+> **Token Verification**: Khi verify token trong authentication filter, system sẽ check xem `jit` có trong `invalidated_token` không. Nếu có → Reject request.
+
 #### Request Headers
 ```
 Authorization: Bearer <access_token>
+```
+
+#### Request Body
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
 ```
 
 #### Response (200 OK)
@@ -487,9 +503,18 @@ Query hỗ trợ `role`, `status`, `search`, `createdFrom`.
 Tạo user mới và gửi invite email. Đây là **flow chuẩn B2B SaaS** (Jira, Linear, Slack).
 
 > **Flow**:
-> 1. Admin tạo user → `email_verified = false`, `password = NULL`
-> 2. System gửi invite email với token
-> 3. User click link trong email → Set password → `email_verified = true` → User active
+> 1. Admin tạo user → `email_verified = false`, `password = NULL`, `is_active = false`
+> 2. System generate invite token (random UUID hoặc secure random string) → Lưu vào bảng `user_invitations` với `expires_at = NOW() + 7 days`
+> 3. System gửi invite email với link: `https://app.jobtracker.com/accept-invite?token={token}`
+> 4. User click link trong email → `POST /auth/accept-invite` với token → Set password → `email_verified = true`, `is_active = true`, `used_at` được set trong `user_invitations`
+> 
+> **Token Storage**: Token được lưu trong bảng `user_invitations` với các fields:
+> - `token`: Unique invite token (VARCHAR(255))
+> - `user_id`: FK to users
+> - `company_id`: Multi-tenant key
+> - `expires_at`: Thời gian hết hạn (7 ngày)
+> - `used_at`: NULL nếu chưa dùng, TIMESTAMP nếu đã accept
+> - `sent_at`: Thời gian gửi email
 
 #### Request Headers
 ```
@@ -542,6 +567,12 @@ Content-Type: application/json
 User nhận invite email, click link, và set password. Sau khi set password, `email_verified = true` và `is_active = true`.
 
 > ⚠️ **Public endpoint**: Không cần authentication (chỉ cần invite token).
+> 
+> **Token Validation**:
+> 1. System tìm record trong `user_invitations` với `token = {token}`
+> 2. Validate: `used_at IS NULL` (chưa dùng) AND `expires_at > NOW()` (chưa hết hạn) AND `deleted_at IS NULL`
+> 3. Nếu valid → Set password → Update `users.email_verified = true`, `users.is_active = true` → Set `user_invitations.used_at = NOW()`
+> 4. Nếu invalid → Return error: "Invalid or expired invitation token"
 
 #### Request Body
 ```json
@@ -569,6 +600,12 @@ User nhận invite email, click link, và set password. Sau khi set password, `e
 **POST** `/admin/users/{userId}/resend-invite`
 
 Gửi lại invite email cho user chưa verify.
+
+> **Flow**:
+> 1. System tìm user với `email_verified = false` hoặc `is_active = false`
+> 2. System tạo invite token mới → Insert record mới vào `user_invitations` (hoặc update record cũ nếu chưa used)
+> 3. System gửi email với token mới
+> 4. Token cũ vẫn có thể dùng (nếu chưa expired), nhưng thường chỉ dùng token mới nhất
 
 #### Response (200 OK)
 ```json
