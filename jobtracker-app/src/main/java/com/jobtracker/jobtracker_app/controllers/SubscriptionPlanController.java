@@ -1,6 +1,7 @@
 package com.jobtracker.jobtracker_app.controllers;
 
-import com.jobtracker.jobtracker_app.dto.requests.SubscriptionPlanRequest;
+import com.jobtracker.jobtracker_app.dto.requests.subscription.SubscriptionPlanCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.subscription.SubscriptionPlanUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.dto.responses.SubscriptionPlanResponse;
@@ -27,7 +28,7 @@ public class SubscriptionPlanController {
     LocalizationUtils localizationUtils;
 
     @PostMapping
-    public ApiResponse<SubscriptionPlanResponse> create(@RequestBody @Valid SubscriptionPlanRequest request) {
+    public ApiResponse<SubscriptionPlanResponse> create(@RequestBody @Valid SubscriptionPlanCreationRequest request) {
         return ApiResponse.<SubscriptionPlanResponse>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.SUBSCRIPTION_PLAN_CREATE_SUCCESS))
                 .data(subscriptionPlanService.create(request))
@@ -43,23 +44,16 @@ public class SubscriptionPlanController {
     }
 
     @GetMapping
-    public ApiResponse<List<SubscriptionPlanResponse>> getAll(Pageable pageable) {
-        Page<SubscriptionPlanResponse> responses = subscriptionPlanService.getAll(pageable);
+    public ApiResponse<List<SubscriptionPlanResponse>> getAll() {
         return ApiResponse.<List<SubscriptionPlanResponse>>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.SUBSCRIPTION_PLAN_LIST_SUCCESS))
-                .data(responses.getContent())
-                .paginationInfo(PaginationInfo.builder()
-                        .page(responses.getNumber())
-                        .size(responses.getSize())
-                        .totalElements(responses.getTotalElements())
-                        .totalPages(responses.getTotalPages())
-                        .build())
+                .data(subscriptionPlanService.getAll())
                 .build();
     }
 
     @PutMapping("/{id}")
     public ApiResponse<SubscriptionPlanResponse> update(@PathVariable String id,
-                                                        @RequestBody @Valid SubscriptionPlanRequest request) {
+                                                        @RequestBody @Valid SubscriptionPlanUpdateRequest request) {
         return ApiResponse.<SubscriptionPlanResponse>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.SUBSCRIPTION_PLAN_UPDATE_SUCCESS))
                 .data(subscriptionPlanService.update(id, request))

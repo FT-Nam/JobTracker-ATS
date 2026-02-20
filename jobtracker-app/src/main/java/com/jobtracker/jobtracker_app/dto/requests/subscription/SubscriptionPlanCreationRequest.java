@@ -1,4 +1,4 @@
-package com.jobtracker.jobtracker_app.dto.requests;
+package com.jobtracker.jobtracker_app.dto.requests.subscription;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -12,8 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SubscriptionPlanRequest {
-
+public class SubscriptionPlanCreationRequest {
     @NotBlank
     @Size(max = 50)
     String code;

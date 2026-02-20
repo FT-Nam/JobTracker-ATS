@@ -1,10 +1,10 @@
-package com.jobtracker.jobtracker_app.dto.responses;
+package com.jobtracker.jobtracker_app.dto.requests.subscription;
 
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -12,18 +12,24 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SubscriptionPlanResponse {
-    String id;
-    String code;
+public class SubscriptionPlanUpdateRequest {
+    @NotBlank
+    @Size(max = 100)
     String name;
+
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = true)
     BigDecimal price;
+
+    @NotNull
+    @Min(0)
     Integer durationDays;
+
     Integer maxJobs;
+
     Integer maxUsers;
+
     Integer maxApplications;
+
     Boolean isActive;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
 }
-
-

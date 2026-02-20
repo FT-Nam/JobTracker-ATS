@@ -1,6 +1,7 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
-import com.jobtracker.jobtracker_app.dto.requests.SubscriptionPlanRequest;
+import com.jobtracker.jobtracker_app.dto.requests.subscription.SubscriptionPlanCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.subscription.SubscriptionPlanUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.SubscriptionPlanResponse;
 import com.jobtracker.jobtracker_app.entities.SubscriptionPlan;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
@@ -11,10 +12,10 @@ import com.jobtracker.jobtracker_app.services.SubscriptionPlanService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -27,7 +28,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
     @Override
     @Transactional
-    public SubscriptionPlanResponse create(SubscriptionPlanRequest request) {
+    public SubscriptionPlanResponse create(SubscriptionPlanCreationRequest request) {
         subscriptionPlanRepository.findByCodeIgnoreCase(request.getCode())
                 .ifPresent(existing -> {
                     throw new AppException(ErrorCode.FIELD_EXISTED);
@@ -45,25 +46,19 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     }
 
     @Override
-    public Page<SubscriptionPlanResponse> getAll(Pageable pageable) {
-        return subscriptionPlanRepository.findAll(pageable)
-                .map(subscriptionPlanMapper::toSubscriptionPlanResponse);
+    public List<SubscriptionPlanResponse> getAll() {
+        return subscriptionPlanRepository.findAll().stream()
+                .map(subscriptionPlanMapper::toSubscriptionPlanResponse).toList();
     }
 
     @Override
     @Transactional
-    public SubscriptionPlanResponse update(String id, SubscriptionPlanRequest request) {
+    public SubscriptionPlanResponse update(String id, SubscriptionPlanUpdateRequest request) {
         SubscriptionPlan plan = subscriptionPlanRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.SUBSCRIPTION_PLAN_NOT_EXISTED));
 
-        if (request.getCode() != null && !request.getCode().equalsIgnoreCase(plan.getCode())) {
-            subscriptionPlanRepository.findByCodeIgnoreCase(request.getCode())
-                    .ifPresent(existing -> {
-                        throw new AppException(ErrorCode.FIELD_EXISTED);
-                    });
-        }
-
         subscriptionPlanMapper.updateSubscriptionPlan(plan, request);
+
         return subscriptionPlanMapper.toSubscriptionPlanResponse(subscriptionPlanRepository.save(plan));
     }
 
