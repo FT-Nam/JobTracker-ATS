@@ -154,6 +154,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public boolean paymentReturn(HttpServletRequest request) throws UnsupportedEncodingException, JsonProcessingException {
         String paymentCode = request.getParameter("vnp_TxnRef");
         Payment payment = paymentRepository.findByTxnRef(paymentCode)
@@ -161,7 +162,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // Throw lỗi có thể làm VNPAY lỗi
         if(payment.getStatus() != PaymentStatus.INIT){
-            return false;
+            return payment.getStatus() == PaymentStatus.SUCCESS;
         }
 
         Map fields = new HashMap();
@@ -184,9 +185,9 @@ public class PaymentServiceImpl implements PaymentService {
             fields.remove("vnp_SecureHash");
         }
         String signValue = vnPayConfig.hashAllFields(fields);
+        ObjectMapper mapper = new ObjectMapper();
 
         if (signValue.equals(vnp_SecureHash)) {
-            ObjectMapper mapper = new ObjectMapper();
             payment.setMetadata(mapper.writeValueAsString(fields));
 
             if ("00".equals(request.getParameter("vnp_ResponseCode"))) {
@@ -199,6 +200,7 @@ public class PaymentServiceImpl implements PaymentService {
                 return false;
             }
         } else {
+            payment.setMetadata(mapper.writeValueAsString(fields));
             payment.setStatus(PaymentStatus.FAILED);
             return false;
         }
