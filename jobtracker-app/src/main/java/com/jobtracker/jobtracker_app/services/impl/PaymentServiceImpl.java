@@ -76,7 +76,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         if (payment.getTxnRef() == null) {
-            payment.setTxnRef(generateTxnRef());
+            payment.setTxnRef(vnPayConfig.getRandomNumber(8));
         }
 
         payment.setStatus(PaymentStatus.INIT);
@@ -227,39 +227,6 @@ public class PaymentServiceImpl implements PaymentService {
     public Page<PaymentResponse> getByCompanySubscription(String companySubscriptionId, Pageable pageable) {
         return paymentRepository.findByCompanySubscription_Id(companySubscriptionId, pageable)
                 .map(paymentMapper::toPaymentResponse);
-    }
-
-    @Override
-    @Transactional
-    public PaymentResponse markSuccess(String txnRef, String metadata) {
-        Payment payment = paymentRepository.findByTxnRef(txnRef)
-                .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_EXISTED));
-
-        payment.setStatus(PaymentStatus.SUCCESS);
-        payment.setPaidAt(LocalDateTime.now());
-        if (metadata != null) {
-            payment.setMetadata(metadata);
-        }
-
-        return paymentMapper.toPaymentResponse(paymentRepository.save(payment));
-    }
-
-    @Override
-    @Transactional
-    public PaymentResponse markFailed(String txnRef, String metadata) {
-        Payment payment = paymentRepository.findByTxnRef(txnRef)
-                .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_EXISTED));
-
-        payment.setStatus(PaymentStatus.FAILED);
-        if (metadata != null) {
-            payment.setMetadata(metadata);
-        }
-
-        return paymentMapper.toPaymentResponse(paymentRepository.save(payment));
-    }
-
-    private String generateTxnRef() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 20).toUpperCase();
     }
 }
 

@@ -24,10 +24,6 @@ public interface PaymentService {
     Page<PaymentResponse> getByCompany(String companyId, Pageable pageable);
 
     Page<PaymentResponse> getByCompanySubscription(String companySubscriptionId, Pageable pageable);
-
-    PaymentResponse markSuccess(String txnRef, String metadata);
-
-    PaymentResponse markFailed(String txnRef, String metadata);
 }
 
 
