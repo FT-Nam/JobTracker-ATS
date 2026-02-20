@@ -79,15 +79,6 @@ public class CompanySubscriptionController {
                         .build())
                 .build();
     }
-
-    @PutMapping("/admin/company-subscriptions/{id}")
-    public ApiResponse<CompanySubscriptionResponse> update(@PathVariable String id,
-                                                           @RequestBody @Valid CompanySubscriptionRequest request) {
-        return ApiResponse.<CompanySubscriptionResponse>builder()
-                .message(localizationUtils.getLocalizedMessage(MessageKeys.COMPANY_SUBSCRIPTION_UPDATE_SUCCESS))
-                .data(companySubscriptionService.update(id, request))
-                .build();
-    }
 }
 
 

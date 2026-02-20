@@ -19,9 +19,6 @@ public interface CompanySubscriptionMapper {
     @Mapping(source = "plan.code", target = "planCode")
     @Mapping(source = "plan.name", target = "planName")
     CompanySubscriptionResponse toCompanySubscriptionResponse(CompanySubscription companySubscription);
-
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateCompanySubscription(@MappingTarget CompanySubscription companySubscription, CompanySubscriptionRequest request);
 }
 
 

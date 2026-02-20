@@ -86,24 +86,6 @@ public class CompanySubscriptionServiceImpl implements CompanySubscriptionServic
                 .orElseThrow(() -> new AppException(ErrorCode.COMPANY_SUBSCRIPTION_NOT_EXISTED));
         return companySubscriptionMapper.toCompanySubscriptionResponse(subscription);
     }
-
-    @Override
-    @Transactional
-    public CompanySubscriptionResponse update(String id, CompanySubscriptionRequest request) {
-        CompanySubscription subscription = companySubscriptionRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.COMPANY_SUBSCRIPTION_NOT_EXISTED));
-
-        if (request.getPlanId() != null) {
-            SubscriptionPlan plan = subscriptionPlanRepository.findById(request.getPlanId())
-                    .orElseThrow(() -> new AppException(ErrorCode.SUBSCRIPTION_PLAN_NOT_EXISTED));
-            subscription.setPlan(plan);
-        }
-
-        companySubscriptionMapper.updateCompanySubscription(subscription, request);
-        return companySubscriptionMapper.toCompanySubscriptionResponse(
-                companySubscriptionRepository.save(subscription)
-        );
-    }
 }
 
 

@@ -16,8 +16,6 @@ public interface CompanySubscriptionService {
     Page<CompanySubscriptionResponse> getByCompany(String companyId, Pageable pageable);
 
     CompanySubscriptionResponse getActiveByCompany(String companyId);
-
-    CompanySubscriptionResponse update(String id, CompanySubscriptionRequest request);
 }
 
 
