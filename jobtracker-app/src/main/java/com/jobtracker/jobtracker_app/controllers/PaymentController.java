@@ -1,36 +1,59 @@
 package com.jobtracker.jobtracker_app.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jobtracker.jobtracker_app.dto.requests.PaymentRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
-import com.jobtracker.jobtracker_app.dto.responses.PaymentResponse;
+import com.jobtracker.jobtracker_app.dto.responses.payment.InitPaymentResponse;
+import com.jobtracker.jobtracker_app.dto.responses.payment.PaymentResponse;
 import com.jobtracker.jobtracker_app.services.PaymentService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PaymentController {
+    @Value("${vnpay.return-url}")
+    @NonFinal
+    String vnp_ReturnUrl;
 
     PaymentService paymentService;
     LocalizationUtils localizationUtils;
 
     @PostMapping("/admin/payments")
-    public ApiResponse<PaymentResponse> create(@RequestBody @Valid PaymentRequest request) {
-        return ApiResponse.<PaymentResponse>builder()
+    public ApiResponse<InitPaymentResponse> create(@RequestBody @Valid PaymentRequest request, HttpServletRequest httpServletRequest) throws UnsupportedEncodingException {
+        return ApiResponse.<InitPaymentResponse>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.PAYMENT_CREATE_SUCCESS))
-                .data(paymentService.create(request))
+                .data(paymentService.create(request, httpServletRequest))
                 .build();
+    }
+
+    @GetMapping("/payments/vnpay/return")
+    public void returnUrl(HttpServletRequest request,
+                          HttpServletResponse response) throws IOException {
+        boolean success = paymentService.paymentReturn(request);
+
+        if (success) {
+            response.sendRedirect(vnp_ReturnUrl + "?status=success");
+        } else {
+            response.sendRedirect(vnp_ReturnUrl + "?status=failed");
+        }
     }
 
     @GetMapping("/admin/payments/{id}")

@@ -25,6 +25,8 @@ public interface CompanySubscriptionRepository extends JpaRepository<CompanySubs
                                                          @Param("status") SubscriptionStatus status);
 
     Page<CompanySubscription> findByCompany_Id(String companyId, Pageable pageable);
+
+    Optional<CompanySubscription> findByIdAndCompany_Id(String id, String companyId);
 }
 
 

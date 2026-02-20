@@ -1,4 +1,4 @@
-package com.jobtracker.jobtracker_app.dto.responses;
+package com.jobtracker.jobtracker_app.dto.responses.payment;
 
 import com.jobtracker.jobtracker_app.enums.PaymentStatus;
 import lombok.*;
