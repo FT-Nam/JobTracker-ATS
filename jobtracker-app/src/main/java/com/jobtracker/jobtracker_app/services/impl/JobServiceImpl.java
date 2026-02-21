@@ -10,6 +10,7 @@ import com.jobtracker.jobtracker_app.mappers.JobMapper;
 import com.jobtracker.jobtracker_app.mappers.JobSkillMapper;
 import com.jobtracker.jobtracker_app.repositories.*;
 import com.jobtracker.jobtracker_app.services.JobService;
+import com.jobtracker.jobtracker_app.utils.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -35,6 +36,7 @@ public class JobServiceImpl implements JobService {
     JobSkillRepository jobSkillRepository;
     JobSkillMapper jobSkillMapper;
     SkillRepository skillRepository;
+    SecurityUtils securityUtils;
 
     @Override
     @Transactional
@@ -57,10 +59,14 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public Page<JobResponse> getAllJobByUser(Pageable pageable) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
-        return jobRepository.findAllByUserIdAndNotDeleted(userId,pageable).map(jobMapper::toJobResponse);
+    public Page<JobResponse> getAllJobByCompany(JobFilterRequest request, Pageable pageable) {
+        User user = securityUtils.getCurrentUser();
+        String companyId = user.getCompany().getId();
+        return jobRepository.searchJobs(companyId,
+                request.getJobStatus(),
+                request.getIsRemote(),
+                request.getSearch(),
+                pageable).map(jobMapper::toJobResponse);
     }
 
     @Override

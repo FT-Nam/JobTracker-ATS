@@ -10,7 +10,7 @@ import java.util.List;
 public interface JobService {
     JobResponse create(JobCreationRequest request);
     JobResponse getById(String id);
-    Page<JobResponse> getAllJobByUser(Pageable pageable);
+    Page<JobResponse> getAllJobByCompany(JobFilterRequest request, Pageable pageable);
     JobUpdateResponse update(String id, JobUpdateRequest request);
     JobUpdateStatusResponse updateStatus(String id, JobUpdateStatusRequest request);
     void delete(String id);

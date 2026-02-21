@@ -1,10 +1,6 @@
 package com.jobtracker.jobtracker_app.controllers;
 
-import com.jobtracker.jobtracker_app.dto.requests.job.JobCreationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.job.JobSkillCreationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.job.JobSkillUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateStatusRequest;
+import com.jobtracker.jobtracker_app.dto.requests.job.*;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobResponse;
@@ -42,8 +38,8 @@ public class JobController {
     }
 
     @GetMapping
-    public ApiResponse<List<JobResponse>> getAll(Pageable pageable) {
-        Page<JobResponse> jobs = jobService.getAllJobByUser(pageable);
+    public ApiResponse<List<JobResponse>> getAll(@ModelAttribute JobFilterRequest request, Pageable pageable) {
+        Page<JobResponse> jobs = jobService.getAllJobByCompany(request, pageable);
         return ApiResponse.<List<JobResponse>>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_LIST_SUCCESS))
                 .data(jobs.getContent())
@@ -72,7 +68,8 @@ public class JobController {
     }
 
     @PatchMapping("/{id}/status")
-    public ApiResponse<JobUpdateStatusResponse> update(@PathVariable String id, @RequestBody @Valid JobUpdateStatusRequest request) {
+    public ApiResponse<JobUpdateStatusResponse> updateStatus(@PathVariable String id,
+                                                             @RequestBody @Valid JobUpdateStatusRequest request) {
         return ApiResponse.<JobUpdateStatusResponse>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_UPDATE_SUCCESS))
                 .data(jobService.updateStatus(id, request))

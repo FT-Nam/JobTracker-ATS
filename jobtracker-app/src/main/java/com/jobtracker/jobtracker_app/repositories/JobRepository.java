@@ -1,6 +1,7 @@
 package com.jobtracker.jobtracker_app.repositories;
 
 import com.jobtracker.jobtracker_app.entities.Job;
+import com.jobtracker.jobtracker_app.enums.JobStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -18,8 +19,21 @@ public interface JobRepository extends JpaRepository<Job, String> {
             "priority",
             "experienceLevel"
     })
-    @Query("SELECT j FROM Job j WHERE j.user.id = :userId AND j.deletedAt IS NULL")
-    Page<Job> findAllByUserIdAndNotDeleted(@Param("userId") String userId, Pageable pageable);
+    @Query("SELECT j FROM Job j " +
+            "WHERE j.company.id = :companyId " +
+            "AND j.deletedAt IS NULL " +
+            "AND (:jobStatus IS NULL OR j.jobStatus = :jobStatus)" +
+            "AND (:isRemote IS NULL OR j.isRemote = :isRemote)" +
+            "AND (:search IS NULL" +
+            "OR LOWER(j.title) LIKE LOWER(CONCAT('%', :search, '%'))" +
+            "OR LOWER(j.position) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<Job> searchJobs(
+            @Param("companyId") String companyId,
+            @Param("jobStatus") JobStatus jobStatus,
+            @Param("isRemote") Boolean isRemote,
+            @Param("search") String search,
+            Pageable pageable
+    );
 
 //    @Query("SELECT j FROM Job j WHERE j.id = :id AND j.deletedAt IS NULL")
     Optional<Job> findByIdAndDeletedAtIsNull(@Param("id") String id);
