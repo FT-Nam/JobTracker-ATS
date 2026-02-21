@@ -192,6 +192,13 @@ public class MessageKeys {
     public static final String APPLICATION_LIST_SUCCESS = "application.list_success";
     public static final String APPLICATION_DETAIL_SUCCESS = "application.detail_success";
 
+    // COMMENT
+    public static final String COMMENT_NOT_EXISTED = "comment.not_existed";
+    public static final String COMMENT_LIST_SUCCESS = "comment.list_success";
+    public static final String COMMENT_CREATE_SUCCESS = "comment.create_success";
+    public static final String COMMENT_UPDATE_SUCCESS = "comment.update_success";
+    public static final String COMMENT_DELETE_SUCCESS = "comment.delete_success";
+
     // APPLICATION STATUS
     public static final String APPLICATION_STATUS_NOT_EXISTED = "application_status.not_existed";
     public static final String APPLICATION_STATUS_CREATE_SUCCESS = "application_status.create_success";
