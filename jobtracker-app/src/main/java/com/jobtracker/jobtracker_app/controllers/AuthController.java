@@ -2,8 +2,8 @@ package com.jobtracker.jobtracker_app.controllers;
 
 import java.text.ParseException;
 
-import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
-import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
+import com.jobtracker.jobtracker_app.dto.requests.RegisterRequest;
+import com.jobtracker.jobtracker_app.dto.responses.CompanySelfSignupResponse;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
 import jakarta.validation.Valid;
@@ -34,9 +34,9 @@ public class AuthController {
     LocalizationUtils localizationUtils;
 
     @PostMapping("register")
-    public ApiResponse<UserResponse> register(@RequestBody @Valid UserCreationRequest request) {
-        return ApiResponse.<UserResponse>builder()
-                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_REGISTER_SUCCESS))
+    public ApiResponse<CompanySelfSignupResponse> register(@RequestBody @Valid RegisterRequest request) {
+        return ApiResponse.<CompanySelfSignupResponse>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.COMPANY_SELF_SIGNUP_SUCCESS))
                 .data(authService.register(request))
                 .build();
     }

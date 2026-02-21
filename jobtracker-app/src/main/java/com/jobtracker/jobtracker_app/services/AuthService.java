@@ -5,13 +5,13 @@ import java.text.ParseException;
 import com.jobtracker.jobtracker_app.dto.requests.AuthenticationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.LogoutRequest;
 import com.jobtracker.jobtracker_app.dto.requests.RefreshRequest;
-import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
-import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
+import com.jobtracker.jobtracker_app.dto.requests.RegisterRequest;
+import com.jobtracker.jobtracker_app.dto.responses.CompanySelfSignupResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.AuthenticationResponse;
 import com.nimbusds.jose.JOSEException;
 
 public interface AuthService {
-    UserResponse register(UserCreationRequest request);
+    CompanySelfSignupResponse register(RegisterRequest request);
 
     AuthenticationResponse login(AuthenticationRequest request) throws JOSEException;
 

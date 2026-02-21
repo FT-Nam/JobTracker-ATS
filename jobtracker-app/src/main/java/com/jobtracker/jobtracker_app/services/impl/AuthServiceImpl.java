@@ -7,10 +7,14 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.RegisterRequest;
+import com.jobtracker.jobtracker_app.dto.responses.CompanyResponse;
+import com.jobtracker.jobtracker_app.dto.responses.CompanySelfSignupResponse;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
+import com.jobtracker.jobtracker_app.entities.Company;
 import com.jobtracker.jobtracker_app.entities.Role;
 import com.jobtracker.jobtracker_app.mappers.UserMapper;
+import com.jobtracker.jobtracker_app.repositories.CompanyRepository;
 import com.jobtracker.jobtracker_app.repositories.RoleRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -50,10 +54,11 @@ public class AuthServiceImpl implements AuthService {
     RedisTemplate<String, String> redisTemplate;
     InvalidatedRepository invalidatedRepository;
     RoleRepository roleRepository;
+    CompanyRepository companyRepository;
     UserMapper userMapper;
 
     private static final String CACHE_PREFIX = "refresh_token:";
-    private static final String DEFAULT_ROLE = "USER";
+    private static final String COMPANY_ADMIN_ROLE = "COMPANY_ADMIN";
 
     @NonFinal
     @Value("${jwt.signer-key}")
@@ -68,16 +73,42 @@ public class AuthServiceImpl implements AuthService {
     Long refreshableDuration;
 
     @Override
-    public UserResponse register(UserCreationRequest request) {
-        User user = userMapper.toUser(request);
+    public CompanySelfSignupResponse register(RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
 
-        Role role = roleRepository.findByName(DEFAULT_ROLE)
+        Company company = Company.builder()
+                .name(request.getCompanyName())
+                .isVerified(false)
+                .isActive(true)
+                .build();
+        company = companyRepository.save(company);
+
+        Role companyAdminRole = roleRepository.findByName(COMPANY_ADMIN_ROLE)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
-        user.setRole(role);
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setPhone(request.getPhone());
+        user.setCompany(company);
+        user.setRole(companyAdminRole);
+        user.setEmailVerified(false);
         user.setIsActive(true);
+        user = userRepository.save(user);
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        CompanyResponse companyResponse = CompanyResponse.builder()
+                .id(company.getId())
+                .name(company.getName())
+                .build();
+        UserResponse userResponse = userMapper.toUserResponse(user);
+        return CompanySelfSignupResponse.builder()
+                .company(companyResponse)
+                .user(userResponse)
+                .build();
     }
 
     @Override

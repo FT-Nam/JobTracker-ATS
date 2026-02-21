@@ -141,6 +141,7 @@ public class MessageKeys {
     public static final String COMPANY_DELETE_SUCCESS = "company.delete_success";
     public static final String COMPANY_LIST_SUCCESS = "company.list_success";
     public static final String COMPANY_DETAIL_SUCCESS = "company.detail_success";
+    public static final String COMPANY_SELF_SIGNUP_SUCCESS = "company.self_signup_success";
 
     // SKILL
     public static final String SKILL_NOT_EXISTED = "skill.not_existed";

@@ -67,6 +67,12 @@ public class DataInitializer implements CommandLineRunner {
         adminRole.setIsActive(true);
         roleRepository.save(adminRole);
 
+        Role companyAdminRole = new Role();
+        companyAdminRole.setName("COMPANY_ADMIN");
+        companyAdminRole.setDescription("Company administrator (self-signup)");
+        companyAdminRole.setIsActive(true);
+        roleRepository.save(companyAdminRole);
+
         User admin = new User();
         admin.setEmail("admin@gmail.com");
         admin.setPassword(passwordEncoder.encode("123456789"));
@@ -78,6 +84,8 @@ public class DataInitializer implements CommandLineRunner {
 
         adminRole.setCreatedBy(admin.getEmail());
         roleRepository.save(adminRole);
+        companyAdminRole.setCreatedBy(admin.getEmail());
+        roleRepository.save(companyAdminRole);
 
         String adminEmail = admin.getEmail();
         List<Permission> permissions = List.of(

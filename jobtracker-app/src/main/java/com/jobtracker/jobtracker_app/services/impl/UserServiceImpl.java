@@ -17,11 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
+import com.jobtracker.jobtracker_app.entities.Company;
 import com.jobtracker.jobtracker_app.entities.Role;
 import com.jobtracker.jobtracker_app.entities.User;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
 import com.jobtracker.jobtracker_app.mappers.UserMapper;
+import com.jobtracker.jobtracker_app.repositories.CompanyRepository;
 import com.jobtracker.jobtracker_app.repositories.RoleRepository;
 import com.jobtracker.jobtracker_app.repositories.UserRepository;
 import com.jobtracker.jobtracker_app.services.UserService;
@@ -41,6 +43,7 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     UserRepository userRepository;
+    CompanyRepository companyRepository;
     UserMapper userMapper;
     RoleRepository roleRepository;
     PermissionCacheService permissionCacheService;
@@ -53,21 +56,23 @@ public class UserServiceImpl implements UserService {
     @PreAuthorize("hasAuthority('USER_CREATE')")
     @Transactional
     public UserResponse create(UserCreationRequest request) {
-        User user = userMapper.toUser(request);
-
-        boolean isUserExist = userRepository.existsByEmail(request.getEmail());
-        if(isUserExist){
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-        user.setEmail(request.getEmail());
+        Company company = companyRepository.findById(request.getCompanyId())
+                .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
 
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        Role role = roleRepository
-                .findById(request.getRoleId())
+        Role role = roleRepository.findById(request.getRoleId())
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+
+        User user = userMapper.toUser(request);
+        user.setCompany(company);
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
+        user.setEmailVerified(false);
+        user.setIsActive(true);
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
