@@ -16,11 +16,11 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RoleCreationRequest {
-    @NotBlank(message = "Role name must not be blank")
-    @Size(max = 50, message = "Role name must not exceed 50 characters")
+    @NotBlank(message = "{role.name.not_blank}")
+    @Size(max = 50, message = "{role.name.size}")
     String name;
 
-    @Size(max = 255, message = "Description must not exceed 255 characters")
+    @Size(max = 255, message = "{role.description.size}")
     String description;
 
     Boolean isActive;

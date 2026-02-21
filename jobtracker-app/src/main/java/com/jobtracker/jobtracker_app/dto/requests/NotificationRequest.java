@@ -17,21 +17,21 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NotificationRequest {
-    @NotBlank(message = "notification.user_id.not_blank")
+    @NotBlank(message = "{notification.user_id.not_blank}")
     String userId;
 
-    @NotBlank(message = "notification.company_id.not_blank")
+    @NotBlank(message = "{notification.company_id.not_blank}")
     String companyId;
 
     String jobId;
 
     String applicationId;
 
-    @NotNull(message = "notification.type.not_null")
+    @NotNull(message = "{notification.type.not_null}")
     NotificationType type;
 
-    @NotBlank(message = "notification.title.not_blank")
-    @Size(max = 255, message = "notification.title.size")
+    @NotBlank(message = "{notification.title.not_blank}")
+    @Size(max = 255, message = "{notification.title.size}")
     String title;
 
     @NotBlank(message = "notification.message.not_blank")
@@ -45,7 +45,7 @@ public class NotificationRequest {
 
     LocalDateTime scheduledAt;
 
-    @NotNull(message = "notification.priority.not_null")
+    @NotNull(message = "{notification.priority.not_null}")
     NotificationPriority priority;
 
     String metadata;

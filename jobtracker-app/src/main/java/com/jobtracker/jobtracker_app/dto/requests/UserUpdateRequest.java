@@ -11,17 +11,17 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserUpdateRequest {
-    @Size(max = 100, message = "First name must not exceed 100 characters")
+    @Size(max = 100, message = "{user.first_name.size}")
     String firstName;
 
-    @Size(max = 100, message = "Last name must not exceed 100 characters")
+    @Size(max = 100, message = "{user.last_name.size}")
     String lastName;
 
-    @Pattern(regexp = "^[0-9]{10,15}$", message = "Phone number must contain 10 to 15 digits")
-    @Size(max = 20, message = "Phone number must not exceed 20 characters")
+    @Pattern(regexp = "^[0-9]{10,15}$", message = "{user.phone.pattern}")
+    @Size(max = 20, message = "{user.phone.size}")
     String phone;
 
-    @Size(max = 500, message = "Avatar URL must not exceed 500 characters")
+    @Size(max = 500, message = "{user.avatar_url.size}")
     String avatarUrl;
 
     Boolean isActive;

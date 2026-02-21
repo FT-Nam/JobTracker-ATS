@@ -18,18 +18,18 @@ import java.time.LocalDate;
 public class JobCreationRequest {
     /** userId and companyId are set from JWT (current user and user's company), not from client. */
 
-    @NotBlank(message = "job.title.not_blank")
-    @Size(max = 255, message = "job.title.size")
+    @NotBlank(message = "{job.title.not_blank}")
+    @Size(max = 255, message = "{job.title.size}")
     String title;
 
-    @NotBlank(message = "job.position.not_blank")
-    @Size(max = 255, message = "job.position.size")
+    @NotBlank(message = "{job.position.not_blank}")
+    @Size(max = 255, message = "{job.position.size}")
     String position;
 
-    @NotNull(message = "job.job_type.not_null")
+    @NotNull(message = "{job.job_type.not_null}")
     JobType jobType;
 
-    @Size(max = 255, message = "job.location.size")
+    @Size(max = 255, message = "{job.location.size}")
     String location;
 
     @DecimalMin(value = "0.0", message = "job.salary_min.min")
@@ -51,8 +51,8 @@ public class JobCreationRequest {
 
     String benefits;
 
-    @Size(max = 500, message = "job.job_url.size")
-    @Pattern(regexp = "^(https?://).*$", message = "job.job_url.pattern")
+    @Size(max = 500, message = "{job.job_url.size}")
+    @Pattern(regexp = "^(https?://).*$", message = "{job.job_url.pattern}")
     String jobUrl;
 
     Boolean isRemote = false;

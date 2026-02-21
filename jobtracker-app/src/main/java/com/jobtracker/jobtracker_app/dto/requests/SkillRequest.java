@@ -13,15 +13,15 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SkillRequest {
-    @NotBlank(message = "skill.name.not_blank")
-    @Size(max = 100, message = "skill.name.size")
+    @NotBlank(message = "{skill.name.not_blank}")
+    @Size(max = 100, message = "{skill.name.size}")
     String name;
 
-    @NotBlank(message = "skill.category.not_blank")
-    @Size(max = 50, message = "skill.category.size")
+    @NotBlank(message = "{skill.category.not_blank}")
+    @Size(max = 50, message = "{skill.category.size}")
     @Pattern(
             regexp = "PROGRAMMING|FRAMEWORK|DATABASE|TOOL|LANGUAGE|SOFT_SKILL|OTHER",
-            message = "skill.category.pattern")
+            message = "{skill.category.pattern}")
     String category;
 
     String description;

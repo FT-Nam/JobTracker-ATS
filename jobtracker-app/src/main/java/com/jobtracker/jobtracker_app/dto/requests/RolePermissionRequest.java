@@ -11,6 +11,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RolePermissionRequest {
-    @NotBlank(message = "Permission ID is required")
+    @NotBlank(message = "{role_permission.permission_id.not_blank}")
     String permissionId;
 }

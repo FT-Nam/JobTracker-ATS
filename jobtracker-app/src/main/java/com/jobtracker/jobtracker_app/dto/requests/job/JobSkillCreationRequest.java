@@ -13,13 +13,13 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class JobSkillCreationRequest {
 
-    @NotBlank(message = "userSkill.skillId.not_blank")
+    @NotBlank(message = "{userSkill.skillId.not_blank}")
     String skillId;
 
-    @NotNull(message = "userSkill.isRequired.not_null")
+    @NotNull(message = "{userSkill.isRequired.not_null}")
     Boolean isRequired;
 
-    @NotBlank(message = "userSkill.proficiencyLevel.not_blank")
+    @NotBlank(message = "{userSkill.proficiencyLevel.not_blank}")
     String proficiencyLevel;
 }
 

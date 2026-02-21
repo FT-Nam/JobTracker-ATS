@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RoleUpdateRequest {
-    @Size(max = 255, message = "Description must not exceed 255 characters")
+    @Size(max = 255, message = "{role.description.size}")
     String description;
 
     Boolean isActive;

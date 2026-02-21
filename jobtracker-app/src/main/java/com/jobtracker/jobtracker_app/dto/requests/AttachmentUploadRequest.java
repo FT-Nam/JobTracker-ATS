@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class AttachmentUploadRequest {
     MultipartFile file;
 
-    @NotNull(message = "attachment.attachment_type.not_null")
+    @NotNull(message = "{attachment.attachment_type.not_null}")
     AttachmentType attachmentType;
 
     String description;

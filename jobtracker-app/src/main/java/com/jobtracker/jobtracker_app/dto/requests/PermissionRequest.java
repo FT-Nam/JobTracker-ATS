@@ -14,19 +14,19 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PermissionRequest {
 
-    @NotBlank(message = "Permission name must not be blank")
-    @Size(max = 50, message = "Permission name must not exceed 50 characters")
+    @NotBlank(message = "{permission.name.not_blank}")
+    @Size(max = 50, message = "{permission.name.size}")
     String name;
 
-    @NotBlank(message = "Resource must not be blank")
-    @Size(max = 100, message = "Resource must not exceed 100 characters")
+    @NotBlank(message = "{permission.resource.not_blank}")
+    @Size(max = 100, message = "{permission.resource.size}")
     String resource;
 
-    @NotBlank(message = "Action must not be blank")
-    @Size(max = 50, message = "Action must not exceed 50 characters")
+    @NotBlank(message = "{permission.action.not_blank}")
+    @Size(max = 50, message = "{permission.action.size}")
     String action;
 
-    @Size(max = 255, message = "Description must not exceed 255 characters")
+    @Size(max = 255, message = "{permission.description.size}")
     String description;
 
     Boolean isActive;

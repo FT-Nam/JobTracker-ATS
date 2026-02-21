@@ -14,12 +14,12 @@ import lombok.experimental.FieldDefaults;
 public class AuditLogRequest {
     String userId;
 
-    @NotBlank(message = "audit_log.entity_type.not_blank")
-    @Size(max = 100, message = "audit_log.entity_type.size")
+    @NotBlank(message = "{audit_log.entity_type.not_blank}")
+    @Size(max = 100, message = "{audit_log.entity_type.size}")
     String entityType;
 
-    @NotBlank(message = "audit_log.entity_id.not_blank")
-    @Size(max = 36, message = "audit_log.entity_id.size")
+    @NotBlank(message = "{audit_log.entity_id.not_blank}")
+    @Size(max = 36, message = "{audit_log.entity_id.size}")
     String entityId;
 
     @NotBlank(message = "audit_log.action.not_blank")
@@ -30,7 +30,7 @@ public class AuditLogRequest {
 
     String newValues;
 
-    @Size(max = 45, message = "audit_log.ip_address.size")
+    @Size(max = 45, message = "{audit_log.ip_address.size}")
     String ipAddress;
 
     String userAgent;

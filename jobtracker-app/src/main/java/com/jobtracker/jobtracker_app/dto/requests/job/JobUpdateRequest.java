@@ -17,12 +17,12 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class JobUpdateRequest {
-    @NotBlank(message = "job.title.not_blank")
-    @Size(max = 255, message = "job.title.size")
+    @NotBlank(message = "{job.title.not_blank}")
+    @Size(max = 255, message = "{job.title.size}")
     String title;
 
-    @NotBlank(message = "job.position.not_blank")
-    @Size(max = 255, message = "job.position.size")
+    @NotBlank(message = "{job.position.not_blank}")
+    @Size(max = 255, message = "{job.position.size}")
     String position;
 
     JobType jobType;

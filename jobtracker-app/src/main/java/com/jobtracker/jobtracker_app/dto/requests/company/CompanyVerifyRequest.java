@@ -11,6 +11,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CompanyVerifyRequest {
-    @NotNull(message = "company.isVerified.not_null")
+    @NotNull(message = "{company.isVerified.not_null}")
     Boolean isVerified;
 }

@@ -14,6 +14,6 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RolePermissionsRequest {
-    @NotEmpty(message = "Role must include at least one permission")
-    List<@NotBlank(message = "Permission ID is invalid") String> permissionIds;
+    @NotEmpty(message = "{role_permission.permission_ids.not_empty}")
+    List<@NotBlank(message = "{role_permission.permission_id.invalid}") String> permissionIds;
 }
