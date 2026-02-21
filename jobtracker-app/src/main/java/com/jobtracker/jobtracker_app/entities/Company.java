@@ -38,9 +38,6 @@ public class Company extends FullAuditEntity {
     @Column(columnDefinition = "TEXT")
     String description;
 
-    @Column(name = "logo_url", length = 500)
-    String logoUrl;
-
     @Column(name = "is_verified", nullable = false)
     Boolean isVerified = false;
 

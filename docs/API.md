@@ -722,7 +722,7 @@ Trả về thông tin đầy đủ của user kèm audit.
 >
 > **Response & security**:
 > - **GET /jobs** (list): Trả **summary** — không trả `jobDescription`, `requirements`, `benefits` trong list (tránh payload lớn). Không trả `createdBy`, `updatedBy`, `deletedAt` trong list. Chi tiết đầy đủ dùng **GET /jobs/{id}**.
-> - **GET /jobs/{id}** (detail nội bộ): Đủ trường cho HR; `userId`/`companyId`/`createdBy`/`updatedBy` là nội bộ tenant — **không dùng** response này cho API public (candidate). Nếu có **GET public job** (xem tin tuyển trước khi apply) phải dùng DTO riêng: chỉ id, title, position, jobType, location, salary, mô tả, benefits, deadline, companyName/logo, skills — không trả userId, companyId, createdBy, updatedBy, deletedAt, viewsCount, applicationsCount.
+> - **GET /jobs/{id}** (detail nội bộ): Đủ trường cho HR; `userId`/`companyId`/`createdBy`/`updatedBy` là nội bộ tenant — **không dùng** response này cho API public (candidate). Nếu có **GET public job** (xem tin tuyển trước khi apply) phải dùng DTO riêng: chỉ id, title, position, jobType, location, salary, mô tả, benefits, deadline, companyName, skills — không trả userId, companyId, createdBy, updatedBy, deletedAt, viewsCount, applicationsCount.
 > - **POST /jobs**: Không nhận `companyId` từ client — backend set từ JWT (tránh tenant tampering).
 
 ### 1. Get All Jobs
@@ -1652,6 +1652,16 @@ Lấy lịch sử thay đổi status của application.
 > - **GET /companies** (list tất cả): Chỉ **SYSTEM_ADMIN**. Company Admin chỉ xem được company của mình qua **GET /companies/{id}** (với id từ JWT/context).
 > - Company được tạo duy nhất qua **POST /auth/register** (self-signup: company + admin cùng lúc). Không có endpoint POST /companies.
 > - **GET/PUT/DELETE /companies/{id}**: SYSTEM_ADMIN (bất kỳ company) hoặc COMPANY_ADMIN (chỉ company của mình).
+> - **PATCH /companies/{id}/verify**: Chỉ **SYSTEM_ADMIN** — set trạng thái verified của company.
+>
+> **📋 Tiêu chí Verified (cho Admin)**  
+> `isVerified` là quyết định **thủ công** của SYSTEM_ADMIN, không có công thức tự động. Admin nên set verified sau khi đánh giá theo checklist (tuỳ quy định nội bộ), ví dụ:
+> - Đã xác minh thông tin công ty (giấy phép kinh doanh / trụ sở / website hợp lệ).
+> - Đã ký hợp đồng / thanh toán (nếu áp dụng).
+> - Email/liên hệ công ty đã xác thực, không phải tài khoản giả mạo.
+>  
+> Khi đạt đủ điều kiện → gọi **PATCH /companies/{id}/verify** với `"isVerified": true`. Bỏ verified: gửi `"isVerified": false`.  
+> *(Sau này có thể bổ sung rule tự động, ví dụ: verified khi có subscription ACTIVE + plan trả phí.)*
 
 ### 1. Get All Companies
 **GET** `/companies`
@@ -1681,7 +1691,6 @@ page=0&size=20&sort=name,asc&industry=Technology&search=Google
       "size": "LARGE",
       "location": "Mountain View, CA",
       "description": "Google is a multinational technology company...",
-      "logoUrl": "https://google.com/logo.png",
       "isVerified": true,
       "createdAt": "2024-01-01T00:00:00Z",
       "updatedAt": "2024-01-01T00:00:00Z",
@@ -1718,7 +1727,6 @@ Trả về thông tin chi tiết cùng metadata audit.
     "size": "LARGE",
     "location": "Mountain View, CA",
     "description": "Google is a multinational technology company...",
-    "logoUrl": "https://google.com/logo.png",
     "isVerified": true,
     "createdAt": "2024-01-01T00:00:00Z",
     "updatedAt": "2024-01-15T10:30:00Z",
@@ -1734,14 +1742,14 @@ Trả về thông tin chi tiết cùng metadata audit.
 **PUT** `/companies/{id}`
 
 #### Request Body
+- `isVerified` không được gửi từ client — chỉ SYSTEM_ADMIN set qua admin API.
 ```json
 {
   "website": "https://newtech.com",
   "industry": "Technology",
   "size": "LARGE",
   "location": "Remote",
-  "description": "Updated description",
-  "isVerified": true
+  "description": "Updated description"
 }
 ```
 
@@ -1758,7 +1766,6 @@ Trả về thông tin chi tiết cùng metadata audit.
     "size": "LARGE",
     "location": "Remote",
     "description": "Updated description",
-    "logoUrl": "https://google.com/logo.png",
     "isVerified": true,
     "updatedAt": "2024-01-15T10:30:00Z"
   },
@@ -1775,6 +1782,47 @@ Trả về thông tin chi tiết cùng metadata audit.
   "success": true,
   "message": "Company deleted successfully",
   "data": null,
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### 5. Set Company Verified (Admin)
+**PATCH** `/companies/{id}/verify`
+
+Chỉ **SYSTEM_ADMIN**. Dùng để set/bỏ trạng thái verified của company (badge "Verified employer").
+
+#### Request Headers
+```
+Authorization: Bearer <access_token>
+```
+
+#### Request Body
+```json
+{
+  "isVerified": true
+}
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Company updated successfully",
+  "data": {
+    "id": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
+    "name": "Google",
+    "website": "https://google.com",
+    "industry": "Technology",
+    "size": "LARGE",
+    "location": "Mountain View, CA",
+    "description": "Google is a multinational technology company...",
+    "isVerified": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "createdBy": null,
+    "updatedBy": null,
+    "deletedAt": null
+  },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```

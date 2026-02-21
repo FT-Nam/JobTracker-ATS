@@ -1,6 +1,7 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
-import com.jobtracker.jobtracker_app.dto.requests.CompanyRequest;
+import com.jobtracker.jobtracker_app.dto.requests.company.CompanyFilterRequest;
+import com.jobtracker.jobtracker_app.dto.requests.company.CompanyUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.CompanyResponse;
 import com.jobtracker.jobtracker_app.entities.Company;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
@@ -25,38 +26,44 @@ public class CompanyServiceImpl implements CompanyService {
     CompanyMapper companyMapper;
 
     @Override
-    public CompanyResponse create(CompanyRequest request) {
-        Company company = companyMapper.toCompany(request);
-        return companyMapper.toCompanyResponse(companyRepository.save(company));
-    }
-
-    @Override
     public CompanyResponse getById(String id) {
         Company company = companyRepository.findById(id)
-                .orElseThrow(()-> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
         return companyMapper.toCompanyResponse(company);
     }
 
     @Override
-    public Page<CompanyResponse> getAll(Pageable pageable) {
-        return companyRepository.findAll(pageable).map(companyMapper::toCompanyResponse);
+    public Page<CompanyResponse> getAll(CompanyFilterRequest request, Pageable pageable) {
+        return companyRepository.searchCompanies(
+                request.getIndustry(),
+                request.getSearch(),
+                pageable
+        ).map(companyMapper::toCompanyResponse);
     }
 
     @Override
-    public CompanyResponse update(String id, CompanyRequest request) {
+    @Transactional
+    public CompanyResponse update(String id, CompanyUpdateRequest request) {
         Company company = companyRepository.findById(id)
-                .orElseThrow(()-> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
-
+                .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
         companyMapper.updateCompany(company, request);
-
         return companyMapper.toCompanyResponse(companyRepository.save(company));
     }
 
     @Override
+    @Transactional
+    public CompanyResponse setVerified(String id, boolean isVerified) {
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
+        company.setIsVerified(isVerified);
+        return companyMapper.toCompanyResponse(companyRepository.save(company));
+    }
+
+    @Override
+    @Transactional
     public void delete(String id) {
         Company company = companyRepository.findById(id)
-                .orElseThrow(()-> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
-
+                .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
         company.softDelete();
         companyRepository.save(company);
     }

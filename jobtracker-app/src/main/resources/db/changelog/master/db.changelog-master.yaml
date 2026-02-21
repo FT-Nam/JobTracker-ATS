@@ -9,7 +9,6 @@ databaseChangeLog:
       file: db/changelog/table/create-table-application-statuses.yaml
   - include:
       file: db/changelog/table/create-table-subscription-plans.yaml
-
   - include:
       file: db/changelog/table/create-table-companies.yaml
   - include:

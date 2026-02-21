@@ -1,6 +1,8 @@
 package com.jobtracker.jobtracker_app.controllers;
 
-import com.jobtracker.jobtracker_app.dto.requests.CompanyRequest;
+import com.jobtracker.jobtracker_app.dto.requests.company.CompanyFilterRequest;
+import com.jobtracker.jobtracker_app.dto.requests.company.CompanyUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.requests.company.CompanyVerifyRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.CompanyResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
@@ -25,17 +27,11 @@ public class CompanyController {
     CompanyService companyService;
     LocalizationUtils localizationUtils;
 
-    @PostMapping
-    public ApiResponse<CompanyResponse> create(@RequestBody @Valid CompanyRequest request){
-        return ApiResponse.<CompanyResponse>builder()
-                .message(localizationUtils.getLocalizedMessage(MessageKeys.COMPANY_CREATE_SUCCESS))
-                .data(companyService.create(request))
-                .build();
-    }
-
     @GetMapping
-    public ApiResponse<List<CompanyResponse>> getAll(Pageable pageable){
-        Page<CompanyResponse> companies = companyService.getAll(pageable);
+    public ApiResponse<List<CompanyResponse>> getAll(
+            @ModelAttribute CompanyFilterRequest request,
+            Pageable pageable) {
+        Page<CompanyResponse> companies = companyService.getAll(request, pageable);
         return ApiResponse.<List<CompanyResponse>>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.COMPANY_LIST_SUCCESS))
                 .data(companies.getContent())
@@ -43,6 +39,7 @@ public class CompanyController {
                         .page(companies.getNumber())
                         .size(companies.getSize())
                         .totalElements(companies.getTotalElements())
+                        .totalPages(companies.getTotalPages())
                         .build())
                 .build();
     }
@@ -56,7 +53,7 @@ public class CompanyController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<CompanyResponse> update(@PathVariable String id, @RequestBody @Valid CompanyRequest request){
+    public ApiResponse<CompanyResponse> update(@PathVariable String id, @RequestBody @Valid CompanyUpdateRequest request){
         return ApiResponse.<CompanyResponse>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.COMPANY_UPDATE_SUCCESS))
                 .data(companyService.update(id, request))
@@ -68,7 +65,16 @@ public class CompanyController {
         companyService.delete(id);
         return ApiResponse.<Void>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.COMPANY_DELETE_SUCCESS))
-                .message(localizationUtils.getLocalizedMessage(MessageKeys.COMPANY_DELETE_SUCCESS))
+                .build();
+    }
+
+    @PatchMapping("/{id}/verify")
+    public ApiResponse<CompanyResponse> setVerified(
+            @PathVariable String id,
+            @RequestBody @Valid CompanyVerifyRequest request) {
+        return ApiResponse.<CompanyResponse>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.COMPANY_UPDATE_SUCCESS))
+                .data(companyService.setVerified(id, request.getIsVerified()))
                 .build();
     }
 }

@@ -392,7 +392,6 @@ CREATE TABLE companies (
     size VARCHAR(50) COMMENT 'Quy mô công ty (STARTUP, SMALL, MEDIUM, LARGE, ENTERPRISE)',
     location VARCHAR(255) COMMENT 'Địa chỉ công ty',
     description TEXT COMMENT 'Mô tả công ty',
-    logo_url VARCHAR(500) COMMENT 'URL logo công ty',
     is_verified BOOLEAN DEFAULT FALSE COMMENT 'Công ty đã xác thực',
     is_active BOOLEAN DEFAULT TRUE COMMENT 'Company đang hoạt động',
     

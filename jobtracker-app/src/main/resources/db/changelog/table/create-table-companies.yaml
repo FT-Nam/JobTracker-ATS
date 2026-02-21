@@ -41,10 +41,6 @@ databaseChangeLog:
                   type: text
                   remarks: "Mô tả công ty"
               - column:
-                  name: logo_url
-                  type: varchar(500)
-                  remarks: "URL logo công ty"
-              - column:
                   name: is_verified
                   type: boolean
                   defaultValueBoolean: false

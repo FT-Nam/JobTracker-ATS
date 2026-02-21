@@ -18,7 +18,6 @@ public class CompanyResponse {
     String size;
     String location;
     String description;
-    String logoUrl;
     Boolean isVerified;
     LocalDateTime lastLoginAt;
     LocalDateTime createdAt;

@@ -1,9 +1,7 @@
-package com.jobtracker.jobtracker_app.dto.requests;
+package com.jobtracker.jobtracker_app.dto.requests.company;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,11 +11,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CompanyRequest {
-    @NotBlank(message = "company.name.not_blank")
-    @Size(max = 255, message = "company.name.size")
-    String name;
-
+public class CompanyUpdateRequest {
     @Size(max = 500, message = "company.website.size")
     @Pattern(regexp = "^(https?://).*$", message = "company.website.pattern")
     String website;
@@ -36,9 +30,5 @@ public class CompanyRequest {
 
     String description;
 
-    @Size(max = 500, message = "company.logoUrl.size")
-    @Pattern(regexp = "^(https?://).*$", message = "company.logoUrl.pattern")
-    String logoUrl;
-
-    Boolean isVerified;
+    /** isVerified chỉ do SYSTEM_ADMIN set (admin API), không nhận từ client. */
 }

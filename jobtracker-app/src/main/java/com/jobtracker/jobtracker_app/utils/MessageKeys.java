@@ -9,6 +9,7 @@ public class MessageKeys {
     public static final String USER_NOT_EXISTED = "user.not_existed";
     public static final String USER_EXISTED = "user.existed";
     public static final String UNAUTHENTICATED = "unauthenticated";
+    public static final String FORBIDDEN = "forbidden";
     public static final String INVALID_TOKEN = "invalid_token";
     public static final String INCORRECT_CURRENT_PASSWORD = "incorrect_current_password";
 
