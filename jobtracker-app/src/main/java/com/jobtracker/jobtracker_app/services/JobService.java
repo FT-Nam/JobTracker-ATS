@@ -8,9 +8,9 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface JobService {
-    JobResponse create(JobCreationRequest request);
+    JobSummaryResponse create(JobCreationRequest request);
     JobResponse getById(String id);
-    Page<JobResponse> getAllJobByCompany(JobFilterRequest request, Pageable pageable);
+    Page<JobSummaryResponse> getAllJobByCompany(JobFilterRequest request, Pageable pageable);
     JobUpdateResponse update(String id, JobUpdateRequest request);
     JobUpdateStatusResponse updateStatus(String id, JobUpdateStatusRequest request);
     void delete(String id);

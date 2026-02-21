@@ -78,7 +78,7 @@ X-Company-Id: <company_id> (Optional - auto-extracted from user context)
 ```
 
 > **Flow sau registration**:
-> 1. System tạo Company
+> 1. System tạo Company (chỉ có `name` từ companyName; các trường website, industry, size, location, description để trống, có thể cập nhật sau qua **PUT /companies/{id}**).
 > 2. System tạo Admin user với `email_verified = false`
 > 3. System gửi email verification token
 > 4. User click link trong email → Verify email → `email_verified = true` → User có thể login
@@ -719,11 +719,16 @@ Trả về thông tin đầy đủ của user kèm audit.
 ## 💼 Job Management APIs (Job Postings - ATS)
 
 > **🔄 SEMANTIC CHANGE**: Jobs = Job Postings (tin tuyển dụng), không phải "job applied". HR/Recruiter tạo job postings để candidates apply.
+>
+> **Response & security**:
+> - **GET /jobs** (list): Trả **summary** — không trả `jobDescription`, `requirements`, `benefits` trong list (tránh payload lớn). Không trả `createdBy`, `updatedBy`, `deletedAt` trong list. Chi tiết đầy đủ dùng **GET /jobs/{id}**.
+> - **GET /jobs/{id}** (detail nội bộ): Đủ trường cho HR; `userId`/`companyId`/`createdBy`/`updatedBy` là nội bộ tenant — **không dùng** response này cho API public (candidate). Nếu có **GET public job** (xem tin tuyển trước khi apply) phải dùng DTO riêng: chỉ id, title, position, jobType, location, salary, mô tả, benefits, deadline, companyName/logo, skills — không trả userId, companyId, createdBy, updatedBy, deletedAt, viewsCount, applicationsCount.
+> - **POST /jobs**: Không nhận `companyId` từ client — backend set từ JWT (tránh tenant tampering).
 
 ### 1. Get All Jobs
 **GET** `/jobs`
 
-Lấy danh sách tất cả job postings của company với pagination và filtering.
+Lấy danh sách tất cả job postings của company với pagination và filtering. Response dạng **summary** (không có nội dung dài).
 
 #### Request Headers
 ```
@@ -732,10 +737,10 @@ Authorization: Bearer <access_token>
 
 #### Query Parameters
 ```
-page=0&size=20&sort=createdAt,desc&status=PUBLISHED&jobStatus=DRAFT&search=developer&isRemote=true
+page=0&size=20&sort=createdAt,desc&jobStatus=PUBLISHED&search=developer&isRemote=true
 ```
 
-#### Response (200 OK)
+#### Response (200 OK) — Summary
 ```json
 {
   "success": true,
@@ -743,8 +748,6 @@ page=0&size=20&sort=createdAt,desc&status=PUBLISHED&jobStatus=DRAFT&search=devel
   "data": [
     {
       "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-      "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-      "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
       "title": "Senior Java Developer",
       "position": "Backend Developer",
       "jobType": "FULL_TIME",
@@ -758,16 +761,10 @@ page=0&size=20&sort=createdAt,desc&status=PUBLISHED&jobStatus=DRAFT&search=devel
       "expiresAt": "2024-01-25T23:59:59Z",
       "viewsCount": 150,
       "applicationsCount": 25,
-      "jobDescription": "We are looking for a senior Java developer...",
-      "requirements": "5+ years of Java experience...",
-      "benefits": "Health insurance, 401k, stock options...",
       "jobUrl": "https://careers.google.com/jobs/123",
       "isRemote": false,
       "createdAt": "2024-01-10T09:00:00Z",
-      "updatedAt": "2024-01-10T09:00:00Z",
-      "createdBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-      "updatedBy": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-      "deletedAt": null
+      "updatedAt": "2024-01-10T09:00:00Z"
     }
   ],
   "timestamp": "2024-01-15T10:30:00Z",
@@ -783,7 +780,7 @@ page=0&size=20&sort=createdAt,desc&status=PUBLISHED&jobStatus=DRAFT&search=devel
 ### 2. Get Job by ID
 **GET** `/jobs/{id}`
 
-Lấy thông tin chi tiết một job.
+Lấy thông tin chi tiết một job (dùng trong app nội bộ HR). Response đầy đủ; không dùng cho public/candidate.
 
 #### Request Headers
 ```
@@ -838,9 +835,9 @@ Authorization: Bearer <access_token>
 ```
 
 #### Request Body
+> **Lưu ý**: Không gửi `companyId` — backend lấy từ JWT (multi-tenant).
 ```json
 {
-  "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
   "title": "Senior Java Developer",
   "position": "Backend Developer",
   "jobType": "FULL_TIME",
@@ -866,8 +863,6 @@ Authorization: Bearer <access_token>
   "message": "Job created successfully",
   "data": {
     "id": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
-    "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
-    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
     "title": "Senior Java Developer",
     "position": "Backend Developer",
     "jobType": "FULL_TIME",
@@ -1653,10 +1648,15 @@ Lấy lịch sử thay đổi status của application.
 
 ## 🏢 Company Management APIs
 
+> **Phân quyền**:
+> - **GET /companies** (list tất cả): Chỉ **SYSTEM_ADMIN**. Company Admin chỉ xem được company của mình qua **GET /companies/{id}** (với id từ JWT/context).
+> - Company được tạo duy nhất qua **POST /auth/register** (self-signup: company + admin cùng lúc). Không có endpoint POST /companies.
+> - **GET/PUT/DELETE /companies/{id}**: SYSTEM_ADMIN (bất kỳ company) hoặc COMPANY_ADMIN (chỉ company của mình).
+
 ### 1. Get All Companies
 **GET** `/companies`
 
-Lấy danh sách tất cả companies.
+Lấy danh sách tất cả companies. **Chỉ SYSTEM_ADMIN.**
 
 #### Request Headers
 ```
@@ -1700,50 +1700,7 @@ page=0&size=20&sort=name,asc&industry=Technology&search=Google
 }
 ```
 
-### 2. Create Company
-**POST** `/companies`
-
-Tạo company mới.
-
-#### Request Headers
-```
-Authorization: Bearer <access_token>
-```
-
-#### Request Body
-```json
-{
-  "name": "New Tech Company",
-  "website": "https://newtech.com",
-  "industry": "Technology",
-  "size": "MEDIUM",
-  "location": "San Francisco, CA",
-  "description": "A innovative technology company..."
-}
-```
-
-#### Response (201 Created)
-```json
-{
-  "success": true,
-  "message": "Company created successfully",
-  "data": {
-    "id": "c2f9a8e3-4b5c-6d7e-8f90-2345678901bc",
-    "name": "New Tech Company",
-    "website": "https://newtech.com",
-    "industry": "Technology",
-    "size": "MEDIUM",
-    "location": "San Francisco, CA",
-    "description": "A innovative technology company...",
-    "logoUrl": null,
-    "isVerified": false,
-    "createdAt": "2024-01-15T10:30:00Z"
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-### 3. Get Company by ID
+### 2. Get Company by ID
 **GET** `/companies/{id}`
 
 Trả về thông tin chi tiết cùng metadata audit.
@@ -1773,7 +1730,7 @@ Trả về thông tin chi tiết cùng metadata audit.
 }
 ```
 
-### 4. Update Company
+### 3. Update Company
 **PUT** `/companies/{id}`
 
 #### Request Body
@@ -1809,7 +1766,7 @@ Trả về thông tin chi tiết cùng metadata audit.
 }
 ```
 
-### 5. Delete Company (Soft Delete)
+### 4. Delete Company (Soft Delete)
 **DELETE** `/companies/{id}`
 
 #### Response (200 OK)

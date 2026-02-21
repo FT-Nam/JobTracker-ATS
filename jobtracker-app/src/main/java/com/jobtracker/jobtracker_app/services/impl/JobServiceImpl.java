@@ -40,33 +40,34 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
-    public JobResponse create(JobCreationRequest request) {
+    public JobSummaryResponse create(JobCreationRequest request) {
+        User currentUser = securityUtils.getCurrentUser();
         Job job = jobMapper.toJob(request);
-        
-        job.setUser(userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
-        job.setCompany(companyRepository.findById(request.getCompanyId())
-                .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED)));
-        
-        return jobMapper.toJobResponse(jobRepository.save(job));
+        job.setUser(currentUser);
+        job.setCompany(currentUser.getCompany());
+        return jobMapper.toJobSummaryResponse(jobRepository.save(job));
     }
 
     @Override
     public JobResponse getById(String id) {
+        User currentUser = securityUtils.getCurrentUser();
         Job job = jobRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
+        if (!job.getCompany().getId().equals(currentUser.getCompany().getId())) {
+            throw new AppException(ErrorCode.JOB_NOT_EXISTED);
+        }
         return jobMapper.toJobResponse(job);
     }
 
     @Override
-    public Page<JobResponse> getAllJobByCompany(JobFilterRequest request, Pageable pageable) {
+    public Page<JobSummaryResponse> getAllJobByCompany(JobFilterRequest request, Pageable pageable) {
         User user = securityUtils.getCurrentUser();
         String companyId = user.getCompany().getId();
         return jobRepository.searchJobs(companyId,
                 request.getJobStatus(),
                 request.getIsRemote(),
                 request.getSearch(),
-                pageable).map(jobMapper::toJobResponse);
+                pageable).map(jobMapper::toJobSummaryResponse);
     }
 
     @Override

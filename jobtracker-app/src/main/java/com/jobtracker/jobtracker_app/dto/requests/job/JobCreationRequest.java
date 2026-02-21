@@ -16,11 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class JobCreationRequest {
-    @NotBlank(message = "job.user_id.not_blank")
-    String userId;
-
-    @NotBlank(message = "job.company_id.not_blank")
-    String companyId;
+    /** userId and companyId are set from JWT (current user and user's company), not from client. */
 
     @NotBlank(message = "job.title.not_blank")
     @Size(max = 255, message = "job.title.size")

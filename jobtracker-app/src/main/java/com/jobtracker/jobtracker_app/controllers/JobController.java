@@ -5,6 +5,7 @@ import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobResponse;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobSkillCreationResponse;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobSummaryResponse;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobSkillResponse;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateResponse;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateStatusResponse;
@@ -30,23 +31,24 @@ public class JobController {
     LocalizationUtils localizationUtils;
 
     @PostMapping
-    public ApiResponse<JobResponse> create(@RequestBody @Valid JobCreationRequest request) {
-        return ApiResponse.<JobResponse>builder()
+    public ApiResponse<JobSummaryResponse> create(@RequestBody @Valid JobCreationRequest request) {
+        return ApiResponse.<JobSummaryResponse>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_CREATE_SUCCESS))
                 .data(jobService.create(request))
                 .build();
     }
 
     @GetMapping
-    public ApiResponse<List<JobResponse>> getAll(@ModelAttribute JobFilterRequest request, Pageable pageable) {
-        Page<JobResponse> jobs = jobService.getAllJobByCompany(request, pageable);
-        return ApiResponse.<List<JobResponse>>builder()
+    public ApiResponse<List<JobSummaryResponse>> getAll(@ModelAttribute JobFilterRequest request, Pageable pageable) {
+        Page<JobSummaryResponse> jobs = jobService.getAllJobByCompany(request, pageable);
+        return ApiResponse.<List<JobSummaryResponse>>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.JOB_LIST_SUCCESS))
                 .data(jobs.getContent())
                 .paginationInfo(PaginationInfo.builder()
                         .page(jobs.getNumber())
                         .size(jobs.getSize())
                         .totalElements(jobs.getTotalElements())
+                        .totalPages(jobs.getTotalPages())
                         .build())
                 .build();
     }

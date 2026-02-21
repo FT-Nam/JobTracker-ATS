@@ -5,6 +5,7 @@ import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.requests.job.JobUpdateStatusRequest;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobResponse;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobSkillCreationResponse;
+import com.jobtracker.jobtracker_app.dto.responses.job.JobSummaryResponse;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateResponse;
 import com.jobtracker.jobtracker_app.dto.responses.job.JobUpdateStatusResponse;
 import com.jobtracker.jobtracker_app.entities.Job;
@@ -23,6 +24,8 @@ public interface JobMapper {
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "company.id", target = "companyId")
     JobResponse toJobResponse(Job job);
+
+    JobSummaryResponse toJobSummaryResponse(Job job);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateJob(@MappingTarget Job job, JobUpdateRequest request);
