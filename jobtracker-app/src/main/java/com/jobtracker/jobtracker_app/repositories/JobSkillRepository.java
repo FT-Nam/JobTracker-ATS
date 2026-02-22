@@ -1,5 +1,6 @@
 package com.jobtracker.jobtracker_app.repositories;
 
+import com.jobtracker.jobtracker_app.dto.requests.JobSkillWithName;
 import com.jobtracker.jobtracker_app.entities.Job;
 import com.jobtracker.jobtracker_app.entities.JobSkill;
 import com.jobtracker.jobtracker_app.entities.Skill;
@@ -19,6 +20,22 @@ public interface JobSkillRepository extends JpaRepository<JobSkill, String> {
             "ORDER BY s.name ASC"
     )
     List<JobSkill> findByJobIdWithSkill(@Param("jobId") String jobId);
+
+    @Query("""
+       SELECT new com.jobtracker.jobtracker_app.dto.requests.JobSkillWithName(
+           s.id,
+           s.name,
+           js.isRequired,
+           js.proficiencyLevel
+       )
+       FROM JobSkill js
+       JOIN js.skill s
+       WHERE js.job.id = :jobId
+         AND js.isDeleted = false
+         AND s.isActive = true
+         AND s.deletedAt IS NULL
+       """)
+    List<JobSkillWithName> findSkillsByJobId(String jobId);
 
     Optional<JobSkill> findByJobAndSkill(Job job, Skill skill);
 
