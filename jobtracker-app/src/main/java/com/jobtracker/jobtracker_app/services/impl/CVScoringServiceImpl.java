@@ -173,11 +173,5 @@ public class CVScoringServiceImpl implements CVScoringService {
                 .build();
     }
 
-    private String extractText(InputStream inputStream) throws IOException {
-        byte[] bytes = inputStream.readAllBytes();
-        try(PDDocument pdDocument = Loader.loadPDF(bytes)){
-            PDFTextStripper stripper = new PDFTextStripper();
-            return stripper.getText(pdDocument);
-        }
-    }
+
 }
