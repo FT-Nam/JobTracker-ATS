@@ -1468,11 +1468,15 @@ HR/Recruiter tạo application thủ công khi nhận CV qua email. Đây là **
   "statusId": "status1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
   "source": "Email",
   "appliedDate": "2024-01-15",
-  "resumeFilePath": "/applications/app1/resume.pdf",
   "coverLetter": "I am interested in this position...",
   "notes": "Received via email"
 }
 ```
+
+> **Lưu ý**:
+> - Khi tạo application thủ công, CV không đi kèm trong request body
+> - HR sẽ upload CV dưới dạng `attachment` (với `attachmentType = RESUME`)
+> - Khi upload CV thành công, hệ thống tự cập nhật trường `resumeFilePath` cho application
 
 #### Response (201 Created)
 ```json
