@@ -1,11 +1,12 @@
 package com.jobtracker.jobtracker_app.services;
 
-import com.jobtracker.jobtracker_app.dto.requests.application.ApplyToJobRequest;
-import com.jobtracker.jobtracker_app.dto.requests.application.UploadAttachmentsRequest;
-import com.jobtracker.jobtracker_app.dto.responses.application.TrackStatusResponse;
-import com.jobtracker.jobtracker_app.dto.responses.application.UploadAttachmentsResponse;
+import com.jobtracker.jobtracker_app.dto.requests.application.*;
+import com.jobtracker.jobtracker_app.dto.responses.application.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface ApplicationService {
     void ApplyToJob(ApplyToJobRequest request, String jobId) throws IOException;
@@ -14,4 +15,20 @@ public interface ApplicationService {
             throws IOException;
 
     TrackStatusResponse TrackStatus(String applicationToken);
+
+    AssignApplicationResponse AssignApplication(String id, AssignApplicationRequest request);
+
+    Page<ApplicationResponse> getApplications(ApplicationFilterRequest filter, Pageable pageable);
+
+    ApplicationResponse getApplicationById(String id);
+
+    ApplicationResponse createApplication(ApplicationCreateRequest request);
+
+    UpdateApplicationStatusResponse updateStatus(String id, ApplicationStatusUpdateRequest request);
+
+    ApplicationResponse updateApplication(String id, ApplicationUpdateRequest request);
+
+    void deleteApplication(String id);
+
+    List<ApplicationStatusHistoryResponse> ApplicationStatusHistory(String id);
 }

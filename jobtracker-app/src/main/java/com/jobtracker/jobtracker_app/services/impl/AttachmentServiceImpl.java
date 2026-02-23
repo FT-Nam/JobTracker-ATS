@@ -3,21 +3,24 @@ package com.jobtracker.jobtracker_app.services.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
-import com.jobtracker.jobtracker_app.dto.requests.AttachmentRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobtracker.jobtracker_app.dto.requests.AttachmentUploadRequest;
+import com.jobtracker.jobtracker_app.dto.requests.JobSkillWithName;
+import com.jobtracker.jobtracker_app.dto.responses.application.ApplicationScoringResult;
+import com.jobtracker.jobtracker_app.dto.responses.application.MatchedSkillsJson;
 import com.jobtracker.jobtracker_app.dto.responses.attachment.AttachmentCreationResponse;
 import com.jobtracker.jobtracker_app.dto.responses.attachment.AttachmentResponse;
 import com.jobtracker.jobtracker_app.entities.Application;
 import com.jobtracker.jobtracker_app.entities.Attachment;
 import com.jobtracker.jobtracker_app.entities.User;
+import com.jobtracker.jobtracker_app.enums.AttachmentType;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
 import com.jobtracker.jobtracker_app.mappers.AttachmentMapper;
-import com.jobtracker.jobtracker_app.repositories.ApplicationRepository;
-import com.jobtracker.jobtracker_app.repositories.AttachmentRepository;
-import com.jobtracker.jobtracker_app.repositories.CompanyRepository;
-import com.jobtracker.jobtracker_app.repositories.UserRepository;
+import com.jobtracker.jobtracker_app.repositories.*;
 import com.jobtracker.jobtracker_app.services.AttachmentService;
+import com.jobtracker.jobtracker_app.services.CVScoringService;
+import com.jobtracker.jobtracker_app.services.PdfExtractionService;
 import com.jobtracker.jobtracker_app.validator.file.FileValidator;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -45,6 +49,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     UserRepository userRepository;
     Cloudinary cloudinary;
     FileValidator pdfFileValidator;
+    PdfExtractionService pdfExtractionService;
+    JobSkillRepository jobSkillRepository;
+    CVScoringService cvScoringService;
+    ObjectMapper objectMapper;
 
     @Override
     @Transactional
@@ -53,6 +61,12 @@ public class AttachmentServiceImpl implements AttachmentService {
         pdfFileValidator.validate(request.getFile());
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Application application = applicationRepository.findByIdAndCompanyIdAndDeletedAtIsNull(applicationId, user.getCompany().getId())
+                .orElseThrow(()-> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
         String folderPath = "jobtracker_ats/applications/" + applicationId + "/cv";
 
@@ -71,11 +85,30 @@ public class AttachmentServiceImpl implements AttachmentService {
 
         String publicId = (String) result.get("public_id");
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if(request.getAttachmentType() == AttachmentType.RESUME){
+            String extractText = pdfExtractionService.extractText(request.getFile().getInputStream());
 
-        Application application = applicationRepository.findByIdAndCompanyId(applicationId, user.getCompany().getId())
-                .orElseThrow(()-> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
+            List<JobSkillWithName> jobSkillWithNames = jobSkillRepository.findSkillsByJobId(application.getJob().getId());
+
+            ApplicationScoringResult scoreResult = cvScoringService.score(extractText,jobSkillWithNames);
+
+            MatchedSkillsJson matchedSkillsJson = MatchedSkillsJson.builder()
+                    .matchedRequired(scoreResult.getMatchedRequiredSkills())
+                    .missingRequired(scoreResult.getMissingRequiredSkills())
+                    .matchedOptional(scoreResult.getMatchedOptionalSkills())
+                    .missingOptional(scoreResult.getMissingOptionalSkills())
+                    .build();
+
+            // To JSON
+            String matchedSkills = objectMapper.writeValueAsString(matchedSkillsJson);
+
+            application.setResumeFilePath((String) result.get("secure_url"));
+            application.setMatchScore(scoreResult.getMatchScore());
+            application.setExtractedText(extractText);
+            application.setMatchedSkills(matchedSkills);
+
+            applicationRepository.save(application);
+        }
 
         Attachment attachment = Attachment.builder()
                 .id(publicId)

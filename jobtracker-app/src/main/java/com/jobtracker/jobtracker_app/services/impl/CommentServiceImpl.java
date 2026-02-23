@@ -37,7 +37,7 @@ public class CommentServiceImpl implements CommentService {
         User currentUser = securityUtils.getCurrentUser();
 
         Application application = applicationRepository
-                .findByIdAndCompanyId(applicationId, currentUser.getCompany().getId())
+                .findByIdAndCompanyIdAndDeletedAtIsNull(applicationId, currentUser.getCompany().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
         return commentRepository.findByApplicationIdAndDeletedAtIsNull(application.getId(), isInternal, pageable)
@@ -50,7 +50,7 @@ public class CommentServiceImpl implements CommentService {
         User currentUser = securityUtils.getCurrentUser();
 
         Application application = applicationRepository
-                .findByIdAndCompanyId(applicationId, currentUser.getCompany().getId())
+                .findByIdAndCompanyIdAndDeletedAtIsNull(applicationId, currentUser.getCompany().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
         Comment comment = commentMapper.toComment(request);
@@ -66,7 +66,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentResponse update(String applicationId, String commentId, CommentUpdateRequest request) {
         User currentUser = securityUtils.getCurrentUser();
         Application application = applicationRepository
-                .findByIdAndCompanyId(applicationId, currentUser.getCompany().getId())
+                .findByIdAndCompanyIdAndDeletedAtIsNull(applicationId, currentUser.getCompany().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
         Comment comment = commentRepository.findById(commentId)
                 .filter(c -> c.getDeletedAt() == null)
@@ -91,7 +91,7 @@ public class CommentServiceImpl implements CommentService {
         User currentUser = securityUtils.getCurrentUser();
 
         Application application = applicationRepository
-                .findByIdAndCompanyId(applicationId, currentUser.getCompany().getId())
+                .findByIdAndCompanyIdAndDeletedAtIsNull(applicationId, currentUser.getCompany().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
         Comment comment = commentRepository.findById(commentId)

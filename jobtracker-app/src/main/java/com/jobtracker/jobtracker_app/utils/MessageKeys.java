@@ -191,6 +191,9 @@ public class MessageKeys {
     public static final String APPLICATION_DELETE_SUCCESS = "application.delete_success";
     public static final String APPLICATION_LIST_SUCCESS = "application.list_success";
     public static final String APPLICATION_DETAIL_SUCCESS = "application.detail_success";
+    public static final String APPLICATION_STATUS_UPDATE_SUCCESS = "application.status_update_success";
+    public static final String APPLICATION_ASSIGN_SUCCESS = "application.assign_success";
+    public static final String APPLICATION_STATUS_HISTORY_SUCCESS = "application.status_history_success";
 
     // COMMENT
     public static final String COMMENT_NOT_EXISTED = "comment.not_existed";

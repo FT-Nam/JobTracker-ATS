@@ -4,18 +4,17 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobtracker.jobtracker_app.dto.requests.JobSkillWithName;
-import com.jobtracker.jobtracker_app.dto.requests.application.ApplyToJobRequest;
-import com.jobtracker.jobtracker_app.dto.requests.application.UploadAttachmentsRequest;
+import com.jobtracker.jobtracker_app.dto.requests.application.*;
 import com.jobtracker.jobtracker_app.dto.responses.application.*;
-import com.jobtracker.jobtracker_app.entities.Application;
-import com.jobtracker.jobtracker_app.entities.ApplicationStatus;
-import com.jobtracker.jobtracker_app.entities.Attachment;
-import com.jobtracker.jobtracker_app.entities.Job;
+import com.jobtracker.jobtracker_app.entities.*;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
+import com.jobtracker.jobtracker_app.mappers.ApplicationMapper;
+import com.jobtracker.jobtracker_app.mappers.ApplicationStatusHistoryMapper;
 import com.jobtracker.jobtracker_app.repositories.*;
 import com.jobtracker.jobtracker_app.services.ApplicationService;
 import com.jobtracker.jobtracker_app.services.CVScoringService;
+import com.jobtracker.jobtracker_app.utils.SecurityUtils;
 import com.jobtracker.jobtracker_app.validator.file.impl.PdfFileValidator;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +22,8 @@ import lombok.experimental.FieldDefaults;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +48,11 @@ public class ApplicationServiceImpl implements ApplicationService {
     ApplicationRepository applicationRepository;
     ApplicationStatusRepository applicationStatusRepository;
     AttachmentRepository attachmentRepository;
+    UserRepository userRepository;
+    ApplicationStatusHistoryRepository applicationStatusHistoryRepository;
+    SecurityUtils securityUtils;
+    ApplicationMapper applicationMapper;
+    ApplicationStatusHistoryMapper applicationStatusHistoryMapper;
 
     private static final String STATUS_NEW = "NEW";
     private static final String STATUS_INTERVIEWING = "INTERVIEWING";
@@ -128,9 +134,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
+    @Transactional
     public UploadAttachmentsResponse UploadAttachments(UploadAttachmentsRequest request, String applicationToken)
             throws IOException {
-        Application application = applicationRepository.findByApplicationToken(applicationToken)
+        Application application = applicationRepository.findByApplicationTokenAndDeletedAtIsNull(applicationToken)
                 .orElseThrow(()-> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
         boolean allowedByStatus = application.getStatus().getName().equals(STATUS_SCREENING) ||
@@ -193,7 +200,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public TrackStatusResponse TrackStatus(String applicationToken) {
-        Application application = applicationRepository.findByApplicationToken(applicationToken)
+        Application application = applicationRepository.findByApplicationTokenAndDeletedAtIsNull(applicationToken)
                 .orElseThrow(()-> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
         ApplicationStatusDetail statusDetail = ApplicationStatusDetail.builder()
@@ -211,6 +218,148 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .appliedDate(application.getAppliedDate())
                 .updatedAt(application.getUpdatedAt())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public AssignApplicationResponse AssignApplication(String id, AssignApplicationRequest request) {
+        User user = userRepository.findById(request.getAssignedTo())
+                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Application application = applicationRepository
+                .findByIdAndCompanyIdAndDeletedAtIsNull(id, user.getCompany().getId())
+                .orElseThrow(()-> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
+
+        application.setAssignedTo(user);
+        applicationRepository.save(application);
+
+        return AssignApplicationResponse.builder()
+                .id(application.getId())
+                .assignedTo(application.getAssignedTo().getId())
+                .assignedToName(application.getAssignedTo().getLastName())
+                .updatedAt(application.getUpdatedAt())
+                .build();
+    }
+
+    @Override
+    public Page<ApplicationResponse> getApplications(ApplicationFilterRequest filter, Pageable pageable) {
+        User currentUser = securityUtils.getCurrentUser();
+        Page<Application> applications = applicationRepository.searchApplications(
+                currentUser.getCompany().getId(),
+                filter.getStatus(),
+                filter.getJobId(),
+                filter.getAssignedTo(),
+                filter.getSearch(),
+                filter.getMinMatchScore(),
+                filter.getMaxMatchScore(),
+                pageable);
+        return applications.map(app -> applicationMapper.toApplicationResponse(app, objectMapper));
+    }
+
+    @Override
+    public ApplicationResponse getApplicationById(String id) {
+        User currentUser = securityUtils.getCurrentUser();
+        Application application = applicationRepository
+                .findByIdAndCompanyIdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
+                .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
+        return applicationMapper.toApplicationResponse(application, objectMapper);
+    }
+
+    @Override
+    @Transactional
+    public ApplicationResponse createApplication(ApplicationCreateRequest request) {
+        Job job = jobRepository.findByIdAndDeletedAtIsNull(request.getJobId())
+                .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
+
+        ApplicationStatus status = applicationStatusRepository.findById(request.getStatusId())
+                .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_STATUS_NOT_EXISTED));
+
+        Application application = Application.builder()
+                .job(job)
+                .company(job.getCompany())
+                .candidateName(request.getCandidateName())
+                .candidateEmail(request.getCandidateEmail())
+                .candidatePhone(request.getCandidatePhone())
+                .status(status)
+                .source(request.getSource())
+                .appliedDate(request.getAppliedDate())
+                .coverLetter(request.getCoverLetter())
+                .notes(request.getNotes())
+                .build();
+
+        application = applicationRepository.save(application);
+        return applicationMapper.toApplicationResponse(application, objectMapper);
+    }
+
+    @Override
+    @Transactional
+    public UpdateApplicationStatusResponse updateStatus(String id, ApplicationStatusUpdateRequest request) {
+        User currentUser = securityUtils.getCurrentUser();
+        Application application = applicationRepository
+                .findByIdAndCompanyIdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
+                .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
+
+        ApplicationStatus newStatus = applicationStatusRepository.findById(request.getStatusId())
+                .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_STATUS_NOT_EXISTED));
+
+        String previousStatusName = application.getStatus().getName();
+
+        ApplicationStatusHistory history = ApplicationStatusHistory.builder()
+                .application(application)
+                .fromStatus(application.getStatus())
+                .toStatus(newStatus)
+                .changedBy(currentUser)
+                .notes(request.getNotes())
+                .build();
+        applicationStatusHistoryRepository.save(history);
+
+        application.setStatus(newStatus);
+        applicationRepository.save(application);
+
+        return UpdateApplicationStatusResponse.builder()
+                .id(application.getId())
+                .statusId(newStatus.getId())
+                .previousStatus(previousStatusName)
+                .notes(request.getNotes())
+                .updatedAt(application.getUpdatedAt())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public ApplicationResponse updateApplication(String id, ApplicationUpdateRequest request) {
+        User currentUser = securityUtils.getCurrentUser();
+        Application application = applicationRepository
+                .findByIdAndCompanyIdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
+                .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
+
+        applicationMapper.updateApplication(application, request);
+        applicationRepository.save(application);
+        return applicationMapper.toApplicationResponse(application, objectMapper);
+    }
+
+    @Override
+    @Transactional
+    public void deleteApplication(String id) {
+        User currentUser = securityUtils.getCurrentUser();
+        Application application = applicationRepository
+                .findByIdAndCompanyIdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
+                .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
+
+        application.softDelete();
+        applicationRepository.save(application);
+    }
+
+    @Override
+    public List<ApplicationStatusHistoryResponse> ApplicationStatusHistory(String id) {
+        User currentUser = securityUtils.getCurrentUser();
+        Application application = applicationRepository
+                .findByIdAndCompanyIdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
+                .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
+
+        List<ApplicationStatusHistory> histories =
+                applicationStatusHistoryRepository.findByApplication_IdOrderByCreatedAtDesc(application.getId());
+
+        return histories.stream().map(applicationStatusHistoryMapper::toResponse).toList();
     }
 
     private String extractText(InputStream inputStream) throws IOException {

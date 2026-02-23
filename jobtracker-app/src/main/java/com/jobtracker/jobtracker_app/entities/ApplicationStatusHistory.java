@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-// Không có audit field theo docs, chỉ có created_at
 public class ApplicationStatusHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
