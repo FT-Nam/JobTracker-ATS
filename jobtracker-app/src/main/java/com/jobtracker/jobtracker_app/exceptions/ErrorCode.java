@@ -58,7 +58,8 @@ public enum ErrorCode {
 
     FILE_EMPTY(MessageKeys.FILE_EMPTY, HttpStatus.BAD_REQUEST),
     FILE_TOO_LARGE(MessageKeys.FILE_TOO_LARGE, HttpStatus.BAD_REQUEST),
-    INVALID_FILE_TYPE(MessageKeys.INVALID_FILE_TYPE, HttpStatus.BAD_REQUEST);
+    INVALID_FILE_TYPE(MessageKeys.INVALID_FILE_TYPE, HttpStatus.BAD_REQUEST),
+    UPLOAD_NOT_ALLOWED(MessageKeys.UPLOAD_NOT_ALLOWED, HttpStatus.FORBIDDEN);
 
     private final String message;
     private final HttpStatus httpStatus;

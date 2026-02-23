@@ -282,5 +282,6 @@ public class MessageKeys {
     public static final String FILE_EMPTY = "file.empty";
     public static final String FILE_TOO_LARGE = "file.too_large";
     public static final String INVALID_FILE_TYPE = "file.invalid_type";
+    public static final String UPLOAD_NOT_ALLOWED = "upload.not_allowed";
 
 }

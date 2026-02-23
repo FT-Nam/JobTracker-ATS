@@ -15,18 +15,18 @@ import org.springframework.web.multipart.MultipartFile;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ApplyToJobRequest {
 
-    @NotBlank(message = "Candidate name is required")
+    @NotBlank(message = "{application.candidate_name.not_blank}")
     String candidateName;
 
-    @NotBlank(message = "Candidate email is required")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "{application.candidate_email.not_blank}")
+    @Email(message = "{application.candidate_email.invalid}")
     String candidateEmail;
 
-    @NotBlank(message = "Candidate phone is required")
+    @NotBlank(message = "{application.candidate_phone.not_blank}")
     String candidatePhone;
 
     String coverLetter;
 
-    @NotNull(message = "Resume file is required")
+    @NotNull(message = "{application.resume_file.not_null}")
     MultipartFile resume;
 }

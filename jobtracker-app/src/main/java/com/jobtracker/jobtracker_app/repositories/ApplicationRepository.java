@@ -18,5 +18,7 @@ public interface ApplicationRepository extends JpaRepository<Application, String
     Optional<Application> findByIdAndCompanyId(String id, String companyId);
 
     boolean existsByIdAndCompanyId(String id, String companyId);
+
+    Optional<Application> findByApplicationToken(String applicationToken);
 }
 
