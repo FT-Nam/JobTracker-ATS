@@ -2469,25 +2469,15 @@ Lấy lịch sử payments cho một bản ghi subscription cụ thể.
 ### 10. Get Application Statuses ✅
 **GET** `/admin/application-statuses`
 
-Lấy danh sách application statuses cùng metadata (display_name, color, sort_order) để hiển thị trong UI.
+Lấy danh sách application statuses của **company hiện tại** cùng metadata (display_name, color, sort_order) để hiển thị trong UI.
 
-> **Application Status = cấu hình pipeline ứng tuyển**, không phải ENUM cứng. Business rule lifecycle & multi-tenant đã được mô tả chi tiết ở API `PATCH /applications/{id}/status`.
+> **Application Status = cấu hình pipeline ứng tuyển per company**, không phải ENUM cứng toàn hệ thống.  
+> Mỗi company chỉ nhìn/quản lý được pipeline của chính mình; business rule lifecycle & multi-tenant đã được mô tả chi tiết ở API `PATCH /applications/{id}/status`.
 
 #### Request Headers
 ```
 Authorization: Bearer <access_token>
 ```
-
-> Trả về danh sách có pagination (page/size/sort) giống các list endpoint khác.
-
-#### Query Parameters
-```
-page=0&size=20&sort=sortOrder,asc
-```
-
-- **page**: Trang hiện tại (mặc định 0).
-- **size**: Số phần tử mỗi trang (mặc định 20).
-- **sort**: Trường và thứ tự sắp xếp, ví dụ `sortOrder,asc` hoặc `displayName,desc`.
 
 #### Response (200 OK)
 ```json
@@ -2524,20 +2514,14 @@ page=0&size=20&sort=sortOrder,asc
       "deletedAt": null
     }
   ],
-  "timestamp": "2024-01-15T10:30:00Z",
-  "paginationInfo": {
-    "page": 0,
-    "size": 20,
-    "totalElements": 2,
-    "totalPages": 1
-  }
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
 ### 11. Create Application Status
 **POST** `/admin/application-statuses`
 
-Tạo application status mới (chỉ dành cho admin).
+Tạo application status **mới cho company hiện tại** (chỉ dành cho COMPANY_ADMIN/HR Admin).
 
 #### Request Headers
 ```

@@ -67,10 +67,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         ApplicationStatus newStatus =
                 applicationStatusRepository
-                        .findByCompanyIdAndIsDefaultTrueAndDeletedAtIsNull(job.getCompany().getId())
+                        .findByCompany_IdAndIsDefaultTrueAndDeletedAtIsNull(job.getCompany().getId())
                         .orElseGet(() ->
                                 applicationStatusRepository
-                                        .findByCompanyIdIsNullAndIsDefaultTrueAndDeletedAtIsNull()
+                                        .findByCompanyIsNullAndIsDefaultTrueAndDeletedAtIsNull()
                                         .orElseThrow(() ->
                                                 new AppException(ErrorCode.DEFAULT_STATUS_NOT_CONFIGURED)
                                         )
@@ -315,7 +315,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         ApplicationStatus currentStatus = application.getStatus();
 
         ApplicationStatus newStatus = applicationStatusRepository
-                .findByIdAndCompanyIdAndIsActiveTrueAndDeletedAtIsNull(
+                .findByIdAndCompany_IdAndIsActiveTrueAndDeletedAtIsNull(
                         request.getStatusId(),
                         currentUser.getCompany().getId()
                 )

@@ -3,7 +3,6 @@ package com.jobtracker.jobtracker_app.controllers;
 import com.jobtracker.jobtracker_app.dto.requests.ApplicationStatusRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.ApplicationStatusResponse;
-import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.services.ApplicationStatusService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
@@ -42,17 +41,10 @@ public class ApplicationStatusController {
     }
 
     @GetMapping
-    public ApiResponse<List<ApplicationStatusResponse>> getAll(Pageable pageable) {
-        Page<ApplicationStatusResponse> responses = applicationStatusService.getAll(pageable);
+    public ApiResponse<List<ApplicationStatusResponse>> getAll() {
         return ApiResponse.<List<ApplicationStatusResponse>>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.APPLICATION_STATUS_LIST_SUCCESS))
-                .data(responses.getContent())
-                .paginationInfo(PaginationInfo.builder()
-                        .page(responses.getNumber())
-                        .size(responses.getSize())
-                        .totalElements(responses.getTotalElements())
-                        .totalPages(responses.getTotalPages())
-                        .build())
+                .data(applicationStatusService.getAll())
                 .build();
     }
 
