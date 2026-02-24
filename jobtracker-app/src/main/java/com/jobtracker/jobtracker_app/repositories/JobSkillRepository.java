@@ -1,9 +1,7 @@
 package com.jobtracker.jobtracker_app.repositories;
 
 import com.jobtracker.jobtracker_app.dto.requests.JobSkillWithName;
-import com.jobtracker.jobtracker_app.entities.Job;
 import com.jobtracker.jobtracker_app.entities.JobSkill;
-import com.jobtracker.jobtracker_app.entities.Skill;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -37,11 +35,9 @@ public interface JobSkillRepository extends JpaRepository<JobSkill, String> {
        """)
     List<JobSkillWithName> findSkillsByJobId(String jobId);
 
-    Optional<JobSkill> findByJobAndSkill(Job job, Skill skill);
+    Optional<JobSkill> findByJob_IdAndSkill_Id(String jobId, String skillId);
 
-    void deleteByJobAndSkill(Job job, Skill skill);
-
-    boolean existsByJobAndSkill(Job job, Skill skill);
+    boolean existsByJob_IdAndSkill_Id(String jobId, String skillId);
 }
 
 

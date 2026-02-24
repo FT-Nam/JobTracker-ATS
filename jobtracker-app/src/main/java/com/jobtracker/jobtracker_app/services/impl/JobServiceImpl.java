@@ -133,7 +133,7 @@ public class JobServiceImpl implements JobService {
         Job job = jobRepository.findByIdAndDeletedAtIsNull(jobId)
                 .orElseThrow(()-> new AppException(ErrorCode.JOB_NOT_EXISTED));
 
-        if(jobSkillRepository.existsByJobAndSkill(job,skill)){
+        if(jobSkillRepository.existsByJob_IdAndSkill_Id(jobId, request.getSkillId())){
             throw new AppException(ErrorCode.JOB_SKILL_EXISTED);
         }
 
@@ -154,7 +154,7 @@ public class JobServiceImpl implements JobService {
         Job job = jobRepository.findByIdAndDeletedAtIsNull(jobId)
                 .orElseThrow(()-> new AppException(ErrorCode.JOB_NOT_EXISTED));
 
-        JobSkill jobSkill = jobSkillRepository.findByJobAndSkill(job, skill)
+        JobSkill jobSkill = jobSkillRepository.findByJob_IdAndSkill_Id(jobId, skillId)
                 .orElseThrow(()-> new AppException(ErrorCode.JOB_SKILL_NOT_EXISTED));
 
         if(request.getIsRequired() != null){
@@ -180,11 +180,11 @@ public class JobServiceImpl implements JobService {
         Job job = jobRepository.findByIdAndDeletedAtIsNull(jobId)
                 .orElseThrow(()-> new AppException(ErrorCode.JOB_NOT_EXISTED));
 
-        if(!jobSkillRepository.existsByJobAndSkill(job,skill)){
+        if(!jobSkillRepository.existsByJob_IdAndSkill_Id(jobId, skillId)){
             throw new AppException(ErrorCode.JOB_SKILL_NOT_EXISTED);
         }
 
-        JobSkill jobSkill = jobSkillRepository.findByJobAndSkill(job,skill)
+        JobSkill jobSkill = jobSkillRepository.findByJob_IdAndSkill_Id(jobId, skillId)
                         .orElseThrow(()-> new AppException(ErrorCode.JOB_SKILL_NOT_EXISTED));
 
         jobSkill.softDelete();

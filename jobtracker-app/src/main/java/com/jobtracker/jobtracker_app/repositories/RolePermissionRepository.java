@@ -1,7 +1,5 @@
 package com.jobtracker.jobtracker_app.repositories;
 
-import com.jobtracker.jobtracker_app.entities.Permission;
-import com.jobtracker.jobtracker_app.entities.Role;
 import com.jobtracker.jobtracker_app.entities.RolePermission;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,11 +10,11 @@ import java.util.List;
 
 @Repository
 public interface RolePermissionRepository extends JpaRepository<RolePermission, String> {
-    boolean existsByRoleAndPermission(Role role, Permission permission);
-    Page<RolePermission> findByRole(Role role, Pageable pageable);
-    List<RolePermission> findByRole(Role role);
-    void deleteByRoleAndPermission(Role role, Permission permission);
-    void deleteByRole(Role role);
+    boolean existsByRole_IdAndPermission_Id(String roleId, String permissionId);
+    Page<RolePermission> findByRole_Id(String roleId, Pageable pageable);
+    List<RolePermission> findByRole_Id(String roleId);
+    void deleteByRole_IdAndPermission_Id(String roleId, String permissionId);
+    void deleteByRole_Id(String roleId);
 }
 
 

@@ -106,7 +106,7 @@ public class RoleServiceImpl implements RoleService {
                 .filter(Permission::getIsActive)
                 .orElseThrow(() -> new AppException(ErrorCode.PERMISSION_NOT_EXISTED));
 
-        if (rolePermissionRepository.existsByRoleAndPermission(role, permission)) {
+        if (rolePermissionRepository.existsByRole_IdAndPermission_Id(role.getId(), permission.getId())) {
             throw new AppException(ErrorCode.ROLE_PERMISSION_EXISTED);
         }
 
@@ -122,10 +122,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional
     public void removePermissionFromRole(String roleId, String permissionId) {
-        Role role = roleRepository.getReferenceById(roleId);
-        Permission permission = permissionRepository.getReferenceById(permissionId);
-
-        rolePermissionRepository.deleteByRoleAndPermission(role, permission);
+        rolePermissionRepository.deleteByRole_IdAndPermission_Id(roleId, permissionId);
     }
 
     @Override
@@ -134,7 +131,8 @@ public class RoleServiceImpl implements RoleService {
                 .filter(Role::getIsActive)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
-        return rolePermissionRepository.findByRole(role, pageable).map(roleMapper::toRolePermissionResponse);
+        return rolePermissionRepository.findByRole_Id(role.getId(), pageable)
+                .map(roleMapper::toRolePermissionResponse);
     }
 
     @Override
@@ -153,7 +151,7 @@ public class RoleServiceImpl implements RoleService {
             throw new AppException(ErrorCode.PERMISSION_NOT_EXISTED);
         }
 
-        rolePermissionRepository.deleteByRole(role);
+        rolePermissionRepository.deleteByRole_Id(role.getId());
 
         List<RolePermission> rolePermissions = permissions.stream()
                 .map(p -> RolePermission.builder()

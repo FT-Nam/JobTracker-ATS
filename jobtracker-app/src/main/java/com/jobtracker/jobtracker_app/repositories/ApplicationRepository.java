@@ -15,9 +15,9 @@ public interface ApplicationRepository extends JpaRepository<Application, String
 
     Optional<Application> findByIdAndDeletedAtIsNull(String id);
 
-    Optional<Application> findByIdAndCompanyIdAndDeletedAtIsNull(String id, String companyId);
+    Optional<Application> findByIdAndCompany_IdAndDeletedAtIsNull(String id, String companyId);
 
-    boolean existsByIdAndCompanyId(String id, String companyId);
+    boolean existsByIdAndCompany_Id(String id, String companyId);
 
     Optional<Application> findByApplicationTokenAndDeletedAtIsNull(String applicationToken);
 

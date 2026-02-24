@@ -234,7 +234,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         User user = userRepository.findById(request.getAssignedTo())
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
         Application application = applicationRepository
-                .findByIdAndCompanyIdAndDeletedAtIsNull(id, user.getCompany().getId())
+                .findByIdAndCompany_IdAndDeletedAtIsNull(id, user.getCompany().getId())
                 .orElseThrow(()-> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
         application.setAssignedTo(user);
@@ -267,7 +267,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public ApplicationResponse getApplicationById(String id) {
         User currentUser = securityUtils.getCurrentUser();
         Application application = applicationRepository
-                .findByIdAndCompanyIdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
+                .findByIdAndCompany_IdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
         return applicationMapper.toApplicationResponse(application, objectMapper);
     }
@@ -306,7 +306,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         User currentUser = securityUtils.getCurrentUser();
 
         Application application = applicationRepository
-                .findByIdAndCompanyIdAndDeletedAtIsNull(
+                .findByIdAndCompany_IdAndDeletedAtIsNull(
                         id,
                         currentUser.getCompany().getId()
                 )
@@ -365,7 +365,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public ApplicationResponse updateApplication(String id, ApplicationUpdateRequest request) {
         User currentUser = securityUtils.getCurrentUser();
         Application application = applicationRepository
-                .findByIdAndCompanyIdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
+                .findByIdAndCompany_IdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
         applicationMapper.updateApplication(application, request);
@@ -378,7 +378,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public void deleteApplication(String id) {
         User currentUser = securityUtils.getCurrentUser();
         Application application = applicationRepository
-                .findByIdAndCompanyIdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
+                .findByIdAndCompany_IdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
         application.softDelete();
@@ -389,7 +389,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public List<ApplicationStatusHistoryResponse> ApplicationStatusHistory(String id) {
         User currentUser = securityUtils.getCurrentUser();
         Application application = applicationRepository
-                .findByIdAndCompanyIdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
+                .findByIdAndCompany_IdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
         List<ApplicationStatusHistory> histories =

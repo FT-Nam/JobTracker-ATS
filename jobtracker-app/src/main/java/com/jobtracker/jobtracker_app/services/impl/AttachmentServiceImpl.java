@@ -66,7 +66,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Application application = applicationRepository
-                .findByIdAndCompanyIdAndDeletedAtIsNull(applicationId, user.getCompany().getId())
+                .findByIdAndCompany_IdAndDeletedAtIsNull(applicationId, user.getCompany().getId())
                 .orElseThrow(()-> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
         String folderPath = "jobtracker_ats/applications/" + applicationId + "/cv";
@@ -176,7 +176,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        boolean exists = applicationRepository.existsByIdAndCompanyId(applicationId, user.getCompany().getId());
+        boolean exists = applicationRepository.existsByIdAndCompany_Id(applicationId, user.getCompany().getId());
 
         if (!exists) {
             throw new AppException(ErrorCode.APPLICATION_NOT_EXISTED);
