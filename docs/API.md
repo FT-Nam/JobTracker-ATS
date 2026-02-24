@@ -1539,6 +1539,28 @@ Cập nhật status của application (workflow: NEW → SCREENING → INTERVIEW
 > - Khi tạo application (auto/public hoặc HR tạo thủ công), hệ thống chọn `status_id` default theo pipeline của company và ghi một bản ghi vào `application_status_history` (fromStatus = null, toStatus = default).  
 > - Khi HR cập nhật status qua `PATCH /applications/{id}/status`, hệ thống kiểm tra status hợp lệ cho company, cập nhật `applications.status_id` và thêm một bản ghi mới vào `application_status_history`.  
 
+#### ✔ Business rule (lifecycle)
+
+- **Lifecycle chuẩn theo `StatusType`**:  
+  - APPLIED → SCREENING → INTERVIEW → OFFER → HIRED  
+  - Từ **bất kỳ stage nào** có thể chuyển sang **REJECTED**.  
+- **Không thể đi tiếp từ trạng thái kết thúc**:  
+  - Nếu status hiện tại có `statusType = HIRED` hoặc `REJECTED` → không được chuyển sang status khác.  
+- **Không đi ngược lifecycle**:  
+  - Không cho phép chuyển từ stage có `StatusType` order cao về stage có order thấp (ví dụ OFFER → INTERVIEW, SCREENING → APPLIED).  
+
+#### ✔ Không phụ thuộc UI (sort_order chỉ để hiển thị)
+
+- `sortOrder` **chỉ dùng để sắp xếp hiển thị** pipeline trong UI từng company.  
+- Logic lifecycle **không dựa vào `sortOrder`** mà dựa vào `statusType.order` trong enum `StatusType`.  
+- Company có thể **reorder pipeline** (đổi `sortOrder`, đổi `displayName`, đổi `color`) mà **không ảnh hưởng** tới business rule lifecycle nêu trên.
+
+#### ✔ Multi-tenant safe
+
+- Khi update status của một application, backend luôn kiểm tra:  
+  - Status mới phải thuộc **cùng company** với application, hoặc là **system default** (`company_id IS NULL`) được clone cho company đó.  
+  - **Không thể** dùng status của company khác trong pipeline của mình.  
+
 ### 5. Assign Application to Recruiter
 **PATCH** `/applications/{id}/assign`
 
@@ -2448,6 +2470,8 @@ Lấy lịch sử payments cho một bản ghi subscription cụ thể.
 **GET** `/admin/application-statuses`
 
 Lấy danh sách application statuses cùng metadata (display_name, color, sort_order) để hiển thị trong UI.
+
+> **Application Status = cấu hình pipeline ứng tuyển**, không phải ENUM cứng. Business rule lifecycle & multi-tenant đã được mô tả chi tiết ở API `PATCH /applications/{id}/status`.
 
 #### Request Headers
 ```

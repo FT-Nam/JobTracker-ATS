@@ -4,23 +4,28 @@ databaseChangeLog:
       author: namphan
       changes:
         - createIndex:
-            indexName: idx_application_statuses_name
+            indexName: uq_application_statuses_company_name
             tableName: application_statuses
+            unique: true
             columns:
+              - column:
+                  name: company_id
               - column:
                   name: name
         - createIndex:
-            indexName: idx_application_statuses_sort_order
+            indexName: idx_application_statuses_company_active
             tableName: application_statuses
             columns:
               - column:
-                  name: sort_order
-        - createIndex:
-            indexName: idx_application_statuses_is_active
-            tableName: application_statuses
-            columns:
+                  name: company_id
               - column:
                   name: is_active
+        - createIndex:
+            indexName: idx_application_statuses_status_type
+            tableName: application_statuses
+            columns:
+              - column:
+                  name: status_type
         - createIndex:
             indexName: idx_application_statuses_created_at
             tableName: application_statuses

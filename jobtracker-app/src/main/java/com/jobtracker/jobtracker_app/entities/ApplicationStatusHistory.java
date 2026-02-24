@@ -35,7 +35,7 @@ public class ApplicationStatusHistory {
     ApplicationStatus toStatus;
 
     @ManyToOne
-    @JoinColumn(name = "changed_by", nullable = false)
+    @JoinColumn(name = "changed_by")
     User changedBy;
 
     @Column(columnDefinition = "TEXT")

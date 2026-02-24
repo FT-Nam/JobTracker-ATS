@@ -15,12 +15,15 @@ databaseChangeLog:
                     nullable: false
                   remarks: "UUID application status"
               - column:
+                  name: company_id
+                  type: varchar(36)
+                  remarks: "NULL = system default template, có value = company custom"
+              - column:
                   name: name
                   type: varchar(50)
                   constraints:
                     nullable: false
-                    unique: true
-                  remarks: "Tên status"
+                  remarks: "Slug nội bộ, unique per company"
               - column:
                   name: display_name
                   type: varchar(100)
@@ -37,10 +40,28 @@ databaseChangeLog:
                   defaultValue: '#6B7280'
                   remarks: "Màu sắc hiển thị"
               - column:
+                  name: status_type
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+                  remarks: "APPLIED | SCREENING | INTERVIEW | OFFER | HIRED | REJECTED"
+              - column:
                   name: sort_order
                   type: int
                   defaultValueNumeric: 0
-                  remarks: "Thứ tự sắp xếp"
+                  constraints:
+                    nullable: false
+                  remarks: "Thứ tự hiển thị trong pipeline của company"
+              - column:
+                  name: is_terminal
+                  type: boolean
+                  defaultValueBoolean: false
+                  remarks: "TRUE = không cho chuyển tiếp (HIRED/REJECTED)"
+              - column:
+                  name: is_default
+                  type: boolean
+                  defaultValueBoolean: false
+                  remarks: "Auto-assign khi tạo application mới"
               - column:
                   name: is_active
                   type: boolean

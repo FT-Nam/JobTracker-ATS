@@ -7,6 +7,7 @@ import com.jobtracker.jobtracker_app.dto.requests.JobSkillWithName;
 import com.jobtracker.jobtracker_app.dto.requests.application.*;
 import com.jobtracker.jobtracker_app.dto.responses.application.*;
 import com.jobtracker.jobtracker_app.entities.*;
+import com.jobtracker.jobtracker_app.enums.StatusType;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
 import com.jobtracker.jobtracker_app.mappers.ApplicationMapper;
@@ -54,7 +55,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     ApplicationMapper applicationMapper;
     ApplicationStatusHistoryMapper applicationStatusHistoryMapper;
 
-    private static final String STATUS_NEW = "NEW";
+    private static final String STATUS_APPLIED = "APPLIED";
     private static final String STATUS_INTERVIEWING = "INTERVIEWING";
     private static final String STATUS_SCREENING = "SCREENING";
 
@@ -64,9 +65,16 @@ public class ApplicationServiceImpl implements ApplicationService {
         Job job = jobRepository.findByIdAndDeletedAtIsNull(jobId)
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
 
-        ApplicationStatus newStatus = applicationStatusRepository.findByNameAndDeletedAtIsNull(STATUS_NEW)
-                .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_STATUS_NOT_EXISTED));
-
+        ApplicationStatus newStatus =
+                applicationStatusRepository
+                        .findByCompanyIdAndIsDefaultTrueAndDeletedAtIsNull(job.getCompany().getId())
+                        .orElseGet(() ->
+                                applicationStatusRepository
+                                        .findByCompanyIdIsNullAndIsDefaultTrueAndDeletedAtIsNull()
+                                        .orElseThrow(() ->
+                                                new AppException(ErrorCode.DEFAULT_STATUS_NOT_CONFIGURED)
+                                        )
+                        );
 
         pdfFileValidator.validate(request.getResume());
 
@@ -140,8 +148,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application application = applicationRepository.findByApplicationTokenAndDeletedAtIsNull(applicationToken)
                 .orElseThrow(()-> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
-        boolean allowedByStatus = application.getStatus().getName().equals(STATUS_SCREENING) ||
-                        application.getStatus().getName().equals(STATUS_INTERVIEWING);
+        boolean allowedByStatus = application.getStatus().getStatusType().equals(StatusType.SCREENING) ||
+                        application.getStatus().getStatusType().equals(StatusType.INTERVIEW);
 
         if (!application.getAllowAdditionalUploads() && !allowedByStatus) {
             throw new AppException(ErrorCode.UPLOAD_NOT_ALLOWED);
@@ -292,33 +300,61 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional
-    public UpdateApplicationStatusResponse updateStatus(String id, ApplicationStatusUpdateRequest request) {
+    public UpdateApplicationStatusResponse updateStatus(String id,
+                                                        ApplicationStatusUpdateRequest request) {
+
         User currentUser = securityUtils.getCurrentUser();
+
         Application application = applicationRepository
-                .findByIdAndCompanyIdAndDeletedAtIsNull(id, currentUser.getCompany().getId())
+                .findByIdAndCompanyIdAndDeletedAtIsNull(
+                        id,
+                        currentUser.getCompany().getId()
+                )
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
 
-        ApplicationStatus newStatus = applicationStatusRepository.findById(request.getStatusId())
+        ApplicationStatus currentStatus = application.getStatus();
+
+        ApplicationStatus newStatus = applicationStatusRepository
+                .findByIdAndCompanyIdAndIsActiveTrueAndDeletedAtIsNull(
+                        request.getStatusId(),
+                        currentUser.getCompany().getId()
+                )
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_STATUS_NOT_EXISTED));
 
-        String previousStatusName = application.getStatus().getName();
+        StatusType currentType = currentStatus.getStatusType();
+        StatusType newType = newStatus.getStatusType();
+
+        // Không cho chuyển từ terminal
+        if (currentType.isTerminal()) {
+            throw new AppException(ErrorCode.APPLICATION_STATUS_IS_TERMINAL);
+        }
+
+        // Không cho chuyển về chính nó
+        if (currentStatus.getId().equals(newStatus.getId())) {
+            throw new AppException(ErrorCode.APPLICATION_STATUS_SAME);
+        }
+
+        // Validate business lifecycle bằng order
+        if (!currentType.canMoveTo(newType)) {
+            throw new AppException(ErrorCode.APPLICATION_STATUS_INVALID_TRANSITION);
+        }
 
         ApplicationStatusHistory history = ApplicationStatusHistory.builder()
                 .application(application)
-                .fromStatus(application.getStatus())
+                .fromStatus(currentStatus)
                 .toStatus(newStatus)
                 .changedBy(currentUser)
                 .notes(request.getNotes())
                 .build();
+
         applicationStatusHistoryRepository.save(history);
 
         application.setStatus(newStatus);
-        applicationRepository.save(application);
 
         return UpdateApplicationStatusResponse.builder()
                 .id(application.getId())
                 .statusId(newStatus.getId())
-                .previousStatus(previousStatusName)
+                .previousStatus(currentStatus.getName())
                 .notes(request.getNotes())
                 .updatedAt(application.getUpdatedAt())
                 .build();

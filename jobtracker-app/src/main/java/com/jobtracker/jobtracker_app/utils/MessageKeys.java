@@ -191,9 +191,11 @@ public class MessageKeys {
     public static final String APPLICATION_DELETE_SUCCESS = "application.delete_success";
     public static final String APPLICATION_LIST_SUCCESS = "application.list_success";
     public static final String APPLICATION_DETAIL_SUCCESS = "application.detail_success";
-    public static final String APPLICATION_STATUS_UPDATE_SUCCESS = "application.status_update_success";
     public static final String APPLICATION_ASSIGN_SUCCESS = "application.assign_success";
     public static final String APPLICATION_STATUS_HISTORY_SUCCESS = "application.status_history_success";
+
+    // APPLICATION STATUS WORKFLOW
+    public static final String DEFAULT_STATUS_NOT_CONFIGURED = "application_status.default_not_configured";
 
     // COMMENT
     public static final String COMMENT_NOT_EXISTED = "comment.not_existed";
@@ -204,6 +206,9 @@ public class MessageKeys {
 
     // APPLICATION STATUS
     public static final String APPLICATION_STATUS_NOT_EXISTED = "application_status.not_existed";
+    public static final String APPLICATION_STATUS_IS_TERMINAL = "application_status.is_terminal";
+    public static final String APPLICATION_STATUS_SAME = "application_status.same";
+    public static final String APPLICATION_STATUS_INVALID_TRANSITION = "application_status.invalid_transition";
     public static final String APPLICATION_STATUS_CREATE_SUCCESS = "application_status.create_success";
     public static final String APPLICATION_STATUS_UPDATE_SUCCESS = "application_status.update_success";
     public static final String APPLICATION_STATUS_DELETE_SUCCESS = "application_status.delete_success";

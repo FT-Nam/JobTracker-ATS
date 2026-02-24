@@ -14,6 +14,7 @@ import com.jobtracker.jobtracker_app.entities.Permission;
 import com.jobtracker.jobtracker_app.entities.Role;
 import com.jobtracker.jobtracker_app.entities.RolePermission;
 import com.jobtracker.jobtracker_app.entities.User;
+import com.jobtracker.jobtracker_app.enums.StatusType;
 import com.jobtracker.jobtracker_app.repositories.ApplicationStatusRepository;
 import com.jobtracker.jobtracker_app.repositories.CompanyRepository;
 import com.jobtracker.jobtracker_app.repositories.PermissionRepository;
@@ -120,14 +121,20 @@ public class DataInitializer implements CommandLineRunner {
         if (applicationStatusRepository.count() == 0) {
             log.info("Seeding application statuses...");
             String systemUser = "system";
-            
+
             List<ApplicationStatus> statuses = List.of(
-                    createApplicationStatus("NEW", "Mới", "Ứng viên vừa nộp đơn", "#3B82F6", 1, systemUser),
-                    createApplicationStatus("SCREENING", "Sàng lọc", "Đang sàng lọc hồ sơ", "#8B5CF6", 2, systemUser),
-                    createApplicationStatus("INTERVIEWING", "Phỏng vấn", "Đang trong quá trình phỏng vấn", "#F59E0B", 3, systemUser),
-                    createApplicationStatus("OFFERED", "Đã đề xuất", "Đã gửi offer cho ứng viên", "#10B981", 4, systemUser),
-                    createApplicationStatus("HIRED", "Đã tuyển", "Ứng viên đã được tuyển", "#059669", 5, systemUser),
-                    createApplicationStatus("REJECTED", "Từ chối", "Ứng viên bị từ chối", "#EF4444", 6, systemUser)
+                    createApplicationStatus("NEW", "Mới", "Ứng viên vừa nộp đơn", "#6B7280", 1,
+                            StatusType.APPLIED, false, true, systemUser),
+                    createApplicationStatus("SCREENING", "Sàng lọc", "Đang sàng lọc hồ sơ", "#3B82F6", 2,
+                            StatusType.SCREENING, false, false, systemUser),
+                    createApplicationStatus("INTERVIEWING", "Phỏng vấn", "Đang trong quá trình phỏng vấn", "#F59E0B", 3,
+                            StatusType.INTERVIEW, false, false, systemUser),
+                    createApplicationStatus("OFFERED", "Đã đề xuất", "Đã gửi offer cho ứng viên", "#8B5CF6", 4,
+                            StatusType.OFFER, false, false, systemUser),
+                    createApplicationStatus("HIRED", "Đã tuyển", "Ứng viên đã được tuyển", "#10B981", 5,
+                            StatusType.HIRED, true, false, systemUser),
+                    createApplicationStatus("REJECTED", "Từ chối", "Ứng viên bị từ chối", "#EF4444", 6,
+                            StatusType.REJECTED, true, false, systemUser)
             );
             
             applicationStatusRepository.saveAll(statuses);
@@ -135,13 +142,25 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private ApplicationStatus createApplicationStatus(String name, String displayName, String description, String color, Integer sortOrder, String createdBy) {
+    private ApplicationStatus createApplicationStatus(
+            String name,
+            String displayName,
+            String description,
+            String color,
+            Integer sortOrder,
+            StatusType statusType,
+            boolean isTerminal,
+            boolean isDefault,
+            String createdBy) {
         ApplicationStatus status = ApplicationStatus.builder()
                 .name(name)
                 .displayName(displayName)
                 .description(description)
                 .color(color)
                 .sortOrder(sortOrder)
+                .statusType(statusType)
+                .isTerminal(isTerminal)
+                .isDefault(isDefault)
                 .isActive(true)
                 .build();
         status.setCreatedBy(createdBy);

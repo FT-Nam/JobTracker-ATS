@@ -11,5 +11,8 @@ import java.util.Optional;
 public interface ApplicationStatusRepository extends JpaRepository<ApplicationStatus, String>, JpaSpecificationExecutor<ApplicationStatus> {
     Optional<ApplicationStatus> findByNameAndDeletedAtIsNull(String name);
     Optional<ApplicationStatus> findByIdAndDeletedAtIsNull(String id);
+    Optional<ApplicationStatus> findByCompanyIdAndIsDefaultTrueAndDeletedAtIsNull(String companyId);
+    Optional<ApplicationStatus> findByCompanyIdIsNullAndIsDefaultTrueAndDeletedAtIsNull();
+    Optional<ApplicationStatus> findByIdAndCompanyIdAndIsActiveTrueAndDeletedAtIsNull(String id, String companyId);
 }
 

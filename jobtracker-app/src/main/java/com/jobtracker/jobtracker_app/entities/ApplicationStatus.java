@@ -1,6 +1,7 @@
 package com.jobtracker.jobtracker_app.entities;
 
 import com.jobtracker.jobtracker_app.entities.base.FullAuditEntity;
+import com.jobtracker.jobtracker_app.enums.StatusType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -18,7 +19,11 @@ public class ApplicationStatus extends FullAuditEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    Company company;
+
+    @Column(nullable = false, length = 50)
     String name;
 
     @Column(name = "display_name", nullable = false, length = 100)
@@ -30,8 +35,18 @@ public class ApplicationStatus extends FullAuditEntity {
     @Column(length = 7)
     String color = "#6B7280";
 
-    @Column(name = "sort_order")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_type", nullable = false, length = 30)
+    StatusType statusType;
+
+    @Column(name = "sort_order", nullable = false)
     Integer sortOrder = 0;
+
+    @Column(name = "is_terminal")
+    Boolean isTerminal = false;
+
+    @Column(name = "is_default")
+    Boolean isDefault = false;
 
     @Column(name = "is_active", nullable = false)
     Boolean isActive = true;

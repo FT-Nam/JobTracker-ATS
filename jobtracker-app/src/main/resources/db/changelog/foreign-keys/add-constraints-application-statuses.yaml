@@ -3,4 +3,10 @@ databaseChangeLog:
       id: add-constraints-application-statuses
       author: namphan
       changes:
-
+        - addForeignKeyConstraint:
+            baseTableName: application_statuses
+            baseColumnNames: company_id
+            referencedTableName: companies
+            referencedColumnNames: id
+            onDelete: CASCADE
+            constraintName: fk_application_statuses_company_id_companies
