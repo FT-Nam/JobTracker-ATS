@@ -1,15 +1,16 @@
 package com.jobtracker.jobtracker_app.services;
 
-import com.jobtracker.jobtracker_app.dto.requests.InterviewRequest;
+import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.InterviewResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface InterviewService {
-    InterviewResponse create(InterviewRequest request);
+    InterviewResponse create(InterviewCreationRequest request, String applicationId);
     InterviewResponse getById(String id);
-    Page<InterviewResponse> getAll(Pageable pageable);
-    InterviewResponse update(String id, InterviewRequest request);
+    List<InterviewResponse> getAll(String applicationId);
+    InterviewResponse update(String id, InterviewUpdateRequest request);
     void delete(String id);
 }
 

@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface CompanyRepository extends JpaRepository<Company, String> {
 
     @Query("SELECT c FROM Company c WHERE c.deletedAt IS NULL " +
@@ -19,4 +21,6 @@ public interface CompanyRepository extends JpaRepository<Company, String> {
             @Param("search") String search,
             Pageable pageable
     );
+
+    Optional<Company> findByIdAndDeletedAtIsNull(String id);
 }

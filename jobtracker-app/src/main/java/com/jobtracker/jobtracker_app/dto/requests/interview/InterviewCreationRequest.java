@@ -1,4 +1,4 @@
-package com.jobtracker.jobtracker_app.dto.requests;
+package com.jobtracker.jobtracker_app.dto.requests.interview;
 
 import com.jobtracker.jobtracker_app.enums.InterviewType;
 import com.jobtracker.jobtracker_app.enums.InterviewStatus;
@@ -8,6 +8,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -15,16 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class InterviewRequest {
-    @NotBlank(message = "{interview.application_id.not_blank}")
-    String applicationId;
-
-    @NotBlank(message = "{interview.job_id.not_blank}")
-    String jobId;
-
-    @NotBlank(message = "{interview.company_id.not_blank}")
-    String companyId;
-
+public class InterviewCreationRequest {
     @NotNull(message = "{interview.round_number.not_null}")
     @Min(value = 1, message = "{interview.round_number.min}")
     Integer roundNumber;
@@ -35,32 +28,18 @@ public class InterviewRequest {
     @NotNull(message = "{interview.scheduled_date.not_null}")
     LocalDateTime scheduledDate;
 
-    LocalDateTime actualDate;
-
     @Min(value = 1, message = "{interview.duration_minutes.min}")
     Integer durationMinutes;
 
     @NotEmpty(message = "{interview.interviewer_ids.not_empty}")
     @Size(min = 1, message = "{interview.interviewer_ids.min_size}")
-    java.util.List<String> interviewerIds; 
+    Set<String> interviewerIds;
 
     String primaryInterviewerId;
 
     InterviewStatus status;
 
-    InterviewResult result;
-
-    String feedback;
-
     String notes;
-
-    String questionsAsked;
-
-    String answersGiven;
-
-    @Min(value = 1, message = "{interview.rating.min}")
-    @Max(value = 5, message = "{interview.rating.max}")
-    Integer rating;
 
     String meetingLink;
 

@@ -1,6 +1,7 @@
 package com.jobtracker.jobtracker_app.mappers;
 
-import com.jobtracker.jobtracker_app.dto.requests.InterviewRequest;
+import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.InterviewResponse;
 import com.jobtracker.jobtracker_app.entities.Interview;
 import org.mapstruct.BeanMapping;
@@ -11,10 +12,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface InterviewMapper {
-    @Mapping(target = "application", ignore = true)
-    @Mapping(target = "job", ignore = true)
-    @Mapping(target = "company", ignore = true)
-    Interview toInterview(InterviewRequest request);
+    Interview toInterview(InterviewCreationRequest request);
 
     @Mapping(source = "application.id", target = "applicationId")
     @Mapping(source = "job.id", target = "jobId")
@@ -22,10 +20,7 @@ public interface InterviewMapper {
     InterviewResponse toInterviewResponse(Interview interview);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "application", ignore = true)
-    @Mapping(target = "job", ignore = true)
-    @Mapping(target = "company", ignore = true)
-    void updateInterview(@MappingTarget Interview interview, InterviewRequest request);
+    void updateInterview(@MappingTarget Interview interview, InterviewUpdateRequest request);
 }
 
 

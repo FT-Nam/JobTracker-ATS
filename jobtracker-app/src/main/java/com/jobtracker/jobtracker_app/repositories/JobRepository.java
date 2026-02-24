@@ -36,7 +36,7 @@ public interface JobRepository extends JpaRepository<Job, String> {
     );
 
 //    @Query("SELECT j FROM Job j WHERE j.id = :id AND j.deletedAt IS NULL")
-    Optional<Job> findByIdAndDeletedAtIsNull(@Param("id") String id);
+    Optional<Job> findByIdAndDeletedAtIsNull(String id);
 
 }
 
