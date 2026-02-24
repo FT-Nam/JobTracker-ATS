@@ -246,34 +246,55 @@ CREATE TABLE role_permissions (
 
 #### 1.5. Application Statuses Table (Bảng trạng thái ứng tuyển) ✅
 
-> **Lý do**: Application statuses cần metadata (display name, color, sort order) và có thể thay đổi workflow. Cần lookup table để linh hoạt.
+> **Lý do**: Application statuses cần metadata (display name, color, sort order), multi-tenant pipeline per company và vẫn giữ được system default template.
 
 ```sql
 CREATE TABLE application_statuses (
-    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID application status',
-    name VARCHAR(50) NOT NULL UNIQUE COMMENT 'Tên status (NEW, SCREENING, INTERVIEWING, OFFERED, HIRED, REJECTED)',
-    display_name VARCHAR(100) NOT NULL COMMENT 'Tên hiển thị',
-    description VARCHAR(255) COMMENT 'Mô tả status',
-    color VARCHAR(7) DEFAULT '#6B7280' COMMENT 'Màu sắc hiển thị',
-    sort_order INT DEFAULT 0 COMMENT 'Thứ tự sắp xếp',
-    is_active BOOLEAN DEFAULT TRUE COMMENT 'Status đang hoạt động',
-    
-    -- Full Audit Fields
-    created_by VARCHAR(36) COMMENT 'Người tạo',
-    updated_by VARCHAR(36) COMMENT 'Người cập nhật',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian tạo',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời gian cập nhật',
-    deleted_at TIMESTAMP NULL COMMENT 'Thời gian xóa (soft delete)',
-    
-    -- Indexes
-    INDEX idx_name (name),
-    INDEX idx_sort_order (sort_order),
-    INDEX idx_is_active (is_active),
-    INDEX idx_created_at (created_at),
-    INDEX idx_created_by (created_by),
-    INDEX idx_updated_by (updated_by),
-    INDEX idx_deleted_at (deleted_at)
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+
+    -- Multi-tenant
+    company_id VARCHAR(36) NULL COMMENT 'NULL = system default template, có value = company custom',
+
+    -- Hiển thị
+    name VARCHAR(50) NOT NULL COMMENT 'Slug nội bộ, unique per company',
+    display_name VARCHAR(100) NOT NULL COMMENT 'Tên hiển thị cho HR',
+    description VARCHAR(255),
+    color VARCHAR(7) DEFAULT '#6B7280',
+
+    -- Workflow
+    status_type VARCHAR(30) NOT NULL COMMENT 'APPLIED | SCREENING | INTERVIEW | OFFER | HIRED | REJECTED',
+    sort_order INT NOT NULL COMMENT 'Thứ tự hiển thị trong pipeline của company',
+    is_terminal BOOLEAN DEFAULT FALSE COMMENT 'TRUE = không cho chuyển tiếp (HIRED/REJECTED)',
+    is_default BOOLEAN DEFAULT FALSE COMMENT 'Auto-assign khi tạo application mới',
+
+    -- Control
+    is_active BOOLEAN DEFAULT TRUE,
+
+    -- Audit
+    created_by VARCHAR(36),
+    updated_by VARCHAR(36),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+    UNIQUE KEY uq_company_name (company_id, name),
+    INDEX idx_company_active (company_id, is_active),
+    INDEX idx_status_type (status_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+> **`type_order` không lưu trong DB**: thứ tự logic của từng `status_type` được giữ trong Java Enum:
+
+```java
+public enum StatusType {
+    APPLIED(1), SCREENING(2), INTERVIEW(3),
+    OFFER(4), HIRED(5), REJECTED(99);
+
+    private final int order;
+    StatusType(int order) { this.order = order; }
+    public int getOrder() { return order; }
+}
 ```
 
 #### ~~1.5. Job Types Table~~ ❌ **CHUYỂN SANG ENUM**
@@ -625,70 +646,61 @@ CREATE TABLE job_skills (
 
 ```sql
 CREATE TABLE applications (
-    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID ứng tuyển',
-    job_id VARCHAR(36) NOT NULL COMMENT 'UUID công việc',
-    company_id VARCHAR(36) NOT NULL COMMENT 'UUID công ty (Multi-tenant)',
-    
-    -- Candidate Info (từ CV/Email hoặc Candidate Self-Service Portal)
-    candidate_name VARCHAR(255) NOT NULL COMMENT 'Tên ứng viên',
-    candidate_email VARCHAR(255) NOT NULL COMMENT 'Email ứng viên',
-    candidate_phone VARCHAR(20) COMMENT 'Số điện thoại ứng viên',
-    application_token VARCHAR(100) UNIQUE COMMENT 'Token để candidate track status (cho public API, không cần login)',
-    
-    -- Application Status Workflow
-    status_id VARCHAR(36) NOT NULL COMMENT 'UUID trạng thái ứng tuyển (FK to application_statuses)',
-    source VARCHAR(100) COMMENT 'Nguồn ứng viên (Email, LinkedIn, Referral)',
-    applied_date DATE NOT NULL COMMENT 'Ngày nộp đơn',
-    
-    -- CV/Resume
-    resume_file_path VARCHAR(500) COMMENT 'Đường dẫn CV trên Dropbox',
-    cover_letter TEXT COMMENT 'Cover letter',
-    
-    -- HR Notes
-    notes TEXT COMMENT 'Ghi chú của HR',
-    rating INT CHECK (rating >= 1 AND rating <= 5) COMMENT 'Đánh giá ứng viên (1-5)',
-    
-    -- Assignment
-    assigned_to VARCHAR(36) COMMENT 'HR/Recruiter được assign (FK to users)',
-    
-    -- Document Upload Control
-    allow_additional_uploads BOOLEAN DEFAULT FALSE COMMENT 'Cho phép candidate upload thêm documents (chỉ khi HR yêu cầu)',
-    
-    -- CV Scoring & Matching
-    match_score INT COMMENT 'Điểm khớp giữa CV và JD (0-100), tính tự động khi upload CV (sync processing, 2-3 giây). NULL nếu parsing failed hoặc chưa có CV',
-    extracted_text TEXT COMMENT 'Text đã extract từ CV (PDF parsing)',
-    matched_skills JSON COMMENT 'Breakdown skills matched: {matchedRequired: [], missingRequired: [], matchedOptional: [], missingOptional: []}',
-    
-    -- Full Audit Fields
-    created_by VARCHAR(36) COMMENT 'Người tạo (NULL nếu candidate tự apply qua public API)',
-    updated_by VARCHAR(36) COMMENT 'Người cập nhật',
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    job_id VARCHAR(36) NOT NULL,
+    company_id VARCHAR(36) NOT NULL COMMENT 'Denormalize từ jobs để query multi-tenant',
+
+    -- Candidate Info
+    candidate_name VARCHAR(255) NOT NULL,
+    candidate_email VARCHAR(255) NOT NULL,
+    candidate_phone VARCHAR(20),
+    application_token VARCHAR(100) UNIQUE COMMENT 'Token public cho candidate tự track status',
+
+    -- Workflow
+    status_id VARCHAR(36) NOT NULL,
+    source VARCHAR(100) COMMENT 'Email | LinkedIn | Referral | Website',
+    applied_date DATE NOT NULL,
+
+    -- CV
+    resume_file_path VARCHAR(500),
+    cover_letter TEXT,
+
+    -- HR Working
+    notes TEXT COMMENT 'Internal, candidate không thấy',
+    rating TINYINT UNSIGNED CHECK (rating BETWEEN 1 AND 5),
+    assigned_to VARCHAR(36),
+
+    allow_additional_uploads BOOLEAN DEFAULT FALSE COMMENT 'HR mở cổng upload cho ứng viên này',
+
+    -- AI Scoring
+    match_score TINYINT UNSIGNED COMMENT '0-100, NULL nếu chưa parse',
+    extracted_text TEXT COMMENT 'Raw text từ CV cho AI matching',
+    matched_skills JSON COMMENT '{matchedRequired:[], missingRequired:[], matchedOptional:[], missingOptional:[]}',
+
+    -- Audit
+    created_by VARCHAR(36) COMMENT 'NULL nếu candidate tự apply qua public form',
+    updated_by VARCHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
-    
-    -- Foreign Keys
+
     FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
     FOREIGN KEY (status_id) REFERENCES application_statuses(id) ON DELETE RESTRICT,
     FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
-    
-    -- Indexes
-    INDEX idx_job_id (job_id),
+
     INDEX idx_company_id (company_id),
-    INDEX idx_candidate_email (candidate_email),
-    INDEX idx_application_token (application_token), -- For public API status tracking
+    INDEX idx_job_id (job_id),
     INDEX idx_status_id (status_id),
     INDEX idx_assigned_to (assigned_to),
+    INDEX idx_candidate_email (candidate_email),
+    INDEX idx_application_token (application_token),
     INDEX idx_applied_date (applied_date),
-    INDEX idx_created_at (created_at),
     INDEX idx_deleted_at (deleted_at),
-    
-    -- Composite Indexes (Multi-tenant + ATS queries)
     INDEX idx_company_job_status (company_id, job_id, status_id),
-    INDEX idx_assigned_status (assigned_to, status_id),
     INDEX idx_company_status_date (company_id, status_id, applied_date),
-    INDEX idx_match_score (match_score) COMMENT 'Index cho filter/sort by match score',
-    INDEX idx_job_match_score (job_id, match_score) COMMENT 'Index cho query applications by job với sort by match score'
+    INDEX idx_job_match_score (job_id, match_score),
+    INDEX idx_assigned_status (assigned_to, status_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
@@ -697,23 +709,20 @@ CREATE TABLE applications (
 ```sql
 CREATE TABLE application_status_history (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
-    application_id VARCHAR(36) NOT NULL COMMENT 'UUID ứng tuyển',
-    from_status_id VARCHAR(36) COMMENT 'UUID trạng thái cũ (FK to application_statuses)',
-    to_status_id VARCHAR(36) NOT NULL COMMENT 'UUID trạng thái mới (FK to application_statuses)',
-    changed_by VARCHAR(36) NOT NULL COMMENT 'Người thay đổi (FK to users)',
-    notes TEXT COMMENT 'Ghi chú',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+    application_id VARCHAR(36) NOT NULL,
+    from_status_id VARCHAR(36) NULL COMMENT 'NULL = lần assign đầu tiên khi tạo application',
+    to_status_id VARCHAR(36) NOT NULL,
+    changed_by VARCHAR(36) NULL COMMENT 'NULL = system tự động',
+    note TEXT,
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
     FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
     FOREIGN KEY (from_status_id) REFERENCES application_statuses(id) ON DELETE SET NULL,
     FOREIGN KEY (to_status_id) REFERENCES application_statuses(id) ON DELETE RESTRICT,
     FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE SET NULL,
-    
+
     INDEX idx_application_id (application_id),
-    INDEX idx_from_status_id (from_status_id),
-    INDEX idx_to_status_id (to_status_id),
-    INDEX idx_changed_by (changed_by),
-    INDEX idx_created_at (created_at)
+    INDEX idx_changed_at (changed_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
@@ -1306,14 +1315,19 @@ INSERT INTO permissions (name, resource, action, description) VALUES
 ```
 
 #### Application Statuses Data (ATS Workflow) ✅
+
+> Seed system default: `company_id = NULL`
+
 ```sql
-INSERT INTO application_statuses (name, display_name, description, color, sort_order) VALUES
-('NEW', 'Mới', 'Ứng viên vừa nộp đơn', '#3B82F6', 1),
-('SCREENING', 'Sàng lọc', 'Đang sàng lọc hồ sơ', '#8B5CF6', 2),
-('INTERVIEWING', 'Phỏng vấn', 'Đang trong quá trình phỏng vấn', '#F59E0B', 3),
-('OFFERED', 'Đã đề xuất', 'Đã gửi offer cho ứng viên', '#10B981', 4),
-('HIRED', 'Đã tuyển', 'Ứng viên đã được tuyển', '#059669', 5),
-('REJECTED', 'Từ chối', 'Ứng viên bị từ chối', '#EF4444', 6);
+INSERT INTO application_statuses
+    (id, company_id, name, display_name, color, status_type, sort_order, is_terminal, is_default)
+VALUES
+    (UUID(), NULL, 'applied',   'Applied',   '#6B7280', 'APPLIED',   1, FALSE, TRUE),
+    (UUID(), NULL, 'screening', 'Screening', '#3B82F6', 'SCREENING', 2, FALSE, FALSE),
+    (UUID(), NULL, 'interview', 'Interview', '#F59E0B', 'INTERVIEW', 3, FALSE, FALSE),
+    (UUID(), NULL, 'offer',     'Offer',     '#8B5CF6', 'OFFER',     4, FALSE, FALSE),
+    (UUID(), NULL, 'hired',     'Hired',     '#10B981', 'HIRED',     5, TRUE,  FALSE),
+    (UUID(), NULL, 'rejected',  'Rejected',  '#EF4444', 'REJECTED',  6, TRUE,  FALSE);
 ```
 
 #### ~~Job Statuses Data~~ ❌ **CHUYỂN SANG ENUM**

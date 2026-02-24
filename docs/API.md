@@ -1535,6 +1535,10 @@ Cập nhật status của application (workflow: NEW → SCREENING → INTERVIEW
 }
 ```
 
+> **Tóm tắt workflow (Applications & Statuses)**  
+> - Khi tạo application (auto/public hoặc HR tạo thủ công), hệ thống chọn `status_id` default theo pipeline của company và ghi một bản ghi vào `application_status_history` (fromStatus = null, toStatus = default).  
+> - Khi HR cập nhật status qua `PATCH /applications/{id}/status`, hệ thống kiểm tra status hợp lệ cho company, cập nhật `applications.status_id` và thêm một bản ghi mới vào `application_status_history`.  
+
 ### 5. Assign Application to Recruiter
 **PATCH** `/applications/{id}/assign`
 
@@ -1578,9 +1582,9 @@ Cập nhật thông tin application (notes, rating, allowAdditionalUploads, etc.
 ```
 
 > **Lưu ý về `allowAdditionalUploads`:**
-> - HR set `allowAdditionalUploads = true` khi yêu cầu candidate upload thêm documents
-> - Candidate chỉ có thể upload khi flag này = `true` VÀ status = `SCREENING` hoặc `INTERVIEWING`
-> - Sau khi candidate upload xong, HR có thể set `allowAdditionalUploads = false` để tắt
+> - HR set `allowAdditionalUploads = true` khi yêu cầu candidate upload thêm documents.  
+> - Candidate chỉ có thể upload khi backend cho phép theo các rule nội bộ (trạng thái phù hợp + `allowAdditionalUploads` bật).  
+> - Sau khi candidate upload xong và HR đã review, có thể set `allowAdditionalUploads = false` để tắt cửa upload thêm.
 
 #### Response (200 OK)
 ```json
@@ -2450,7 +2454,16 @@ Lấy danh sách application statuses cùng metadata (display_name, color, sort_
 Authorization: Bearer <access_token>
 ```
 
-> **Lookup/config data → trả về List, không paginate.**
+> Trả về danh sách có pagination (page/size/sort) giống các list endpoint khác.
+
+#### Query Parameters
+```
+page=0&size=20&sort=sortOrder,asc
+```
+
+- **page**: Trang hiện tại (mặc định 0).
+- **size**: Số phần tử mỗi trang (mặc định 20).
+- **sort**: Trường và thứ tự sắp xếp, ví dụ `sortOrder,asc` hoặc `displayName,desc`.
 
 #### Response (200 OK)
 ```json
@@ -2488,6 +2501,12 @@ Authorization: Bearer <access_token>
     }
   ],
   "timestamp": "2024-01-15T10:30:00Z",
+  "paginationInfo": {
+    "page": 0,
+    "size": 20,
+    "totalElements": 2,
+    "totalPages": 1
+  }
 }
 ```
 
