@@ -2,12 +2,15 @@ package com.jobtracker.jobtracker_app.repositories;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.jobtracker.jobtracker_app.entities.User;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -52,4 +55,13 @@ public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByIdAndCompany_IdAndDeletedAtIsNull(String id, String companyId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+    select u from User u
+    where u.id in :ids
+      and u.company.id = :companyId
+      and u.deletedAt is null
+    """)
+    List<User> findForUpdate(Set<String> ids, String companyId);
 }

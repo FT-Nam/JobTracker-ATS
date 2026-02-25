@@ -58,6 +58,8 @@ public class InterviewServiceImpl implements InterviewService {
 
         Interview interview = interviewMapper.toInterview(request);
 
+        userRepository.findForUpdate(interviewers, companyId);
+
         validateScheduleConflict(
                 request.getInterviewerIds(),
                 request.getScheduledDate(),
@@ -159,6 +161,8 @@ public class InterviewServiceImpl implements InterviewService {
                 request.getInterviewerIds() != null;
 
         if (scheduleChanged || durationChanged || interviewerChanged) {
+            userRepository.findForUpdate(finalInterviewerIds, companyId);
+
             validateScheduleConflict(
                     finalInterviewerIds,
                     finalScheduledDate,
