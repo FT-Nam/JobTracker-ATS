@@ -37,8 +37,6 @@ public class InterviewCreationRequest {
 
     String primaryInterviewerId;
 
-    InterviewStatus status;
-
     String notes;
 
     String meetingLink;

@@ -22,5 +22,5 @@ databaseChangeLog:
             baseColumnNames: user_id
             referencedTableName: users
             referencedColumnNames: id
-            onDelete: SET_NULL
+            onDelete: SET NULL
             constraintName: fk_attachments_user_id_users

@@ -12,6 +12,7 @@ public interface InterviewService {
     List<InterviewResponse> getAll(String applicationId);
     InterviewResponse update(String id, InterviewUpdateRequest request);
     void delete(String id);
+    void cancel(String id);
 }
 
 

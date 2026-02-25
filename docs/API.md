@@ -3319,7 +3319,6 @@ Authorization: Bearer <access_token>
     "user-id-2"
   ],
   "primaryInterviewerId": "user-id-1",
-  "status": "SCHEDULED",
   "meetingLink": "https://meet.google.com/xxx-yyyy-zzz",
   "location": "Office Building A, Room 101",
   "notes": "Technical interview with 2 interviewers"
@@ -3329,6 +3328,7 @@ Authorization: Bearer <access_token>
 > **Lưu ý**:
 > - `interviewerIds`: Array các `user_id` với role = `INTERVIEWER` (bắt buộc, ít nhất 1 interviewer)
 > - `primaryInterviewerId`: Interviewer chính (optional, nếu không set thì lấy interviewer đầu tiên)
+> - **Status khi create luôn = `SCHEDULED`**, client **không gửi** field `status` trong request.
 
 #### Error Response (400 Bad Request - Schedule Conflict)
 ```json
@@ -3396,7 +3396,7 @@ Authorization: Bearer <access_token>
 ### 3. Update Interview
 **PUT** `/interviews/{id}`
 
-Cập nhật thông tin interview. Có thể cập nhật `interviewerIds` và `scheduledDate` (sẽ validate trùng lịch lại).
+Update kết quả/phản hồi interview, có thể cập nhật `scheduledDate` (reschedule) và danh sách `interviewerIds`.
 
 #### Request Headers
 ```
@@ -3406,14 +3406,46 @@ Authorization: Bearer <access_token>
 #### Request Body
 ```json
 {
+  "scheduledDate": "2024-01-21T10:00:00Z",
   "actualDate": "2024-01-20T14:30:00Z",
-  "status": "COMPLETED",
+  "durationMinutes": 90,
   "result": "PASSED",
   "feedback": "Great technical skills, good communication",
   "notes": "Interview went well, waiting for next round",
   "questionsAsked": "What is your experience with Spring Boot?",
   "answersGiven": "I have 3 years of experience with Spring Boot...",
-  "rating": 4
+  "rating": 4,
+  "interviewerIds": [
+    "user-id-1",
+    "user-id-2"
+  ],
+  "primaryInterviewerId": "user-id-1"
+}
+```
+
+> **Business rule về status (không cho sửa trực tiếp)**  
+> - Khi **tạo interview** → backend luôn set `status = SCHEDULED`.  
+> - Khi **update có đổi `scheduledDate` hoặc `durationMinutes`** (mà chưa có `actualDate`) → backend tự set `status = RESCHEDULED`.  
+> - Khi **update có `actualDate`** → backend tự set `status = COMPLETED` (ưu tiên hơn RESCHEDULED).  
+> - Khi gửi `interviewerIds` trong request, backend sẽ **thay toàn bộ danh sách interviewers** của interview bằng danh sách mới (và validate trùng lịch lại giống khi tạo).
+
+### 5. Cancel Interview
+**POST** `/interviews/{id}/cancel`
+
+Huỷ một interview (status → `CANCELLED`).
+
+#### Request Headers
+```
+Authorization: Bearer <access_token>
+```
+
+#### Response (200 OK)
+```json
+{
+  "success": true,
+  "message": "Interview cancelled successfully",
+  "data": null,
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 

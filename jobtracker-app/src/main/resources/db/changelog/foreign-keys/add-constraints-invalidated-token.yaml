@@ -8,13 +8,13 @@ databaseChangeLog:
             baseColumnNames: created_by
             referencedTableName: users
             referencedColumnNames: id
-            onDelete: SET_NULL
+            onDelete: SET NULL
             constraintName: fk_invalidated_token_created_by_users
         - addForeignKeyConstraint:
             baseTableName: invalidated_token
             baseColumnNames: updated_by
             referencedTableName: users
             referencedColumnNames: id
-            onDelete: SET_NULL
+            onDelete: SET NULL
             constraintName: fk_invalidated_token_updated_by_users
 

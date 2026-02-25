@@ -183,6 +183,8 @@ public class MessageKeys {
     public static final String INTERVIEW_DELETE_SUCCESS = "interview.delete_success";
     public static final String INTERVIEW_LIST_SUCCESS = "interview.list_success";
     public static final String INTERVIEW_DETAIL_SUCCESS = "interview.detail_success";
+    public static final String INTERVIEW_CANCEL_SUCCESS = "interview.cancel_success";
+    public static final String SCHEDULE_CONFLICT = "interview.schedule_conflict";
 
     // APPLICATION
     public static final String APPLICATION_NOT_EXISTED = "application.not_existed";

@@ -66,6 +66,14 @@ public class InterviewController {
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.INTERVIEW_DELETE_SUCCESS))
                 .build();
     }
+
+    @PostMapping("/interviews/{id}/cancel")
+    public ApiResponse<Void> cancel(@PathVariable String id) {
+        interviewService.cancel(id);
+        return ApiResponse.<Void>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.INTERVIEW_CANCEL_SUCCESS))
+                .build();
+    }
 }
 
 

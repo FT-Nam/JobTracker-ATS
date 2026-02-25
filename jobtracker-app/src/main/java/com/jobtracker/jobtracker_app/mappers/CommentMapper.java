@@ -11,28 +11,12 @@ public interface CommentMapper {
 
     @Mapping(target = "applicationId", source = "application.id")
     @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "userName", expression = "java(comment.getUser().getFirstName() + \" \" + comment.getUser().getLastName())")
+    @Mapping(target = "userName", source = "user.lastName")
     @Mapping(target = "userAvatar", source = "user.avatarUrl")
     CommentResponse toCommentResponse(Comment comment);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "application", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "deletedAt", ignore = true)
     Comment toComment(CommentCreationRequest request);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "application", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "deletedAt", ignore = true)
     void updateComment(@MappingTarget Comment comment, CommentUpdateRequest request);
 }

@@ -16,12 +16,6 @@ databaseChangeLog:
               - column:
                   name: email
         - createIndex:
-            indexName: idx_users_google_id
-            tableName: users
-            columns:
-              - column:
-                  name: google_id
-        - createIndex:
             indexName: idx_users_role_id
             tableName: users
             columns:

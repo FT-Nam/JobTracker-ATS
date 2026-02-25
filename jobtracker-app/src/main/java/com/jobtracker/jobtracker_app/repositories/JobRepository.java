@@ -24,7 +24,7 @@ public interface JobRepository extends JpaRepository<Job, String> {
             "AND j.deletedAt IS NULL " +
             "AND (:jobStatus IS NULL OR j.jobStatus = :jobStatus)" +
             "AND (:isRemote IS NULL OR j.isRemote = :isRemote)" +
-            "AND (:search IS NULL" +
+            "AND (:search IS NULL " +
             "OR LOWER(j.title) LIKE LOWER(CONCAT('%', :search, '%'))" +
             "OR LOWER(j.position) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Job> searchJobs(
