@@ -3821,7 +3821,9 @@ Authorization: Bearer <access_token>
   "title": "Custom Reminder",
   "message": "Follow up with recruiter tomorrow",
   "scheduledAt": "2024-01-16T09:00:00Z",
-  "metadata": "{\"channel\":\"EMAIL\"}"
+  "metadata": {
+    "channel": "EMAIL"
+  }
 }
 ```
 
@@ -3833,7 +3835,9 @@ Authorization: Bearer <access_token>
   "data": {
     "id": "n2b3c4d5-6e7f-8g9h-0i1j-k2l3m4n5o6p7",
     "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "applicationId": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
     "type": "DEADLINE_REMINDER",
     "priority": "HIGH",
     "title": "Custom Reminder",
@@ -3842,7 +3846,9 @@ Authorization: Bearer <access_token>
     "isSent": false,
     "scheduledAt": "2024-01-16T09:00:00Z",
     "sentAt": null,
-    "metadata": "{\"channel\":\"EMAIL\"}",
+    "metadata": {
+      "channel": "EMAIL"
+    },
     "createdAt": "2024-01-15T10:30:00Z",
     "updatedAt": "2024-01-15T10:30:00Z"
   },
@@ -3863,7 +3869,9 @@ Trả về đầy đủ metadata (job, user, template data).
   "data": {
     "id": "n1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
     "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+    "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
     "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+    "applicationId": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
     "type": "DEADLINE_REMINDER",
     "priority": "MEDIUM",
     "title": "Deadline Reminder",
@@ -3872,7 +3880,10 @@ Trả về đầy đủ metadata (job, user, template data).
     "isSent": true,
     "sentAt": "2024-01-15T10:00:00Z",
     "scheduledAt": null,
-    "metadata": "{\"deadlineDate\":\"2024-01-18\",\"companyName\":\"Google\"}",
+    "metadata": {
+      "deadlineDate": "2024-01-18",
+      "companyName": "Google"
+    },
     "createdAt": "2024-01-15T10:00:00Z",
     "updatedAt": "2024-01-15T10:00:00Z"
   },
