@@ -38,15 +38,15 @@ JobTracker ATS (Applicant Tracking System) sử dụng **MySQL 8.0** làm databa
 - **priorities** table → Không cần cho job postings
 - **experience_levels** table → Đơn giản hóa, ghi tự do trong job description
 
-### 🔄 **CHUYỂN SANG ENUM (Simplification)**
-- **job_statuses** table → ENUM trong `jobs.job_status` (DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED)
-- **job_types** table → ENUM trong `jobs.job_type` (FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE)
-- **interview_types** table → ENUM trong `interviews.interview_type` (PHONE, VIDEO, IN_PERSON, TECHNICAL, HR, FINAL)
-- **interview_statuses** table → ENUM trong `interviews.status` (SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED)
-- **interview_results** table → ENUM trong `interviews.result` (PASSED, FAILED, PENDING)
-- **notification_types** table → ENUM trong `notifications.type` (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, etc.)
-- **notification_priorities** table → ENUM trong `notifications.priority` (HIGH, MEDIUM, LOW)
-- **attachment_types** → ENUM trong `attachments.attachment_type` (RESUME, COVER_LETTER, CERTIFICATE, PORTFOLIO, OTHER)
+### 🔄 **CHUYỂN SANG STRING + ENUM ỨNG DỤNG (Simplification)**
+- **job_statuses** table → VARCHAR trong `jobs.job_status` (các giá trị cố định: DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED)
+- **job_types** table → VARCHAR trong `jobs.job_type` (các giá trị cố định: FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE)
+- **interview_types** table → VARCHAR trong `interviews.interview_type` (các giá trị cố định: PHONE, VIDEO, IN_PERSON, TECHNICAL, HR, FINAL)
+- **interview_statuses** table → VARCHAR trong `interviews.status` (các giá trị cố định: SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED)
+- **interview_results** table → VARCHAR trong `interviews.result` (các giá trị cố định: PASSED, FAILED, PENDING)
+- **notification_types** table → VARCHAR trong `notifications.type` (các giá trị cố định: APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, etc.)
+- **notification_priorities** table → VARCHAR trong `notifications.priority` (các giá trị cố định: HIGH, MEDIUM, LOW)
+- **attachment_types** → VARCHAR trong `attachments.attachment_type` (các giá trị cố định: RESUME, COVER_LETTER, CERTIFICATE, PORTFOLIO, OTHER)
 
 ### ➕ **THÊM MỚI (5% - ATS specific)**
 - **applications** table (CORE ATS) - Candidates apply to jobs
@@ -63,10 +63,10 @@ JobTracker ATS (Applicant Tracking System) sử dụng **MySQL 8.0** làm databa
 - **audit_logs**: Thêm `company_id` (multi-tenant audit)
 - **roles**: Đổi sang ATS roles (COMPANY_ADMIN, RECRUITER, HIRING_MANAGER, INTERVIEWER) - **GIỮ TABLE** (cần flexibility)
 - **permissions**: Đổi sang ATS permissions (JOB_PUBLISH, APPLICATION_ASSIGN, etc.) - **GIỮ TABLE** (cần flexibility)
-- **job_statuses**: Chuyển sang ENUM trong `jobs.job_status` (DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED)
-- **job_types**: Chuyển sang ENUM trong `jobs.job_type` (FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE)
-- **interview_types/statuses/results**: Chuyển sang ENUM trong `interviews` table
-- **notification_types/priorities**: Chuyển sang ENUM trong `notifications` table
+- **job_statuses**: Lưu string (VARCHAR) trong `jobs.job_status` với tập giá trị cố định (DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED)
+- **job_types**: Lưu string (VARCHAR) trong `jobs.job_type` với tập giá trị cố định (FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE)
+- **interview_types/statuses/results**: Lưu string (VARCHAR) trong các cột tương ứng của `interviews` table với tập giá trị cố định
+- **notification_types/priorities**: Lưu string (VARCHAR) trong các cột tương ứng của `notifications` table với tập giá trị cố định
 
 ### 🔑 **CRITICAL CHANGES (Must implement first)**
 1. **users.company_id** - Multi-tenant isolation key
@@ -106,12 +106,12 @@ Tất cả các ENUM values được sử dụng trong database:
 - `CANCELLED` - Đã hủy
 - `RESCHEDULED` - Đã lên lịch lại
 
-### 5. Interview Result ENUM (`interviews.result`)
+### 5. Interview Result (enum ứng dụng, lưu dạng VARCHAR) (`interviews.result`)
 - `PASSED` - Đạt
 - `FAILED` - Không đạt
 - `PENDING` - Chờ kết quả
 
-### 6. Notification Type ENUM (`notifications.type`)
+### 6. Notification Type (enum ứng dụng, lưu dạng VARCHAR) (`notifications.type`)
 - `APPLICATION_RECEIVED` - Nhận được đơn ứng tuyển
 - `INTERVIEW_SCHEDULED` - Đã lên lịch phỏng vấn
 - `INTERVIEW_REMINDER` - Nhắc nhở phỏng vấn
@@ -120,19 +120,19 @@ Tất cả các ENUM values được sử dụng trong database:
 - `COMMENT_ADDED` - Có comment mới
 - `ASSIGNMENT_CHANGED` - Thay đổi người phụ trách
 
-### 7. Notification Priority ENUM (`notifications.priority`)
+### 7. Notification Priority (enum ứng dụng, lưu dạng VARCHAR) (`notifications.priority`)
 - `HIGH` - Ưu tiên cao
 - `MEDIUM` - Ưu tiên trung bình
 - `LOW` - Ưu tiên thấp
 
-### 8. Attachment Type ENUM (`attachments.attachment_type`)
+### 8. Attachment Type (enum ứng dụng, lưu dạng VARCHAR) (`attachments.attachment_type`)
 - `RESUME` - CV/Resume
 - `COVER_LETTER` - Thư xin việc
 - `CERTIFICATE` - Chứng chỉ
 - `PORTFOLIO` - Portfolio
 - `OTHER` - Khác
 
-### 9. Subscription Status ENUM (`company_subscriptions.status`)
+### 9. Subscription Status (enum ứng dụng, lưu dạng VARCHAR) (`company_subscriptions.status`)
 - `PENDING` - Chờ thanh toán
 - `ACTIVE` - Đang hoạt động
 - `EXPIRED` - Đã hết hạn
@@ -315,17 +315,17 @@ public enum StatusType {
 
 > **Lý do**: Interview statuses là fixed values (SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED), không cần lookup table. Dùng ENUM trong `interviews.status`.
 
-#### ~~1.9. Interview Results Table~~ ❌ **CHUYỂN SANG ENUM**
+#### ~~1.9. Interview Results Table~~ ❌ **CHUYỂN SANG STRING + ENUM ỨNG DỤNG**
 
-> **Lý do**: Interview results là fixed values (PASSED, FAILED, PENDING), không cần lookup table. Dùng ENUM trong `interviews.result`.
+> **Lý do**: Interview results là fixed values (PASSED, FAILED, PENDING), không cần lookup table. Lưu VARCHAR trong `interviews.result` và validate bằng enum ở backend.
 
-#### ~~1.10. Notification Types Table~~ ❌ **CHUYỂN SANG ENUM**
+#### ~~1.10. Notification Types Table~~ ❌ **CHUYỂN SANG STRING + ENUM ỨNG DỤNG**
 
-> **Lý do**: Notification types là fixed values (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, STATUS_CHANGE, etc.), không cần lookup table. Dùng ENUM trong `notifications.type`.
+> **Lý do**: Notification types là fixed values (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, STATUS_CHANGE, etc.), không cần lookup table. Lưu VARCHAR trong `notifications.type` và validate bằng enum ở backend.
 
-#### ~~1.11. Notification Priorities Table~~ ❌ **CHUYỂN SANG ENUM**
+#### ~~1.11. Notification Priorities Table~~ ❌ **CHUYỂN SANG STRING + ENUM ỨNG DỤNG**
 
-> **Lý do**: Notification priorities là fixed values (HIGH, MEDIUM, LOW), không cần lookup table. Dùng ENUM trong `notifications.priority`.
+> **Lý do**: Notification priorities là fixed values (HIGH, MEDIUM, LOW), không cần lookup table. Lưu VARCHAR trong `notifications.priority` và validate bằng enum ở backend.
 
 ### 2. Users Table (Bảng người dùng - Multi-Tenant)
 
@@ -954,14 +954,14 @@ CREATE TABLE notifications (
     company_id VARCHAR(36) NOT NULL COMMENT 'UUID công ty (Multi-tenant)',
     job_id VARCHAR(36) NULL COMMENT 'UUID công việc liên quan (nullable)',
     application_id VARCHAR(36) NULL COMMENT 'UUID ứng tuyển liên quan (nullable)',
-    type ENUM('APPLICATION_RECEIVED', 'INTERVIEW_SCHEDULED', 'INTERVIEW_REMINDER', 'STATUS_CHANGE', 'DEADLINE_REMINDER', 'COMMENT_ADDED', 'ASSIGNMENT_CHANGED') NOT NULL COMMENT 'Loại thông báo',
+    type VARCHAR(50) NOT NULL COMMENT 'Loại thông báo (logical enum - xem NotificationType ở backend)',
     title VARCHAR(255) NOT NULL COMMENT 'Tiêu đề thông báo',
     message TEXT NOT NULL COMMENT 'Nội dung thông báo',
     is_read BOOLEAN DEFAULT FALSE COMMENT 'Đã đọc chưa',
     is_sent BOOLEAN DEFAULT FALSE COMMENT 'Đã gửi chưa',
     sent_at TIMESTAMP NULL COMMENT 'Thời gian gửi',
     scheduled_at TIMESTAMP NULL COMMENT 'Thời gian lên lịch gửi',
-    priority ENUM('HIGH', 'MEDIUM', 'LOW') DEFAULT 'MEDIUM' COMMENT 'Độ ưu tiên',
+    priority VARCHAR(50) NOT NULL DEFAULT 'MEDIUM' COMMENT 'Độ ưu tiên (logical enum - xem NotificationPriority ở backend)',
     metadata JSON COMMENT 'Dữ liệu bổ sung (JSON)',
     
     -- System Table - Only created_at, updated_at (no user tracking)
@@ -2150,14 +2150,14 @@ attachments.user_id → users.id
 - **roles** ↔ **users** (COMPANY_ADMIN, RECRUITER, HIRING_MANAGER, INTERVIEWER) - **GIỮ TABLE**
 - **permissions** ↔ **roles** (JOB_CREATE, APPLICATION_VIEW, etc.) - **GIỮ TABLE**
 
-### **ENUM Values (thay thế lookup tables):**
-- **jobs.job_status**: ENUM('DRAFT', 'PUBLISHED', 'PAUSED', 'CLOSED', 'FILLED')
-- **jobs.job_type**: ENUM('FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP', 'FREELANCE')
-- **interviews.interview_type**: ENUM('PHONE', 'VIDEO', 'IN_PERSON', 'TECHNICAL', 'HR', 'FINAL')
-- **interviews.status**: ENUM('SCHEDULED', 'COMPLETED', 'CANCELLED', 'RESCHEDULED')
-- **interviews.result**: ENUM('PASSED', 'FAILED', 'PENDING')
-- **notifications.type**: ENUM('APPLICATION_RECEIVED', 'INTERVIEW_SCHEDULED', 'INTERVIEW_REMINDER', 'STATUS_CHANGE', 'DEADLINE_REMINDER', 'COMMENT_ADDED', 'ASSIGNMENT_CHANGED')
-- **notifications.priority**: ENUM('HIGH', 'MEDIUM', 'LOW')
+### **Giá trị cố định (enum ứng dụng, lưu dạng VARCHAR):**
+- **jobs.job_status**: VARCHAR, giá trị: 'DRAFT', 'PUBLISHED', 'PAUSED', 'CLOSED', 'FILLED'
+- **jobs.job_type**: VARCHAR, giá trị: 'FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP', 'FREELANCE'
+- **interviews.interview_type**: VARCHAR, giá trị: 'PHONE', 'VIDEO', 'IN_PERSON', 'TECHNICAL', 'HR', 'FINAL'
+- **interviews.status**: VARCHAR, giá trị: 'SCHEDULED', 'COMPLETED', 'CANCELLED', 'RESCHEDULED'
+- **interviews.result**: VARCHAR, giá trị: 'PASSED', 'FAILED', 'PENDING'
+- **notifications.type**: VARCHAR, giá trị: 'APPLICATION_RECEIVED', 'INTERVIEW_SCHEDULED', 'INTERVIEW_REMINDER', 'STATUS_CHANGE', 'DEADLINE_REMINDER', 'COMMENT_ADDED', 'ASSIGNMENT_CHANGED'
+- **notifications.priority**: VARCHAR, giá trị: 'HIGH', 'MEDIUM', 'LOW'
 
 ### **Lookup Tables (giữ lại vì cần flexibility):**
 - **application_statuses** - Trạng thái ứng tuyển (cần metadata, workflow rules)

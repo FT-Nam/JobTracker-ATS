@@ -2417,15 +2417,15 @@ Lấy lịch sử payments cho một bản ghi subscription cụ thể.
 
 ## 📋 Lookup Tables APIs
 
-> **🔄 CHUYỂN SANG ENUM**: Các lookup tables sau đã chuyển sang ENUM trong database, không cần APIs riêng:
-> - **Job Statuses** → ENUM trong `jobs.jobStatus` (DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED)
-> - **Job Types** → ENUM trong `jobs.jobType` (FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE)
-> - **Interview Types** → ENUM trong `interviews.interviewType` (PHONE, VIDEO, IN_PERSON, TECHNICAL, HR, FINAL)
-> - **Interview Statuses** → ENUM trong `interviews.status` (SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED)
-> - **Interview Results** → ENUM trong `interviews.result` (PASSED, FAILED, PENDING)
-> - **Notification Types** → ENUM trong `notifications.type` (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, etc.)
-> - **Notification Priorities** → ENUM trong `notifications.priority` (HIGH, MEDIUM, LOW)
-> - **Attachment Types** → ENUM trong `attachments.attachmentType` (RESUME, COVER_LETTER, CERTIFICATE, PORTFOLIO, OTHER)
+> **🔄 CHUYỂN SANG STRING + ENUM ỨNG DỤNG**: Các lookup tables sau đã chuyển sang **string (VARCHAR) trong DB** và **enum ở backend/API**, không cần APIs riêng:
+> - **Job Statuses** → Field `jobs.jobStatus` (VARCHAR, các giá trị cố định: DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED)
+> - **Job Types** → Field `jobs.jobType` (VARCHAR, các giá trị cố định: FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE)
+> - **Interview Types** → Field `interviews.interviewType` (VARCHAR, các giá trị cố định: PHONE, VIDEO, IN_PERSON, TECHNICAL, HR, FINAL)
+> - **Interview Statuses** → Field `interviews.status` (VARCHAR, các giá trị cố định: SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED)
+> - **Interview Results** → Field `interviews.result` (VARCHAR, các giá trị cố định: PASSED, FAILED, PENDING)
+> - **Notification Types** → Field `notifications.type` (VARCHAR, các giá trị cố định: APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, etc.)
+> - **Notification Priorities** → Field `notifications.priority` (VARCHAR, các giá trị cố định: HIGH, MEDIUM, LOW)
+> - **Attachment Types** → Field `attachments.attachmentType` (VARCHAR, các giá trị cố định: RESUME, COVER_LETTER, CERTIFICATE, PORTFOLIO, OTHER)
 
 > **✅ LOOKUP TABLE**: Application Statuses giữ lại lookup table vì cần metadata (display_name, color, sort_order) và flexibility:
 > - **Application Statuses** → Lookup table `application_statuses` (NEW, SCREENING, INTERVIEWING, OFFERED, HIRED, REJECTED)
@@ -2458,13 +2458,13 @@ Lấy lịch sử payments cho một bản ghi subscription cụ thể.
 
 > **Lý do**: Interview results giờ là ENUM trong `interviews.result` (PASSED, FAILED, PENDING). Sử dụng trực tiếp ENUM values trong request/response.
 
-### ~~8. Get Notification Types~~ ❌ **CHUYỂN SANG ENUM**
+### ~~8. Get Notification Types~~ ❌ **CHUYỂN SANG STRING + ENUM ỨNG DỤNG**
 
-> **Lý do**: Notification types giờ là ENUM trong `notifications.type` (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, INTERVIEW_REMINDER, STATUS_CHANGE, DEADLINE_REMINDER, COMMENT_ADDED, ASSIGNMENT_CHANGED). Sử dụng trực tiếp ENUM values trong request/response.
+> **Lý do**: Notification types giờ được lưu dạng string (VARCHAR) trong `notifications.type` nhưng được quản lý như enum ở backend (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, INTERVIEW_REMINDER, STATUS_CHANGE, DEADLINE_REMINDER, COMMENT_ADDED, ASSIGNMENT_CHANGED). Sử dụng trực tiếp enum values trong request/response.
 
-### ~~9. Get Notification Priorities~~ ❌ **CHUYỂN SANG ENUM**
+### ~~9. Get Notification Priorities~~ ❌ **CHUYỂN SANG STRING + ENUM ỨNG DỤNG**
 
-> **Lý do**: Notification priorities giờ là ENUM trong `notifications.priority` (HIGH, MEDIUM, LOW). Sử dụng trực tiếp ENUM values trong request/response.
+> **Lý do**: Notification priorities giờ được lưu dạng string (VARCHAR) trong `notifications.priority` nhưng được quản lý như enum ở backend (HIGH, MEDIUM, LOW). Sử dụng trực tiếp enum values trong request/response.
 
 ### 10. Get Application Statuses ✅
 **GET** `/admin/application-statuses`
@@ -3813,15 +3813,15 @@ Authorization: Bearer <access_token>
 ```json
 {
   "userId": "e2019f85-4a2f-4a6a-94b8-42c9b62b34be",
+  "companyId": "c1f9a8e2-3b4c-5d6e-7f80-1234567890ab",
   "jobId": "d7e6d2c9-0c6e-4ca8-bc52-2e95746bffc3",
+  "applicationId": "app1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
   "type": "DEADLINE_REMINDER",
   "priority": "HIGH",
   "title": "Custom Reminder",
   "message": "Follow up with recruiter tomorrow",
   "scheduledAt": "2024-01-16T09:00:00Z",
-  "metadata": {
-    "channel": "EMAIL"
-  }
+  "metadata": "{\"channel\":\"EMAIL\"}"
 }
 ```
 
