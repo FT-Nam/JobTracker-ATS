@@ -50,12 +50,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public JobResponse getById(String id) {
-        User currentUser = securityUtils.getCurrentUser();
-        Job job = jobRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
-        if (!job.getCompany().getId().equals(currentUser.getCompany().getId())) {
-            throw new AppException(ErrorCode.JOB_NOT_EXISTED);
-        }
+        Job job = getJobForCurrentCompanyOrThrow(id);
         return jobMapper.toJobResponse(job);
     }
 
@@ -73,9 +68,7 @@ public class JobServiceImpl implements JobService {
     @Override
     @Transactional
     public JobUpdateResponse update(String id, JobUpdateRequest request) {
-        Job job = jobRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
-
+        Job job = getJobForCurrentCompanyOrThrow(id);
         jobMapper.updateJob(job, request);
 
         return jobMapper.toJobUpdateResponse(jobRepository.save(job));
@@ -84,8 +77,7 @@ public class JobServiceImpl implements JobService {
     @Override
     @Transactional
     public JobUpdateStatusResponse updateStatus(String id, JobUpdateStatusRequest request) {
-        Job job = jobRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
+        Job job = getJobForCurrentCompanyOrThrow(id);
 
         if(request.getJobStatus() != null){
             if(job.getJobStatus() == JobStatus.DRAFT && request.getJobStatus() == JobStatus.PUBLISHED){
@@ -110,15 +102,14 @@ public class JobServiceImpl implements JobService {
     @Override
     @Transactional
     public void delete(String id) {
-        Job job = jobRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
-
+        Job job = getJobForCurrentCompanyOrThrow(id);
         job.softDelete();
         jobRepository.save(job);
     }
 
     @Override
     public List<JobSkillResponse> getJobSkills(String jobId) {
+        getJobForCurrentCompanyOrThrow(jobId);
         return jobSkillRepository.findByJobIdWithSkill(jobId)
                 .stream().map(jobSkillMapper::toJobSkillResponse).toList();
     }
@@ -130,8 +121,7 @@ public class JobServiceImpl implements JobService {
                 .filter(Skill::getIsActive)
                 .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));
 
-        Job job = jobRepository.findByIdAndDeletedAtIsNull(jobId)
-                .orElseThrow(()-> new AppException(ErrorCode.JOB_NOT_EXISTED));
+        Job job = getJobForCurrentCompanyOrThrow(jobId);
 
         if(jobSkillRepository.existsByJob_IdAndSkill_Id(jobId, request.getSkillId())){
             throw new AppException(ErrorCode.JOB_SKILL_EXISTED);
@@ -151,8 +141,7 @@ public class JobServiceImpl implements JobService {
                 .filter(Skill::getIsActive)
                 .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));
 
-        Job job = jobRepository.findByIdAndDeletedAtIsNull(jobId)
-                .orElseThrow(()-> new AppException(ErrorCode.JOB_NOT_EXISTED));
+        Job job = getJobForCurrentCompanyOrThrow(jobId);
 
         JobSkill jobSkill = jobSkillRepository.findByJob_IdAndSkill_Id(jobId, skillId)
                 .orElseThrow(()-> new AppException(ErrorCode.JOB_SKILL_NOT_EXISTED));
@@ -177,8 +166,7 @@ public class JobServiceImpl implements JobService {
                 .filter(Skill::getIsActive)
                 .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));
 
-        Job job = jobRepository.findByIdAndDeletedAtIsNull(jobId)
-                .orElseThrow(()-> new AppException(ErrorCode.JOB_NOT_EXISTED));
+        Job job = getJobForCurrentCompanyOrThrow(jobId);
 
         if(!jobSkillRepository.existsByJob_IdAndSkill_Id(jobId, skillId)){
             throw new AppException(ErrorCode.JOB_SKILL_NOT_EXISTED);
@@ -189,6 +177,13 @@ public class JobServiceImpl implements JobService {
 
         jobSkill.softDelete();
         jobSkillRepository.save(jobSkill);
+    }
+
+    private Job getJobForCurrentCompanyOrThrow(String jobId) {
+        User currentUser = securityUtils.getCurrentUser();
+        String companyId = currentUser.getCompany().getId();
+        return jobRepository.findByIdAndCompany_IdAndDeletedAtIsNull(jobId, companyId)
+                .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
     }
 }
 

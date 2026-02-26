@@ -35,11 +35,7 @@ public interface JobRepository extends JpaRepository<Job, String> {
             Pageable pageable
     );
 
-//    @Query("SELECT j FROM Job j WHERE j.id = :id AND j.deletedAt IS NULL")
     Optional<Job> findByIdAndDeletedAtIsNull(String id);
 
+    Optional<Job> findByIdAndCompany_IdAndDeletedAtIsNull(String id, String companyId);
 }
-
-
-
-
