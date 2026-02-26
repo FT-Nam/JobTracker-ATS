@@ -248,6 +248,8 @@ public class MessageKeys {
     public static final String NOTIFICATION_DELETE_SUCCESS = "notification.delete_success";
     public static final String NOTIFICATION_LIST_SUCCESS = "notification.list_success";
     public static final String NOTIFICATION_DETAIL_SUCCESS = "notification.detail_success";
+    public static final String NOTIFICATION_MARK_READ_SUCCESS = "notification.mark_read_success";
+    public static final String NOTIFICATION_MARK_ALL_READ_SUCCESS = "notification.mark_all_read_success";
 
     // USER SESSION
     public static final String USER_SESSION_NOT_EXISTED = "user_session.not_existed";

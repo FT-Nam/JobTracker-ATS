@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Getter
 @Builder
@@ -26,7 +27,7 @@ public class NotificationResponse {
     LocalDateTime sentAt;
     LocalDateTime scheduledAt;
     NotificationPriority priority;
-    String metadata;
+    Map<String, Object> metadata;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }

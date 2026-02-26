@@ -9,6 +9,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -30,6 +31,9 @@ public class NotificationRequest {
     @NotNull(message = "{notification.type.not_null}")
     NotificationType type;
 
+    @NotNull(message = "{notification.priority.not_null}")
+    NotificationPriority priority;
+
     @NotBlank(message = "{notification.title.not_blank}")
     @Size(max = 255, message = "{notification.title.size}")
     String title;
@@ -37,18 +41,9 @@ public class NotificationRequest {
     @NotBlank(message = "notification.message.not_blank")
     String message;
 
-    Boolean isRead;
-
-    Boolean isSent;
-
-    LocalDateTime sentAt;
-
     LocalDateTime scheduledAt;
 
-    @NotNull(message = "{notification.priority.not_null}")
-    NotificationPriority priority;
-
-    String metadata;
+    Map<String, Object> metadata;
 }
 
 
