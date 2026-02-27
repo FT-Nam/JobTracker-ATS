@@ -452,7 +452,7 @@ Tài liệu này tổng hợp **luồng nghiệp vụ chính** và **quy tắc t
       - `{{candidate_name}}` ← `applications.candidate_name`.
       - `{{job_title}}` ← `jobs.title`.
       - `{{company_name}}` ← `companies.name`.
-      - `{{status_link}}` (nếu dùng) ← link dạng `app.wesats.com/status?token={applicationToken}`.
+      - `{{application_link}}` ← link dạng `app.wesats.com/status?token={applicationToken}`.
     - Tạo một record trong `email_outbox`:
       - `email_type = APPLICATION_RECEIVED`.
       - `aggregate_type = APPLICATION`, `aggregate_id = application.id`.
@@ -472,7 +472,7 @@ Tài liệu này tổng hợp **luồng nghiệp vụ chính** và **quy tắc t
     - `interview_time`.
     - `meeting_link`.
   - Các thông tin sau được hệ thống tự có, không cho sửa:
-    - `candidate_name`, `candidate_email`.
+    - `candidate_name` (email người nhận `to_email` hệ thống tự biết, không phải template variable).
     - `job_title`, `company_name`.
 - **Backend**:
   - Lấy template `INTERVIEW_INVITE`.
@@ -503,14 +503,15 @@ Tài liệu này tổng hợp **luồng nghiệp vụ chính** và **quy tắc t
 
 - **Trigger**: HR trong hồ sơ ứng viên bấm **Send Offer**.
 - **Form**:
-  - `salary`.
-  - `start_date`.
-  - `note` (nội dung thêm / điều kiện).
+  - `offer_salary`.
+  - `offer_start_date`.
+  - `offer_expire_date`.
+  - `custom_message` (nếu cần thêm điều kiện/ghi chú).
 - **Backend**:
   - Lấy template `OFFER_LETTER` (hoặc tương đương).
   - Điền biến:
     - Ứng viên, job, công ty.
-    - `salary`, `start_date`, `note` từ form.
+    - `offer_salary`, `offer_start_date`, `offer_expire_date` và `custom_message` từ form.
   - Ghi record `email_outbox`:
     - `email_type = OFFER_LETTER`.
     - `aggregate_type = APPLICATION`, `aggregate_id = application.id`.
@@ -550,22 +551,149 @@ Tài liệu này tổng hợp **luồng nghiệp vụ chính** và **quy tắc t
       - `appliedDate`, `updatedAt`.
   - UI hiển thị trạng thái pipeline; **không cần** tracking mở email, chỉ cần link hoạt động.
 
-### 6.5. Khả năng quản lý template cho HR
+### 6.5. Khả năng quản lý template cho HR & hệ thống biến
 
 - **HR được phép**:
   - Tạo template mới (ví dụ: `APPLICATION_RECEIVED`, `INTERVIEW_INVITE`, `INTERVIEW_RESCHEDULE`, `OFFER_LETTER`, `REJECTION`, ...).
   - Sửa nội dung (subject + body HTML) của template thuộc company mình.
-  - Sử dụng các biến đã được system expose, ví dụ:
-    - `{{candidate_name}}`, `{{candidate_email}}`.
-    - `{{job_title}}`, `{{company_name}}`.
-    - `{{interview_time}}`, `{{meeting_link}}`, `{{salary}}`, `{{start_date}}`, `{{note}}`.
-    - `{{status_link}}` (link xem trạng thái).
+  - Sử dụng **chỉ những biến đã được system expose**, không được tự nghĩ tên biến.
   - Preview template với data mẫu.
   - Gửi test email (ví dụ tới email của chính HR) để kiểm tra trước khi dùng thật.
 - **HR không được**:
   - Viết code hoặc logic điều kiện phức tạp trong template.
   - Tự ý tạo biến mới ngoài danh sách biến mà backend cho phép.
   - Truy cập thông tin ngoài phạm vi tenant của mình.
+
+#### 6.5.1. Nguyên tắc tạo biến & nhóm biến chuẩn
+
+> **Nguyên tắc:**  
+> - Biến phải bám theo **entity có thật trong DB**.  
+> - Biến phải mô tả **workflow ATS có thật** (ứng tuyển, phỏng vấn, offer, billing).  
+> - **Không bịa thêm domain** ngoài hệ thống (không phải CMS tự do).
+
+- **Danh sách biến tối giản cho ATS email thực tế (giữ dưới 20 biến)**
+  - **Company**:
+    - `company_name`
+  - **HR**:
+    - `hr_name`
+  - **Candidate**:
+    - `candidate_name`
+  - **Job**:
+    - `job_title`
+  - **Application**:
+    - `application_status`
+    - `application_link` (link để candidate xem trạng thái hồ sơ)
+  - **Interview**:
+    - `interview_time`
+    - `interview_location`
+    - `meeting_link`
+  - **Offer**:
+    - `offer_salary`
+    - `offer_start_date`
+    - `offer_expire_date`
+  - **Billing (subscription)**:
+    - `plan_name`
+    - `plan_price`
+    - `plan_expire_at`
+  - **Flexible**:
+    - `custom_message` (đoạn text HR nhập thêm tuỳ tình huống)
+
+> Tổng biến còn **16**. Ngoài list này: **không expose** ra template (tránh maintenance nightmare).
+
+#### 6.5.2. `email_template_types`, allowed_system_vars & allowed_manual_vars
+
+- Mỗi template có:
+  - **`email_template_type` / `email_type`**: ví dụ `INTERVIEW_INVITE`, `STATUS_CHANGED`, `OFFER_LETTER`, `REJECTION`, ...
+  - **`allowed_system_vars`**: danh sách biến hệ thống **auto-fill** (HR chỉ chèn placeholder, không nhập giá trị).
+  - **`allowed_manual_vars`**: danh sách biến cho phép HR **nhập tay** (thường chỉ 1–2 biến, như `custom_message`).
+- UI template chỉ hiển thị **subset hợp lệ** theo từng type, tránh việc HR được chơi với toàn bộ danh sách biến cùng lúc.
+
+- **Ví dụ – `INTERVIEW_INVITE`**
+  - `allowed_system_vars`:
+    - `company_name`
+    - `hr_name`
+    - `candidate_name`
+    - `job_title`
+    - `application_link`
+    - `interview_time`
+    - `interview_location`
+    - `meeting_link`
+  - `allowed_manual_vars`:
+    - `custom_message`
+
+- **Ví dụ – `STATUS_CHANGED`**
+  - `allowed_system_vars`:
+    - `candidate_name`
+    - `job_title`
+    - `company_name`
+    - `application_status`
+    - `application_link`
+  - `allowed_manual_vars`:
+    - `hr_name`
+    - `custom_message`
+
+- **Ví dụ – `OFFER_LETTER`**
+  - `allowed_system_vars`:
+    - `candidate_name`
+    - `job_title`
+    - `company_name`
+    - `application_link`
+    - `hr_name`
+  - `allowed_manual_vars`:
+    - `offer_salary`
+    - `offer_start_date`
+    - `offer_expire_date`
+    - `custom_message`
+
+- **Ví dụ – `REJECTION`**
+  - `allowed_system_vars`:
+    - `candidate_name`
+    - `job_title`
+    - `company_name`
+    - `application_link`
+    - `hr_name`
+  - `allowed_manual_vars`:
+    - `custom_message`
+
+- **Ví dụ – `PAYMENT_SUCCESS`**
+  - `allowed_system_vars`:
+    - `company_name`
+    - `plan_name`
+    - `plan_price`
+    - `plan_expire_at`
+  - `allowed_manual_vars`:
+    - `custom_message`
+
+> Nhờ việc **khóa danh sách biến theo từng `email_type`**:
+> - Backend biết rõ biến nào **được phép** xuất hiện trong template.
+> - Validate được template trước khi lưu/gửi.
+> - Dễ maintain khi scale, vì tất cả biến đều bám **entity & workflow ATS có thật**, không biến thành CMS tự do.
+
+#### 6.5.3. Phân loại biến: system-injected vs manual-input
+
+- **System-injected variables** (giá trị do hệ thống tự lấy từ DB / config, HR không nhập mỗi lần gửi):
+  - `company_name`
+  - `hr_name`
+  - `candidate_name`
+  - `job_title`
+  - `application_status`
+  - `application_link`
+  - `interview_time`
+  - `interview_location`
+  - `meeting_link`
+  - `plan_name`
+  - `plan_price`
+  - `plan_expire_at`
+
+- **Manual-input variables** (HR nhập mỗi lần gửi qua form, hệ thống chỉ lưu & inject giá trị đó):
+  - `offer_salary`
+  - `offer_start_date`
+  - `offer_expire_date`
+  - `custom_message`
+
+> Ghi chú:
+> - `offer_*` có thể được lưu vào entity offer (khi implement) để các email kế tiếp auto-fill, không cần nhập lại.
+> - Tại thời điểm gửi email, UI luôn rõ ràng: biến nào hệ thống tự fill (read-only), biến nào HR phải điền giá trị (input field).
 
 ### 6.6. Màn hình / tính năng cần có quanh email
 
