@@ -1,10 +1,10 @@
-# 🗄️ JobTracker ATS Database Schema
+# JobTracker ATS Database Schema
 
-## 📋 Tổng quan Database
+## Tổng quan Database
 
 JobTracker ATS (Applicant Tracking System) sử dụng **MySQL 8.0** làm database chính với thiết kế **multi-tenant** cho SME/Startup. Database được thiết kế normalized để đảm bảo tính toàn vẹn dữ liệu, hiệu suất truy vấn và **data isolation** giữa các công ty.
 
-### 🎯 Thiết kế nguyên tắc
+### Thiết kế nguyên tắc
 - **Multi-Tenant Architecture**: Mỗi company = 1 tenant, data isolation bằng `company_id`
 - **Normalization**: 3NF để tránh redundancy
 - **UUID Primary Keys**: Sử dụng VARCHAR(36) cho tất cả primary keys
@@ -14,7 +14,7 @@ JobTracker ATS (Applicant Tracking System) sử dụng **MySQL 8.0** làm databa
 - **Soft Delete**: Không xóa dữ liệu thực tế với deleted_at
 - **RBAC**: Role-based access control với fine-grained permissions
 
-### 🆔 **UUID IMPLEMENTATION STRATEGY**
+### UUID implementation
 - **Primary Keys**: VARCHAR(36) với UUID() function
 - **Foreign Keys**: VARCHAR(36) references
 - **Indexing**: Optimized cho UUID lookups
@@ -22,61 +22,7 @@ JobTracker ATS (Applicant Tracking System) sử dụng **MySQL 8.0** làm databa
 - **Security**: UUIDs không thể guess được
 - **Consistency**: Tất cả bảng đều dùng UUID làm primary key
 
-## 🔄 **REFACTORING SUMMARY - PERSONAL TRACKER → SME ATS**
-
-### ✅ **GIỮ LẠI (80% - Core structure tốt)**
-- Companies, Users, Jobs, Skills, Interviews (với sửa đổi)
-- RBAC (Roles, Permissions, Role_Permissions) - **GIỮ** (cần flexibility)
-- Skills table - **GIỮ** (dynamic, user có thể thêm)
-- System tables (User_Sessions, Audit_Logs, Notifications)
-- Audit fields, Soft delete strategy
-
-### ❌ **BỎ HOÀN TOÀN (10% - Personal tracker only)**
-- **resumes** table → Thay bằng `applications.resume_file_path`
-- **job_resumes** junction table → Không cần
-- **user_skills** table → ATS không track HR skills
-- **priorities** table → Không cần cho job postings
-- **experience_levels** table → Đơn giản hóa, ghi tự do trong job description
-
-### 🔄 **CHUYỂN SANG STRING + ENUM ỨNG DỤNG (Simplification)**
-- **job_statuses** table → VARCHAR trong `jobs.job_status` (các giá trị cố định: DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED)
-- **job_types** table → VARCHAR trong `jobs.job_type` (các giá trị cố định: FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE)
-- **interview_types** table → VARCHAR trong `interviews.interview_type` (các giá trị cố định: PHONE, VIDEO, IN_PERSON, TECHNICAL, HR, FINAL)
-- **interview_statuses** table → VARCHAR trong `interviews.status` (các giá trị cố định: SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED)
-- **interview_results** table → VARCHAR trong `interviews.result` (các giá trị cố định: PASSED, FAILED, PENDING)
-- **notification_types** table → VARCHAR trong `notifications.type` (các giá trị cố định: APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, etc.)
-- **notification_priorities** table → VARCHAR trong `notifications.priority` (các giá trị cố định: HIGH, MEDIUM, LOW)
-- **attachment_types** → VARCHAR trong `attachments.attachment_type` (các giá trị cố định: RESUME, COVER_LETTER, CERTIFICATE, PORTFOLIO, OTHER)
-
-### ➕ **THÊM MỚI (5% - ATS specific)**
-- **applications** table (CORE ATS) - Candidates apply to jobs
-- **application_status_history** table - Audit trail cho status workflow
-- **comments** table - Team collaboration về candidates
-
-### 🔄 **SỬA ĐỔI (5% - Adjust for multi-tenant)**
-- **companies**: Thêm subscription fields (plan, limits, expires_at)
-- **users**: Thêm `company_id` (CRITICAL - Multi-tenant key)
-- **jobs**: Đổi semantic từ "job applied" → "job posting" (thêm job_status, published_at, applications_count)
-- **interviews**: Đổi `job_id` → `application_id` (interview belongs to application)
-- **notifications**: Thêm `company_id`, `application_id`
-- **attachments**: Đổi `job_id` → `application_id` (CVs belong to applications)
-- **audit_logs**: Thêm `company_id` (multi-tenant audit)
-- **roles**: Đổi sang ATS roles (COMPANY_ADMIN, RECRUITER, HIRING_MANAGER, INTERVIEWER) - **GIỮ TABLE** (cần flexibility)
-- **permissions**: Đổi sang ATS permissions (JOB_PUBLISH, APPLICATION_ASSIGN, etc.) - **GIỮ TABLE** (cần flexibility)
-- **job_statuses**: Lưu string (VARCHAR) trong `jobs.job_status` với tập giá trị cố định (DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED)
-- **job_types**: Lưu string (VARCHAR) trong `jobs.job_type` với tập giá trị cố định (FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE)
-- **interview_types/statuses/results**: Lưu string (VARCHAR) trong các cột tương ứng của `interviews` table với tập giá trị cố định
-- **notification_types/priorities**: Lưu string (VARCHAR) trong các cột tương ứng của `notifications` table với tập giá trị cố định
-
-### 🔑 **CRITICAL CHANGES (Must implement first)**
-1. **users.company_id** - Multi-tenant isolation key
-2. **applications table** - Core ATS entity
-3. **jobs semantic change** - From "applied" to "posting"
-4. **interviews.application_id** - Link to applications, not jobs
-
-## 📊 **ENUM VALUES REFERENCE**
-
-Tất cả các ENUM values được sử dụng trong database:
+## Các giá trị enum sử dụng trong database
 
 ### 1. Job Status ENUM (`jobs.job_status`)
 - `DRAFT` - Nháp, chưa publish
@@ -143,19 +89,19 @@ Tất cả các ENUM values được sử dụng trong database:
 - `SUCCESS` - Thành công
 - `FAILED` - Thất bại
 
-### 11. Email Status ENUM (`email_outbox.status`) ➕
+### 11. Email Status ENUM (`email_outbox.status`)
 - `PENDING` - Đang chờ gửi
 - `SENT` - Đã gửi thành công
 - `FAILED` - Gửi thất bại
 
-### 12. Email Type ENUM (`email_outbox.email_type`) ➕
+### 12. Email Type ENUM (`email_outbox.email_type`)
 - `WELCOME` - Email chào mừng
 - `PAYMENT_SUCCESS` - Email xác nhận thanh toán thành công
 - `INTERVIEW_SCHEDULE` - Email lên lịch phỏng vấn
 - `OFFER_LETTER` - Email thư mời làm việc
 - `REJECTION` - Email từ chối ứng viên
 
-## 🏗️ Database Schema
+## Database Schema
 
 ### 1. Lookup Tables (Bảng tra cứu)
 
@@ -240,13 +186,7 @@ CREATE TABLE role_permissions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-#### ~~1.4. Job Statuses Table~~ ❌ **CHUYỂN SANG ENUM**
-
-> **Lý do**: Job statuses là fixed values (DRAFT, PUBLISHED, CLOSED, FILLED), không cần lookup table. Dùng ENUM trong `jobs.job_status`.
-
-#### 1.5. Application Statuses Table (Bảng trạng thái ứng tuyển) ✅
-
-> **Lý do**: Application statuses cần metadata (display name, color, sort order), multi-tenant pipeline per company và vẫn giữ được system default template.
+#### 1.4. Application Statuses Table (Bảng trạng thái ứng tuyển)
 
 ```sql
 CREATE TABLE application_statuses (
@@ -297,49 +237,11 @@ public enum StatusType {
 }
 ```
 
-#### ~~1.5. Job Types Table~~ ❌ **CHUYỂN SANG ENUM**
+#### 1.5. Enum interviews và notifications
 
-> **Lý do**: Job types là fixed values (FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE), không cần lookup table. Dùng ENUM trong `jobs.job_type`.
-
-#### 1.5. ~~Priorities Table~~ ❌ **REMOVED**
-> **Lý do**: ATS không cần priority cho job postings. Đã bỏ hoàn toàn.
-
-#### 1.6. ~~Experience Levels Table~~ ❌ **REMOVED**
-> **Lý do**: Quá phức tạp cho ATS. HR có thể ghi tự do trong job description. Đã bỏ hoàn toàn.
-
-#### ~~1.7. Interview Types Table~~ ❌ **CHUYỂN SANG ENUM**
-
-> **Lý do**: Interview types là fixed values (PHONE, VIDEO, IN_PERSON, TECHNICAL, HR, FINAL), không cần lookup table. Dùng ENUM trong `interviews.interview_type`.
-
-#### ~~1.8. Interview Statuses Table~~ ❌ **CHUYỂN SANG ENUM**
-
-> **Lý do**: Interview statuses là fixed values (SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED), không cần lookup table. Dùng ENUM trong `interviews.status`.
-
-#### ~~1.9. Interview Results Table~~ ❌ **CHUYỂN SANG STRING + ENUM ỨNG DỤNG**
-
-> **Lý do**: Interview results là fixed values (PASSED, FAILED, PENDING), không cần lookup table. Lưu VARCHAR trong `interviews.result` và validate bằng enum ở backend.
-
-#### ~~1.10. Notification Types Table~~ ❌ **CHUYỂN SANG STRING + ENUM ỨNG DỤNG**
-
-> **Lý do**: Notification types là fixed values (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, STATUS_CHANGE, etc.), không cần lookup table. Lưu VARCHAR trong `notifications.type` và validate bằng enum ở backend.
-
-#### ~~1.11. Notification Priorities Table~~ ❌ **CHUYỂN SANG STRING + ENUM ỨNG DỤNG**
-
-> **Lý do**: Notification priorities là fixed values (HIGH, MEDIUM, LOW), không cần lookup table. Lưu VARCHAR trong `notifications.priority` và validate bằng enum ở backend.
+Các giá trị enum cho interviews (`interview_type`, `status`, `result`) và notifications (`type`, `priority`) được mô tả ở phần "Các giá trị enum sử dụng trong database" bên trên.
 
 ### 2. Users Table (Bảng người dùng - Multi-Tenant)
-
-> **🔑 CRITICAL**: Mỗi user thuộc về 1 company. `company_id` là multi-tenant key.
-> 
-> **💰 BILLABLE USERS**: Field `is_billable` phân biệt users tính vào plan limit:
-> - `ADMIN`, `HR` → `is_billable = true` (tính vào quota)
-> - `INTERVIEWER` → `is_billable = false` (không tính vào quota)
-> 
-> **🔐 AUTH FLOW**: B2B SaaS invite-only:
-> - Email + Password (bắt buộc)
-> - Email Verification (bắt buộc)
-> - Admin tạo user → `email_verified = false`, `password = NULL` → Gửi invite email → User set password → `email_verified = true`
-> - Không có Google OAuth (trừ enterprise SSO)
 
 ```sql
 CREATE TABLE users (
@@ -386,23 +288,7 @@ CREATE TABLE users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-> **💰 Plan Limit Check Query**:
-> ```sql
-> SELECT COUNT(*) 
-> FROM users
-> WHERE company_id = ?
->   AND is_billable = true
->   AND deleted_at IS NULL;
-> ```
-> 
-> **Logic `is_billable`**:
-> - `COMPANY_ADMIN`, `HR`, `RECRUITER` → `is_billable = true` (tính vào quota)
-> - `INTERVIEWER` → `is_billable = false` (không tính vào quota)
-
 ### 3. Companies Table (Bảng công ty - Multi-Tenant)
-
-> **🔑 CRITICAL**: Companies = Tenants trong multi-tenant ATS system  
-> Subscription KHÔNG nằm trực tiếp trong bảng companies, mà tách ra thành các bảng riêng.
 
 ```sql
 CREATE TABLE companies (
@@ -522,8 +408,6 @@ CREATE TABLE payments (
 
 ### 4. Jobs Table (Bảng Job Postings - ATS)
 
-> **🔄 SEMANTIC CHANGE**: Jobs = Job Postings (tin tuyển dụng), không phải "job applied"
-
 ```sql
 CREATE TABLE jobs (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID job posting',
@@ -636,13 +520,7 @@ CREATE TABLE job_skills (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 7. ~~User Skills Table~~ ❌ **REMOVED**
-
-> **Lý do**: ATS không track skills của HR/Recruiter. Chỉ cần track skills yêu cầu của job (job_skills). Candidates skills nằm trong CV text.
-
-### 8. Applications Table (Bảng ứng tuyển - CORE ATS) ➕
-
-> **🔑 CORE**: Thay thế hoàn toàn bảng resumes. Đây là core của ATS system.
+### 7. Applications Table (Bảng ứng tuyển - CORE ATS)
 
 ```sql
 CREATE TABLE applications (
@@ -704,7 +582,7 @@ CREATE TABLE applications (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 8.1. Application Status History Table ➕
+### 8.1. Application Status History Table 
 
 ```sql
 CREATE TABLE application_status_history (
@@ -726,7 +604,7 @@ CREATE TABLE application_status_history (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 8.2. Comments Table ➕
+### 8.2. Comments Table
 
 ```sql
 CREATE TABLE comments (
@@ -750,13 +628,13 @@ CREATE TABLE comments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 9. Interviews Table (Bảng phỏng vấn - ATS) 🔄
+### 9. Interviews Table (Bảng phỏng vấn - ATS)
 
-> **🔄 SEMANTIC CHANGE**: Interview belongs to APPLICATION, không phải job
+> ** SEMANTIC CHANGE**: Interview belongs to APPLICATION, không phải job
 > 
-> **👥 MULTIPLE INTERVIEWERS**: Một interview có thể có nhiều interviewers (many-to-many qua bảng `interview_interviewers`).
+> ** MULTIPLE INTERVIEWERS**: Một interview có thể có nhiều interviewers (many-to-many qua bảng `interview_interviewers`).
 > 
-> **⏰ SCHEDULE VALIDATION**: Validate trùng lịch cho từng interviewer (không phải cho interview):
+> ** SCHEDULE VALIDATION**: Validate trùng lịch cho từng interviewer (không phải cho interview):
 > - Một interviewer (user với role = INTERVIEWER) không thể có 2 interviews cùng thời gian (trùng `scheduled_date` và `duration_minutes`)
 > - Validate khi tạo/cập nhật interview: Check tất cả interviewers trong `interview_interviewers` table
 > - Chỉ validate cho interviews có status = `SCHEDULED` hoặc `RESCHEDULED`
@@ -816,11 +694,11 @@ CREATE TABLE interviews (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 9.1. Interview Interviewers Table (Junction Table - Many-to-Many) ➕
+### 9.1. Interview Interviewers Table (Junction Table - Many-to-Many) 
 
-> **🔑 CRITICAL**: Bảng junction để support nhiều interviewers cho 1 interview.
+> ** CRITICAL**: Bảng junction để support nhiều interviewers cho 1 interview.
 > 
-> **⏰ SCHEDULE VALIDATION**: Validate trùng lịch dựa trên bảng này:
+> ** SCHEDULE VALIDATION**: Validate trùng lịch dựa trên bảng này:
 > - Query: Check xem interviewer có interview nào khác trong khoảng thời gian `scheduled_date` ± `duration_minutes` không
 > - Chỉ validate cho interviews có status = `SCHEDULED` hoặc `RESCHEDULED`
 > - Validate overlap: Nếu interview A từ 10:00-11:00 và interview B từ 10:30-11:30 → Trùng lịch (overlap)
@@ -858,7 +736,7 @@ CREATE TABLE interview_interviewers (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-> **💰 SCHEDULE VALIDATION QUERY** (Check trùng lịch cho interviewer):
+> ** SCHEDULE VALIDATION QUERY** (Check trùng lịch cho interviewer):
 > ```sql
 > -- Check xem interviewer có interview nào khác trùng lịch không
 > SELECT COUNT(*) 
@@ -890,17 +768,7 @@ CREATE TABLE interview_interviewers (
 > - Validate cho TẤT CẢ interviewers trong array khi tạo/cập nhật interview
 > - Ví dụ: Interview A (10:00-11:00) và Interview B (10:30-11:30) → Overlap → Reject
 
-### ~~9. Job Resumes Table~~ ❌ **REMOVED**
-
-> **Lý do**: Modern ATS không cần bảng riêng cho resumes. CVs được lưu trong `attachments` table (candidates tự upload hoặc HR upload thủ công).
-
-### ~~10. Resumes Table~~ ❌ **REMOVED**
-
-> **Lý do**: Thay thế bằng `applications.resume_file_path` và `attachments` table. Candidates tự upload CV qua public API, hoặc HR upload thủ công khi nhận CV qua email.
-
-### 10. Attachments Table (Bảng file đính kèm - ATS) 🔄
-
-> **🔄 SEMANTIC CHANGE**: Attachments belong to applications (CVs, certificates), không phải jobs
+### 8. Attachments Table (Bảng file đính kèm - ATS)
 
 ```sql
 CREATE TABLE attachments (
@@ -943,9 +811,7 @@ CREATE TABLE attachments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 11. Notifications Table (Bảng thông báo - ATS) 🔄
-
-> **🔄 SEMANTIC CHANGE**: Thêm company_id và application_id cho multi-tenant
+### 9. Notifications Table (Bảng thông báo - ATS)
 
 ```sql
 CREATE TABLE notifications (
@@ -1021,13 +887,7 @@ CREATE TABLE user_sessions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### 13. User Invitations Table (Bảng lời mời người dùng) ➕
-
-> **🔑 INVITE FLOW**: Lưu trữ invite tokens cho user onboarding:
-> - Admin tạo user → System tạo record trong `user_invitations` với token
-> - System gửi email với invite link chứa token
-> - User click link → `POST /auth/accept-invite` với token → Set password → `used_at` được set
-> - Token có expiration (thường 7 ngày), có thể resend để tạo token mới
+### 13. User Invitations Table (Bảng lời mời người dùng)
 
 ```sql
 CREATE TABLE user_invitations (
@@ -1066,20 +926,14 @@ CREATE TABLE user_invitations (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-> **💡 Token Generation Logic**:
+> ** Token Generation Logic**:
 > - Token được generate khi Admin tạo user qua `POST /admin/users/invite`
 > - Token format: Random UUID hoặc secure random string (32-64 chars)
 > - Expiration: 7 ngày từ lúc tạo
 > - Mỗi user có thể có nhiều invitations (nếu resend), nhưng chỉ 1 token active (chưa used và chưa expired)
 > - Khi user accept invite → `used_at` được set → Token không thể dùng lại
 
-### 14. Invalidated Tokens Table (Bảng tokens đã vô hiệu hóa) ➕
-
-> **🔑 JWT TOKEN INVALIDATION**: Lưu trữ các JWT tokens đã bị invalidate khi user logout:
-> - Khi user logout → System lấy JWT ID (jit) và expiry time từ access token
-> - System lưu vào bảng `invalidated_token` với `id = jit` và `expiry_time = token expiry`
-> - Khi verify token → System check xem token có trong `invalidated_token` không
-> - Sau khi token expired → Có thể cleanup các records cũ (expiry_time < NOW())
+### 11. Invalidated Tokens Table (Bảng tokens đã vô hiệu hóa)
 
 ```sql
 CREATE TABLE invalidated_token (
@@ -1104,7 +958,7 @@ CREATE TABLE invalidated_token (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-> **💡 Token Invalidation Logic**:
+> ** Token Invalidation Logic**:
 > - Khi user logout qua `POST /auth/logout`:
 >   - System parse access token → Lấy `jit` (JWT ID) và `expiry_time`
 >   - Insert vào `invalidated_token` với `id = jit`, `expiry_time = token expiry`
@@ -1114,55 +968,96 @@ CREATE TABLE invalidated_token (
 >   - Nếu có → Token đã bị invalidate → Reject request
 > - Cleanup: Có thể chạy scheduled job để xóa các records có `expiry_time < NOW()` (tokens đã expired)
 
-### 14. Email Outbox Table (Bảng outbox cho async email sending) ➕
-
-> **Vai trò**: Outbox pattern cho async email sending với retry mechanism.  
-> **Pattern**: Transactional Outbox - đảm bảo email được gửi sau khi transaction commit thành công.
+### 12. Email Templates Table (Bảng template email)
 
 ```sql
-CREATE TABLE email_outbox (
-    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()) COMMENT 'UUID email outbox',
-    email_type VARCHAR(50) NOT NULL COMMENT 'Loại email (WELCOME, PAYMENT_SUCCESS, INTERVIEW_SCHEDULE, OFFER_LETTER, REJECTION)',
-    aggregate_type VARCHAR(50) NOT NULL COMMENT 'Loại entity liên quan (USER, APPLICATION, INTERVIEW, etc.)',
-    aggregate_id VARCHAR(36) NOT NULL COMMENT 'UUID của entity liên quan',
-    company_id VARCHAR(36) NOT NULL COMMENT 'UUID công ty (Multi-tenant)',
-    to_email VARCHAR(255) NOT NULL COMMENT 'Email người nhận',
-    subject VARCHAR(500) NOT NULL COMMENT 'Tiêu đề email',
-    body TEXT NOT NULL COMMENT 'Nội dung email',
-    status VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT 'Trạng thái email (PENDING, SENT, FAILED)',
-    retry_count INT NOT NULL DEFAULT 0 COMMENT 'Số lần retry',
-    max_retries INT NOT NULL DEFAULT 3 COMMENT 'Số lần retry tối đa',
-    next_retry_at TIMESTAMP NULL COMMENT 'Thời gian retry tiếp theo',
-    sent_at TIMESTAMP NULL COMMENT 'Thời gian gửi thành công',
-    failed_reason TEXT NULL COMMENT 'Lý do thất bại',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian tạo',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời gian cập nhật',
+CREATE TABLE email_templates (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     
-    -- Foreign Keys
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+    company_id VARCHAR(36) NULL COMMENT 'NULL = Global template',
     
-    -- Indexes
-    INDEX idx_status_retry (status, next_retry_at) COMMENT 'Index cho query pending emails cần retry',
-    INDEX idx_aggregate (aggregate_type, aggregate_id) COMMENT 'Index cho query theo entity liên quan',
-    INDEX idx_company (company_id) COMMENT 'Multi-tenant index',
-    INDEX idx_email_type (email_type) COMMENT 'Index cho filter theo loại email',
-    INDEX idx_created_at (created_at) COMMENT 'Index cho cleanup old emails'
+    code VARCHAR(100) NOT NULL COMMENT 'Mã template duy nhất (WELCOME, INTERVIEW_INVITE, OFFER_LETTER, etc.)',
+    name VARCHAR(255) NOT NULL COMMENT 'Tên hiển thị template',
+    
+    subject VARCHAR(500) NOT NULL,
+    html_content MEDIUMTEXT NOT NULL,
+    
+    variables JSON NULL COMMENT 'Danh sách biến sử dụng trong template',
+    
+    -- Optional override
+    from_name VARCHAR(255) NULL COMMENT 'Override tên người gửi (nếu có)',
+    
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    
+    created_by VARCHAR(36) NULL,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Constraints
+    UNIQUE KEY uniq_company_code (company_id, code),
+    
+    INDEX idx_company (company_id),
+    INDEX idx_code (code),
+    
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-> **💡 Outbox Pattern Flow**:
-> 1. **Write Transaction**: Business logic tạo record trong `email_outbox` với `status = PENDING` trong cùng transaction
-> 2. **Background Processor**: Scheduled job query `email_outbox` với `status = PENDING` và `next_retry_at <= NOW()`
-> 3. **Send Email**: Processor gửi email qua email service (Brevo, SendGrid, etc.)
-> 4. **Update Status**: 
->    - Nếu thành công → `status = SENT`, `sent_at = NOW()`
->    - Nếu thất bại → `retry_count++`, `next_retry_at = NOW() + exponential_backoff`, `failed_reason = error`
-> 5. **Retry Logic**: Retry tối đa `max_retries` lần, sau đó `status = FAILED`
-> 6. **Cleanup**: Scheduled job xóa các email đã gửi thành công sau 30 ngày
+### 13. Email Outbox Table (Bảng outbox cho async email sending)
 
-### 15. Audit Logs Table (Bảng log audit - ATS) 🔄
+```sql
+CREATE TABLE email_outbox (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    
+    -- Business
+    email_type VARCHAR(100) NOT NULL COMMENT 'Loại email (WELCOME, INTERVIEW_INVITE, OFFER, etc.)',
+    aggregate_type VARCHAR(50) NOT NULL COMMENT 'USER, APPLICATION, INTERVIEW, etc.',
+    aggregate_id VARCHAR(36) NOT NULL,
+    company_id VARCHAR(36) NOT NULL,
+    
+    -- Recipient
+    to_email VARCHAR(255) NOT NULL,
+    to_name VARCHAR(255) NULL,
+    
+    -- Sender (Snapshot)
+    from_email VARCHAR(255) NOT NULL COMMENT 'System domain email',
+    from_name VARCHAR(255) NOT NULL,
+    
+    reply_to_email VARCHAR(255) NULL COMMENT 'Email HR công ty',
+    reply_to_name VARCHAR(255) NULL,
+    
+    -- Content (Snapshot)
+    subject VARCHAR(500) NOT NULL,
+    html_body MEDIUMTEXT NOT NULL,
+    
+    -- Status
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT 'PENDING, SENT, FAILED',
+    
+    retry_count INT NOT NULL DEFAULT 0,
+    max_retries INT NOT NULL DEFAULT 3,
+    next_retry_at TIMESTAMP NULL,
+    
+    sent_at TIMESTAMP NULL,
+    failed_reason TEXT NULL,
+    
+    -- Provider tracking
+    provider_message_id VARCHAR(255) NULL COMMENT 'Message ID từ email provider',
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Indexes
+    INDEX idx_status_retry (status, next_retry_at),
+    INDEX idx_aggregate (aggregate_type, aggregate_id),
+    INDEX idx_company (company_id),
+    INDEX idx_created_at (created_at),
+    
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
 
-> **🔄 SEMANTIC CHANGE**: Thêm company_id cho multi-tenant audit
+### 14. Audit Logs Table (Bảng log audit - ATS)
 
 ```sql
 CREATE TABLE audit_logs (
@@ -1196,11 +1091,7 @@ CREATE TABLE audit_logs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### ~~7. User Skills Table~~ ❌ **REMOVED**
-
-> **Lý do**: ATS không track skills của HR/Recruiter. Chỉ cần track skills yêu cầu của job (job_skills). Candidates skills nằm trong CV text.
-
-## 🔍 Indexes Strategy
+##  Indexes Strategy
 
 ### Primary Indexes
 - **Primary Keys**: Tất cả bảng đều có auto-increment primary key
@@ -1239,9 +1130,7 @@ CREATE INDEX idx_notifications_scheduled_unsent ON notifications(scheduled_at, i
 CREATE INDEX idx_audit_company_entity ON audit_logs(company_id, entity_type, entity_id);
 ```
 
-## 🔄 Database Relationships
-
-### Entity Relationship Diagram (ATS)
+## Database Relationships
 ```
 Companies (1) ──── (N) Users (Multi-tenant)
 Companies (1) ──── (N) Jobs (Job Postings)
@@ -1270,7 +1159,7 @@ Applications (1) ──── (N) Application_Status_History
 Skills (1) ──── (N) Job_Skills
 ```
 
-## 📊 Sample Data
+## Sample Data
 
 ### Initial Lookup Data
 
@@ -1314,7 +1203,7 @@ INSERT INTO permissions (name, resource, action, description) VALUES
 ('USER_DELETE', 'USER', 'DELETE', 'Remove team members');
 ```
 
-#### Application Statuses Data (ATS Workflow) ✅
+#### Application Statuses Data (ATS Workflow) 
 
 > Seed system default: `company_id = NULL`
 
@@ -1330,37 +1219,9 @@ VALUES
     (UUID(), NULL, 'rejected',  'Rejected',  '#EF4444', 'REJECTED',  6, TRUE,  FALSE);
 ```
 
-#### ~~Job Statuses Data~~ ❌ **CHUYỂN SANG ENUM**
+#### Enum khác
 
-> **Lý do**: Job statuses giờ là ENUM trong `jobs.job_status` (DRAFT, PUBLISHED, PAUSED, CLOSED, FILLED). Không cần seed data.
-
-#### ~~Job Types Data~~ ❌ **CHUYỂN SANG ENUM**
-
-> **Lý do**: Job types giờ là ENUM trong `jobs.job_type` (FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP, FREELANCE). Không cần seed data.
-
-#### ~~Priorities Data~~ ❌ **REMOVED**
-
-#### ~~Experience Levels Data~~ ❌ **REMOVED**
-
-#### ~~Interview Types Data~~ ❌ **CHUYỂN SANG ENUM**
-
-> **Lý do**: Interview types giờ là ENUM trong `interviews.interview_type` (PHONE, VIDEO, IN_PERSON, TECHNICAL, HR, FINAL). Không cần seed data.
-
-#### ~~Interview Statuses Data~~ ❌ **CHUYỂN SANG ENUM**
-
-> **Lý do**: Interview statuses giờ là ENUM trong `interviews.status` (SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED). Không cần seed data.
-
-#### ~~Interview Results Data~~ ❌ **CHUYỂN SANG ENUM**
-
-> **Lý do**: Interview results giờ là ENUM trong `interviews.result` (PASSED, FAILED, PENDING). Không cần seed data.
-
-#### ~~Notification Types Data~~ ❌ **CHUYỂN SANG ENUM**
-
-> **Lý do**: Notification types giờ là ENUM trong `notifications.type` (APPLICATION_RECEIVED, INTERVIEW_SCHEDULED, INTERVIEW_REMINDER, STATUS_CHANGE, DEADLINE_REMINDER, COMMENT_ADDED, ASSIGNMENT_CHANGED). Không cần seed data.
-
-#### ~~Notification Priorities Data~~ ❌ **CHUYỂN SANG ENUM**
-
-> **Lý do**: Notification priorities giờ là ENUM trong `notifications.priority` (HIGH, MEDIUM, LOW). Không cần seed data.
+Các giá trị enum khác (job status, job type, interview types/status/results, notification types/priorities, v.v.) tham chiếu phần "Các giá trị enum sử dụng trong database".
 
 ### Initial Skills Data
 ```sql
@@ -1387,7 +1248,7 @@ INSERT INTO companies (name, website, industry, size, location, created_by) VALU
 ('Spotify', 'https://spotify.com', 'Music', 'MEDIUM', 'Stockholm, Sweden', 1);
 ```
 
-## 🚀 Database Migration Strategy
+## Database Migration Strategy
 
 ### Version Control
 - **Liquibase**: Database migration tool với XML/JSON/YAML support
@@ -1418,7 +1279,7 @@ src/main/resources/db/changelog/
     └── rollback-002.xml
 ```
 
-## 🔧 Database Configuration
+## Database Configuration
 
 ### Application Properties
 ```yaml
@@ -1456,7 +1317,7 @@ spring:
     contexts: default
 ```
 
-## 📈 Performance Monitoring
+## Performance Monitoring
 
 ### Query Performance
 - **Slow Query Log**: MySQL slow query logging
@@ -1470,7 +1331,7 @@ spring:
 - **Lock Wait Time**: Deadlock detection
 - **Buffer Pool Hit Rate**: Cache efficiency
 
-## 🔒 Security Considerations
+## Security Considerations
 
 ### Data Protection
 - **Encryption at Rest**: MySQL encryption
@@ -1484,21 +1345,21 @@ spring:
 - **Audit Logging**: All database changes tracked
 - **Backup Encryption**: Encrypted backups
 
-## 📊 Audit Strategy Summary
+## Audit Strategy Summary
 
-### ✅ **FULL AUDIT FIELDS** (created_by, updated_by, created_at, updated_at):
+### **FULL AUDIT FIELDS** (created_by, updated_by, created_at, updated_at):
 - **Lookup Tables** (chỉ giữ 2 bảng): roles, permissions (cần flexibility cho RBAC)
 - **Core Business Entities**: users, companies, jobs, skills, interviews, attachments, applications, comments
 
-### ⚠️ **PARTIAL AUDIT FIELDS** (created_by, created_at, updated_at):
+### **PARTIAL AUDIT FIELDS** (created_by, created_at, updated_at):
 - **Junction Tables**: job_skills
 - **Lý do**: Junction tables ít khi update, không cần track updated_by
 
-### 🔧 **SYSTEM TABLES** (created_at, updated_at only):
+### **SYSTEM TABLES** (created_at, updated_at only):
 - **System Generated**: notifications, user_sessions, audit_logs
 - **Lý do**: System generated, không cần user tracking
 
-### 🗑️ **SOFT DELETE STRATEGY - CHI TIẾT LÝ DO:**
+### **SOFT DELETE STRATEGY - CHI TIẾT LÝ DO:**
 
 #### **1. deleted_at (TIMESTAMP) - Business Entities & Lookup Tables:**
 **Bảng sử dụng**: 
@@ -1569,8 +1430,8 @@ JOIN skills s ON js.skill_id = s.id
 WHERE js.job_id = ? AND js.is_deleted = FALSE;
 
 -- Performance: Boolean check nhanh hơn
--- ❌ Chậm: WHERE deleted_at IS NULL
--- ✅ Nhanh: WHERE is_deleted = FALSE
+--  Chậm: WHERE deleted_at IS NULL
+--  Nhanh: WHERE is_deleted = FALSE
 ```
 
 #### **3. No Soft Delete - System Tables:**
@@ -1598,7 +1459,7 @@ DELETE FROM audit_logs
 WHERE created_at < DATE_SUB(NOW(), INTERVAL 1 YEAR);
 ```
 
-### 📊 **SOFT DELETE STRATEGY COMPARISON:**
+###  **SOFT DELETE STRATEGY COMPARISON:**
 
 | **Strategy** | **Tables** | **Field** | **Size** | **Performance** | **Use Case** |
 |--------------|------------|-----------|----------|-----------------|--------------|
@@ -1606,7 +1467,7 @@ WHERE created_at < DATE_SUB(NOW(), INTERVAL 1 YEAR);
 | **is_deleted** | Junction Tables | BOOLEAN | 1 byte | Fast | Performance, Simple |
 | **No Soft Delete** | System Tables | None | 0 bytes | Fastest | Temporary Data |
 
-### 🔍 **CHI TIẾT IMPLEMENTATION:**
+###  **CHI TIẾT IMPLEMENTATION:**
 
 #### **1. Business Entities & Lookup Tables với deleted_at:**
 
@@ -1674,8 +1535,8 @@ CREATE TABLE job_skills (
 SELECT * FROM job_skills WHERE job_id = ? AND is_deleted = FALSE;
 
 -- Performance: Boolean check
--- ✅ Fast: WHERE is_deleted = FALSE
--- ❌ Slow: WHERE deleted_at IS NULL
+-- Fast: WHERE is_deleted = FALSE
+-- Slow: WHERE deleted_at IS NULL
 ```
 
 #### **3. System Tables không soft delete:**
@@ -1695,30 +1556,7 @@ CREATE TABLE notifications (
 DELETE FROM notifications WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY);
 ```
 
-### 🎯 **QUYẾT ĐỊNH STRATEGY:**
-
-#### **Khi nào dùng deleted_at:**
-- ✅ **User data** cần compliance
-- ✅ **Business entities** cần audit trail
-- ✅ **Financial data** cần timestamp
-- ✅ **Personal data** theo GDPR
-- ✅ **Lookup Tables** admin quản lý danh mục
-- ✅ **Master data** cần rollback capability
-- ✅ **Reference data** có thể restore
-
-#### **Khi nào dùng is_deleted:**
-- ✅ **Junction tables** với volume lớn
-- ✅ **Performance critical** queries
-- ✅ **Simple boolean** logic đủ
-- ✅ **Temporary relationships**
-
-#### **Khi nào không cần soft delete:**
-- ✅ **System generated** data
-- ✅ **Temporary data** có lifecycle ngắn
-- ✅ **Log data** có thể archive
-- ✅ **Cache data** có thể rebuild
-
-### 🎯 **TẠI SAO LOOKUP TABLES CẦN SOFT DELETE:**
+### Khi nào dùng từng chiến lược soft delete
 
 #### **1. Admin Management Requirements (chỉ cho roles và permissions):**
 ```sql
@@ -1791,21 +1629,21 @@ WHERE id IN (1, 2, 3) AND deleted_at IS NOT NULL;
 
 > **Lưu ý**: Các lookup tables khác (job_statuses, job_types, interview_types, etc.) đã chuyển sang ENUM nên không cần soft delete. Chỉ roles và permissions cần soft delete vì cần flexibility cho RBAC.
 
-### 📈 **PERFORMANCE OPTIMIZATIONS**:
+### **PERFORMANCE OPTIMIZATIONS**:
 - **Junction tables** dùng `is_deleted` để tránh NULL checks
 - **Business entities** dùng `deleted_at` để có timestamp
 - **System tables** không cần soft delete để tránh overhead
 - **Proper indexing** cho tất cả audit fields
 
-### 🔒 **COMPLIANCE BENEFITS**:
+### **COMPLIANCE BENEFITS**:
 - **Complete audit trail** cho user actions
 - **Data lineage tracking** cho business entities
 - **Regulatory compliance** (GDPR, SOX, etc.)
 - **Forensic analysis** capabilities
 
-## 🔗 **CHI TIẾT QUAN HỆ GIỮA CÁC BẢNG**
+## **CHI TIẾT QUAN HỆ GIỮA CÁC BẢNG**
 
-### 📋 **1. ROLE-BASED ACCESS CONTROL (RBAC)**
+### **1. ROLE-BASED ACCESS CONTROL (RBAC)**
 
 #### **1.1. Roles ↔ Users (One-to-Many)**
 ```sql
@@ -1839,9 +1677,9 @@ CREATE TABLE role_permissions (
 - **Cardinality**: M:N (1 role → N permissions, 1 permission → N roles)
 - **Ví dụ**: ADMIN role có tất cả permissions, USER role chỉ có READ permissions
 
-### 📋 **2. JOB MANAGEMENT RELATIONSHIPS**
+### 2. Job management relationships
 
-#### **2.1. Companies ↔ Users (One-to-Many) - Multi-Tenant** 🔑
+#### 2.1. Companies ↔ Users (One-to-Many) - Multi-Tenant
 ```sql
 -- Quan hệ: 1 company có thể có nhiều users
 users.company_id → companies.id
@@ -1884,7 +1722,7 @@ jobs.company_id → companies.id
 
 #### ~~**2.6. Experience Levels ↔ Jobs**~~ ❌ **REMOVED**
 
-### 📋 **3. APPLICATION MANAGEMENT RELATIONSHIPS (CORE ATS)**
+###  **3. APPLICATION MANAGEMENT RELATIONSHIPS (CORE ATS)**
 
 #### **3.1. Jobs ↔ Applications (One-to-Many)** 🔑
 ```sql
@@ -1952,7 +1790,7 @@ application_status_history.application_id → applications.id
 - **Cardinality**: 1:N (1 application → N history records)
 - **Foreign Key**: `application_status_history.application_id` → `applications.id`
 
-### 📋 **4. SKILLS MANAGEMENT RELATIONSHIPS**
+###  **4. SKILLS MANAGEMENT RELATIONSHIPS**
 
 #### ~~**3.1. Users ↔ Skills**~~ ❌ **REMOVED**
 
@@ -1983,9 +1821,9 @@ CREATE TABLE job_skills (
 - **Cardinality**: M:N (1 job → N skills, 1 skill → N jobs)
 - **Additional Fields**: is_required, proficiency_level
 
-### 📋 **5. INTERVIEW MANAGEMENT RELATIONSHIPS (ATS)**
+###  **5. INTERVIEW MANAGEMENT RELATIONSHIPS (ATS)**
 
-#### **5.1. Applications ↔ Interviews (One-to-Many)** 🔄
+#### **5.1. Applications ↔ Interviews (One-to-Many)** 
 ```sql
 -- Quan hệ: 1 application có thể có nhiều vòng interview
 interviews.application_id → applications.id
@@ -2038,11 +1876,11 @@ interview_interviewers.interviewer_id → users.id (role = INTERVIEWER)
 
 > **Lý do**: Interview results giờ là ENUM trong `interviews.result` (PASSED, FAILED, PENDING). Không cần foreign key.
 
-### ~~📋 **5. RESUME MANAGEMENT RELATIONSHIPS**~~ ❌ **REMOVED**
+### ~~ **5. RESUME MANAGEMENT RELATIONSHIPS**~~ ❌ **REMOVED**
 
 > **Lý do**: ATS không cần bảng resumes riêng. CVs lưu trong `applications.resume_file_path` hoặc `attachments`.
 
-### 📋 **6. NOTIFICATION SYSTEM RELATIONSHIPS (ATS)**
+### **6. NOTIFICATION SYSTEM RELATIONSHIPS (ATS)**
 
 #### **6.1. Users ↔ Notifications (One-to-Many)**
 ```sql
@@ -2079,7 +1917,7 @@ notifications.application_id → applications.id
 
 > **Lý do**: Notification priorities giờ là ENUM trong `notifications.priority` (HIGH, MEDIUM, LOW). Không cần foreign key.
 
-### 📋 **7. SYSTEM TABLES RELATIONSHIPS**
+### **7. SYSTEM TABLES RELATIONSHIPS**
 
 #### **7.1. Users ↔ User Sessions (One-to-Many)**
 ```sql
@@ -2108,7 +1946,7 @@ audit_logs.company_id → companies.id
 - **Cardinality**: 1:N (1 company → N audit logs)
 - **Foreign Key**: `audit_logs.company_id` → `companies.id`
 
-### 📋 **8. ATTACHMENT RELATIONSHIPS (ATS)**
+### **8. ATTACHMENT RELATIONSHIPS (ATS)**
 
 #### **8.1. Applications ↔ Attachments (One-to-Many)** 🔄
 ```sql
@@ -2138,7 +1976,7 @@ attachments.user_id → users.id
 - **Cardinality**: 1:N (1 user → N attachments)
 - **Foreign Key**: `attachments.user_id` → `users.id`
 
-## 🔄 **QUAN HỆ TỔNG QUAN (ENTITY RELATIONSHIP DIAGRAM - ATS)**
+## **QUAN HỆ TỔNG QUAN (ENTITY RELATIONSHIP DIAGRAM - ATS)**
 
 ### **Core Entities (Multi-Tenant):**
 - **companies** (Tenant) ↔ **users**, **jobs**, **applications**, **interviews**, **notifications**, **attachments**, **audit_logs**
@@ -2170,7 +2008,7 @@ attachments.user_id → users.id
 - **user_sessions** ↔ **users**
 - **audit_logs** ↔ **users**, **companies** (multi-tenant)
 
-## 🆔 **UUID IMPLEMENTATION**
+## **UUID IMPLEMENTATION**
 
 ### **Tại sao sử dụng UUID:**
 - **Security**: Không thể đoán được ID tiếp theo
