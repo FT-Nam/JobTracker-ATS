@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-constraints-email-templates
+      author: namphan
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: email_templates
+            baseColumnNames: company_id
+            referencedTableName: companies
+            referencedColumnNames: id
+            onDelete: CASCADE
+            constraintName: fk_email_templates_company_id_companies

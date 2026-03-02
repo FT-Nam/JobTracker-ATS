@@ -1,0 +1,81 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-email-templates
+      author: namphan
+      changes:
+        - createTable:
+            tableName: email_templates
+            remarks: "Bảng template email"
+            columns:
+              - column:
+                  name: id
+                  type: varchar(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "UUID email template"
+              - column:
+                  name: company_id
+                  type: varchar(36)
+                  remarks: "NULL = Global template"
+              - column:
+                  name: code
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  remarks: "Mã template duy nhất (WELCOME, INTERVIEW_INVITE, OFFER_LETTER, etc.)"
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                  remarks: "Tên hiển thị template"
+              - column:
+                  name: subject
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+                  remarks: "Tiêu đề email"
+              - column:
+                  name: html_content
+                  type: mediumtext
+                  constraints:
+                    nullable: false
+                  remarks: "Nội dung HTML"
+              - column:
+                  name: variables
+                  type: json
+                  remarks: "Danh sách biến sử dụng trong template"
+              - column:
+                  name: from_name
+                  type: varchar(255)
+                  remarks: "Override tên người gửi (nếu có)"
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+                  remarks: "Template đang hoạt động"
+              - column:
+                  name: created_by
+                  type: varchar(36)
+                  remarks: "Người tạo"
+              - column:
+                  name: updated_by
+                  type: varchar(36)
+                  remarks: "Người cập nhật"
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian tạo"
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "Thời gian cập nhật"
+              - column:
+                  name: deleted_at
+                  type: timestamp
+                  remarks: "Thời gian xóa (soft delete)"
