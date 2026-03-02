@@ -989,16 +989,19 @@ CREATE TABLE email_templates (
     
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     
+    -- Full Audit Fields (BaseFullAuditEntity)
     created_by VARCHAR(36) NULL,
-    
+    updated_by VARCHAR(36) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
     
     -- Constraints
     UNIQUE KEY uniq_company_code (company_id, code),
     
     INDEX idx_company (company_id),
     INDEX idx_code (code),
+    INDEX idx_deleted_at (deleted_at),
     
     FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

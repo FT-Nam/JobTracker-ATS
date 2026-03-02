@@ -767,7 +767,7 @@ Tài liệu này tổng hợp **luồng nghiệp vụ chính** và **quy tắc t
 
 - **Audit patterns**:
   - **Full audit** (`BaseFullAuditEntity`): `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`.
-    - Áp dụng cho: `users`, `companies`, `jobs`, `skills`, `interviews`, `applications`, `comments`, `attachments`, `roles`, `permissions`, `application_statuses`, `user_invitations`, `invalidated_token`.
+    - Áp dụng cho: `users`, `companies`, `jobs`, `skills`, `interviews`, `applications`, `comments`, `attachments`, `roles`, `permissions`, `application_statuses`, `email_templates`, `user_invitations`, `invalidated_token`.
   - **Partial audit** (`BasePartialAuditEntity`): `created_by`, `created_at`, `updated_at`, `is_deleted`.
     - Áp dụng cho junctions: `job_skills`, `role_permissions`, `interview_interviewers`.
   - **System tables** (`BaseSystemEntity` hoặc không base): chỉ `created_at`, `updated_at` (hoặc chỉ `created_at`).

@@ -1506,40 +1506,41 @@ Dựa trên database schema, có **3 patterns chính** cho audit fields:
 | | `roles` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 1 |
 | | `permissions` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 2 |
 | | `application_statuses` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 3 |
+| | `email_templates` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 4 |
 | | **Core Business Entities (8 bảng)** | | | |
-| | `users` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 3 |
-| | `companies` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 4 |
-| | `jobs` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 5 |
-| | `skills` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 6 |
-| | `interviews` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 7 |
-| | `applications` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 8 |
-| | `comments` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 9 |
-| | `attachments` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 10 |
+| | `users` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 5 |
+| | `companies` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 6 |
+| | `jobs` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 7 |
+| | `skills` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 8 |
+| | `interviews` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 9 |
+| | `applications` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 10 |
+| | `comments` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 11 |
+| | `attachments` | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 12 |
 | | **Auth/Token Tables (2 bảng)** | | | |
-| | `user_invitations` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 11 |
-| | `invalidated_token` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 12 |
+| | `user_invitations` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 13 |
+| | `invalidated_token` ➕ | ✅ created_by, updated_by, created_at, updated_at | ✅ deleted_at | 14 |
 | **BasePartialAuditEntity** | **Junction Tables (3 bảng)** | | | |
-| | `job_skills` | ✅ created_by, created_at, updated_at | ✅ is_deleted | 13 |
-| | `role_permissions` ➕ | ✅ created_by, created_at, updated_at | ✅ is_deleted | 14 |
-| | `interview_interviewers` ➕ | ✅ created_by, created_at, updated_at | ✅ is_deleted | 15 |
+| | `job_skills` | ✅ created_by, created_at, updated_at | ✅ is_deleted | 15 |
+| | `role_permissions` ➕ | ✅ created_by, created_at, updated_at | ✅ is_deleted | 16 |
+| | `interview_interviewers` ➕ | ✅ created_by, created_at, updated_at | ✅ is_deleted | 17 |
 | **BaseSystemEntity** | **System / Config Tables (7 bảng)** | | | |
-| | `notifications` | ✅ created_at, updated_at | ❌ No soft delete | 16 |
-| | `user_sessions` | ✅ created_at, updated_at | ❌ No soft delete | 17 |
-| | `audit_logs` | ✅ created_at | ❌ No soft delete | 18 |
-| | `subscription_plans` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 19 |
-| | `company_subscriptions` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 20 |
-| | `payments` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 21 |
-| | `email_outbox` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 22 |
+| | `notifications` | ✅ created_at, updated_at | ❌ No soft delete | 18 |
+| | `user_sessions` | ✅ created_at, updated_at | ❌ No soft delete | 19 |
+| | `audit_logs` | ✅ created_at | ❌ No soft delete | 20 |
+| | `subscription_plans` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 21 |
+| | `company_subscriptions` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 22 |
+| | `payments` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 23 |
+| | `email_outbox` ➕ | ✅ created_at, updated_at | ❌ No soft delete | 24 |
 | **Không có Base Class** | **History Tables (1 bảng)** | | | |
-| | `application_status_history` ➕ | ❌ No audit fields | ❌ No soft delete | 23 |
+| | `application_status_history` ➕ | ❌ No audit fields | ❌ No soft delete | 25 |
 
 ### 🎯 Implementation Summary
 
-#### **BaseFullAuditEntity** (13 bảng)
+#### **BaseFullAuditEntity** (14 bảng)
 ```java
 // Extends: BaseSoftDeleteEntity
 // Fields: created_by, updated_by, created_at, updated_at, deleted_at
-// Usage: Lookup tables (roles, permissions, application_statuses) + core business entities + auth/token tables
+// Usage: Lookup tables (roles, permissions, application_statuses, email_templates) + core business entities + auth/token tables
 // Note: Các lookup tables khác (job_statuses, job_types, etc.) đã chuyển sang ENUM
 // Auth/Token Tables: user_invitations (invite tokens), invalidated_token (JWT invalidation)
 ```
