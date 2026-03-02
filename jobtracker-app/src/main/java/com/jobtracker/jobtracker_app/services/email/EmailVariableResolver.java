@@ -1,0 +1,23 @@
+package com.jobtracker.jobtracker_app.services.email;
+
+import com.jobtracker.jobtracker_app.dto.requests.EmailContext;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class EmailVariableResolver {
+    List<VariableResolver> resolvers;
+
+    public Map<String, Object> buildAllVariables(EmailContext context) {
+        Map<String, Object> map = new HashMap<>();
+        for (VariableResolver resolver : resolvers) {
+            map.put(resolver.getKey(), resolver.resolve(context));
+        }
+        return map;
+    }
+}
