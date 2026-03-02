@@ -655,45 +655,35 @@ Tài liệu này tổng hợp **luồng nghiệp vụ chính** và **quy tắc t
   - `allowed_manual_vars`:
     - `custom_message`
 
-- **Ví dụ – `PAYMENT_SUCCESS`**
-  - `allowed_system_vars`:
-    - `company_name`
-    - `plan_name`
-    - `plan_price`
-    - `plan_expire_at`
-  - `allowed_manual_vars`:
-    - `custom_message`
 
 > Nhờ việc **khóa danh sách biến theo từng `email_type`**:
 > - Backend biết rõ biến nào **được phép** xuất hiện trong template.
 > - Validate được template trước khi lưu/gửi.
 > - Dễ maintain khi scale, vì tất cả biến đều bám **entity & workflow ATS có thật**, không biến thành CMS tự do.
 
-#### 6.5.3. Phân loại biến: system-injected vs manual-input
+#### 6.5.3. Phân loại biến: SystemVariable whitelist vs ManualVariable
 
-- **System-injected variables** (giá trị do hệ thống tự lấy từ DB / config, HR không nhập mỗi lần gửi):
-  - `company_name`
-  - `hr_name`
-  - `candidate_name`
-  - `job_title`
-  - `application_status`
-  - `application_link`
-  - `interview_time`
-  - `interview_location`
-  - `meeting_link`
-  - `plan_name`
-  - `plan_price`
-  - `plan_expire_at`
+> **Nguyên tắc SaaS scale**: HR **không** tự phân loại system/manual. Backend kiểm soát 100%.
 
-- **Manual-input variables** (HR nhập mỗi lần gửi qua form, hệ thống chỉ lưu & inject giá trị đó):
-  - `offer_salary`
-  - `offer_start_date`
-  - `offer_expire_date`
-  - `custom_message`
+- **SystemVariable** (whitelist cứng – enum `SystemVariable`):
+  - Parse `{{var}}` → nếu trong whitelist → auto classify system.
+  - `company_name`, `hr_name`, `candidate_name`, `job_title`, `application_status`, `application_link`, `interview_time`, `interview_location`, `meeting_link`.
 
-> Ghi chú:
-> - `offer_*` có thể được lưu vào entity offer (khi implement) để các email kế tiếp auto-fill, không cần nhập lại.
-> - Tại thời điểm gửi email, UI luôn rõ ràng: biến nào hệ thống tự fill (read-only), biến nào HR phải điền giá trị (input field).
+- **ManualVariable** (whitelist cứng – enum `ManualVariable`):
+  - `offer_salary`, `offer_start_date`, `offer_expire_date`, `custom_message`.
+  - HR nhập giá trị qua form khi gửi → inject vào `context.manualValues`.
+
+- **Validate khi save template**:
+  - Parse toàn bộ `{{variable}}` từ subject + htmlContent.
+  - Nếu có biến không thuộc SystemVariable hoặc ManualVariable → **reject save**.
+
+- **VariableResolver** (Strategy pattern):
+  - Mỗi biến system = 1 resolver class (tự load entity từ context IDs).
+  - Không dùng switch; thêm biến mới = thêm class.
+
+- **EmailContext** dùng IDs (applicationId, companyId, userId, ...):
+  - Tránh lazy loading lỗi khi async worker chạy ngoài transaction.
+  - Resolver tự load entity khi cần.
 
 ### 6.6. Kiến trúc Email: Engine Layer vs Admin Layer
 
