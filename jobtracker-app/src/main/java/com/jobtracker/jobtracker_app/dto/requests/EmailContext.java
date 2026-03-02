@@ -1,6 +1,5 @@
 package com.jobtracker.jobtracker_app.dto.requests;
 
-import com.jobtracker.jobtracker_app.entities.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Map;
 
 @Getter
 @Setter
@@ -17,15 +17,15 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EmailContext {
-    Company company;
-    User user;
-    Job job;
-    Application application;
-    Interview interview;
-    ApplicationStatus applicationStatus;
-    CompanySubscription companySubscription;
-    SubscriptionPlan subscriptionPlan;
-    Payment payment;
+    String applicationId;
+    String companyId;
+    String userId;
+    String jobId;
+    String interviewId;
+    String applicationStatusId;
+    String companySubscriptionId;
+    String subscriptionPlanId;
+    String paymentId;
 
+    Map<String, Object> manualValues;
 }
-

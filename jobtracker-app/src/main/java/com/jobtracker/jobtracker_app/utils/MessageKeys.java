@@ -296,4 +296,9 @@ public class MessageKeys {
     public static final String INVALID_FILE_TYPE = "file.invalid_type";
     public static final String UPLOAD_NOT_ALLOWED = "upload.not_allowed";
 
+    // EMAIL
+    public static final String CANNOT_SEND_EMAIL = "email.cannot_send";
+    public static final String EMAIL_TEMPLATE_UNKNOWN_VARIABLE = "email_template.unknown_variable";
+    public static final String EMAIL_TEMPLATE_NOT_FOUND = "email_template.not_found";
+
 }
