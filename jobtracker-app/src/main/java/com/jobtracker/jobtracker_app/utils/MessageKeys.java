@@ -300,5 +300,22 @@ public class MessageKeys {
     public static final String CANNOT_SEND_EMAIL = "email.cannot_send";
     public static final String EMAIL_TEMPLATE_UNKNOWN_VARIABLE = "email_template.unknown_variable";
     public static final String EMAIL_TEMPLATE_NOT_FOUND = "email_template.not_found";
+    public static final String EMAIL_TEMPLATE_EXISTED = "email_template.existed";
+    public static final String EMAIL_OUTBOX_NOT_FOUND = "email_outbox.not_found";
+    public static final String EMAIL_CANNOT_RESEND = "email_outbox.cannot_resend";
+
+    // EMAIL TEMPLATE
+    public static final String EMAIL_TEMPLATE_CREATE_SUCCESS = "email_template.create_success";
+    public static final String EMAIL_TEMPLATE_UPDATE_SUCCESS = "email_template.update_success";
+    public static final String EMAIL_TEMPLATE_DELETE_SUCCESS = "email_template.delete_success";
+    public static final String EMAIL_TEMPLATE_LIST_SUCCESS = "email_template.list_success";
+    public static final String EMAIL_TEMPLATE_DETAIL_SUCCESS = "email_template.detail_success";
+    public static final String EMAIL_TEMPLATE_PREVIEW_SUCCESS = "email_template.preview_success";
+    public static final String EMAIL_TEMPLATE_SEND_TEST_SUCCESS = "email_template.send_test_success";
+
+    // EMAIL HISTORY
+    public static final String EMAIL_HISTORY_LIST_SUCCESS = "email_history.list_success";
+    public static final String EMAIL_HISTORY_DETAIL_SUCCESS = "email_history.detail_success";
+    public static final String EMAIL_HISTORY_RESEND_SUCCESS = "email_history.resend_success";
 
 }
