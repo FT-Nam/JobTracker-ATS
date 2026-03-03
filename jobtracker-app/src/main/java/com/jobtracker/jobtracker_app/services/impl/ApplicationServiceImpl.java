@@ -15,6 +15,7 @@ import com.jobtracker.jobtracker_app.mappers.ApplicationStatusHistoryMapper;
 import com.jobtracker.jobtracker_app.repositories.*;
 import com.jobtracker.jobtracker_app.services.ApplicationService;
 import com.jobtracker.jobtracker_app.services.CVScoringService;
+import com.jobtracker.jobtracker_app.services.EmailService;
 import com.jobtracker.jobtracker_app.utils.SecurityUtils;
 import com.jobtracker.jobtracker_app.validator.file.impl.PdfFileValidator;
 import lombok.AccessLevel;
@@ -54,10 +55,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     SecurityUtils securityUtils;
     ApplicationMapper applicationMapper;
     ApplicationStatusHistoryMapper applicationStatusHistoryMapper;
-
-    private static final String STATUS_APPLIED = "APPLIED";
-    private static final String STATUS_INTERVIEWING = "INTERVIEWING";
-    private static final String STATUS_SCREENING = "SCREENING";
+    EmailService emailService;
 
     @Override
     @Transactional
@@ -133,6 +131,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         try{
             saved = applicationRepository.save(application);
+            emailService.sendApplicationConfirmation(application);
         } catch (Exception e) {
             // rollback file nếu DB fail
             cloudinary.uploader().destroy(publicId,
@@ -337,6 +336,18 @@ public class ApplicationServiceImpl implements ApplicationService {
         // Validate business lifecycle bằng order
         if (!currentType.canMoveTo(newType)) {
             throw new AppException(ErrorCode.APPLICATION_STATUS_INVALID_TRANSITION);
+        }
+
+        if(newStatus.getStatusType().equals(StatusType.OFFER)){
+            emailService.sendManualOffer(application, request.getOfferRequest());
+        }
+
+        if(newStatus.getStatusType().equals(StatusType.REJECTED)){
+            emailService.sendCandidateRejected(application, request.getCustomMessage());
+        }
+
+        if(newStatus.getStatusType().equals(StatusType.HIRED)){
+            emailService.sendCandidateHired(application, request.getCustomMessage());
         }
 
         ApplicationStatusHistory history = ApplicationStatusHistory.builder()

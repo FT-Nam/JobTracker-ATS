@@ -40,4 +40,6 @@ public class InterviewUpdateRequest {
     Set<String> interviewerIds;
 
     String primaryInterviewerId;
+
+    String customMessage;
 }

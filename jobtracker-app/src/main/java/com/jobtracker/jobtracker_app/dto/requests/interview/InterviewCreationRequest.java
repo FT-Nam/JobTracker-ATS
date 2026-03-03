@@ -42,6 +42,8 @@ public class InterviewCreationRequest {
     String meetingLink;
 
     String location;
+
+    String customMessage;
 }
 
 

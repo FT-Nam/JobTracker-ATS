@@ -1,5 +1,6 @@
 package com.jobtracker.jobtracker_app.dto.requests.application;
 
+import com.jobtracker.jobtracker_app.dto.requests.email.ManualOfferRequest;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -16,5 +17,9 @@ public class ApplicationStatusUpdateRequest {
     String statusId;
 
     String notes;
+
+    String customMessage;
+
+    ManualOfferRequest offerRequest;
 }
 

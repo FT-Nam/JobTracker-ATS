@@ -9,6 +9,7 @@ import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
 import com.jobtracker.jobtracker_app.mappers.InterviewMapper;
 import com.jobtracker.jobtracker_app.repositories.*;
+import com.jobtracker.jobtracker_app.services.EmailService;
 import com.jobtracker.jobtracker_app.services.InterviewService;
 import com.jobtracker.jobtracker_app.utils.SecurityUtils;
 import lombok.AccessLevel;
@@ -34,6 +35,7 @@ public class InterviewServiceImpl implements InterviewService {
     UserRepository userRepository;
     SecurityUtils securityUtils;
     InterviewInterviewerRepository interviewInterviewerRepository;
+    EmailService emailService;
 
     @Override
     @Transactional
@@ -87,6 +89,8 @@ public class InterviewServiceImpl implements InterviewService {
         interview.setJob(application.getJob());
         interview.setInterviewers(interviewInterviewersSet);
         interview.setStatus(InterviewStatus.SCHEDULED);
+
+        emailService.sendInterviewScheduled(interview, request.getCustomMessage());
 
         Interview saved = interviewRepository.save(interview);
 
@@ -206,6 +210,7 @@ public class InterviewServiceImpl implements InterviewService {
         if (request.getActualDate() != null) {
             interview.setStatus(InterviewStatus.COMPLETED);
         } else if (scheduleChanged || durationChanged) {
+            emailService.sendInterviewRescheduled(interview, request.getCustomMessage());
             interview.setStatus(InterviewStatus.RESCHEDULED);
         }
 

@@ -1,7 +1,9 @@
 package com.jobtracker.jobtracker_app.services.email;
 
 import com.jobtracker.jobtracker_app.dto.requests.EmailContext;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -10,6 +12,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EmailVariableResolver {
     List<VariableResolver> resolvers;
 

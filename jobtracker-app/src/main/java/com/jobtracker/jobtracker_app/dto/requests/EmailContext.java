@@ -23,9 +23,6 @@ public class EmailContext {
     String jobId;
     String interviewId;
     String applicationStatusId;
-    String companySubscriptionId;
-    String subscriptionPlanId;
-    String paymentId;
 
     Map<String, Object> manualValues;
 }

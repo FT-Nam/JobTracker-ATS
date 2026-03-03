@@ -57,6 +57,10 @@ public class EmailOutboxServiceImpl implements EmailOutboxService {
 
         Map<String, Object> variables = emailVariableResolver.buildAllVariables(request.getContext());
 
+        if (request.getContext().getManualValues() != null) {
+            variables.putAll(request.getContext().getManualValues());
+        }
+
         String subject = templateRenderer.render(template.getSubject(), variables);
         String html = templateRenderer.render(template.getHtmlContent(), variables);
 
