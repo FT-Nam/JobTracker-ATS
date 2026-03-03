@@ -13,10 +13,8 @@ import java.util.Optional;
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, String> {
 
-    Optional<Application> findByIdAndDeletedAtIsNull(String id);
-
-    @Query("SELECT a FROM Application a LEFT JOIN FETCH a.job LEFT JOIN FETCH a.status WHERE a.id = :id AND a.deletedAt IS NULL")
-    Optional<Application> findByIdWithJobAndStatus(@Param("id") String id);
+    @Query("SELECT a FROM Application a LEFT JOIN FETCH a.job LEFT JOIN FETCH a.status WHERE a.id = :id AND a.company.id = :companyId AND a.deletedAt IS NULL")
+    Optional<Application> findByIdAndCompany_IdWithJobAndStatus(@Param("id") String id, @Param("companyId") String companyId);
 
     Optional<Application> findByIdAndCompany_IdAndDeletedAtIsNull(String id, String companyId);
 

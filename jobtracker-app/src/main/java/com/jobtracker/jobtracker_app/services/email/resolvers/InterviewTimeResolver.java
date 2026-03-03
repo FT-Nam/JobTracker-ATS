@@ -5,7 +5,9 @@ import com.jobtracker.jobtracker_app.entities.Interview;
 import com.jobtracker.jobtracker_app.repositories.InterviewRepository;
 import com.jobtracker.jobtracker_app.enums.SystemVariable;
 import com.jobtracker.jobtracker_app.services.email.VariableResolver;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
@@ -25,8 +27,8 @@ public class InterviewTimeResolver implements VariableResolver {
 
     @Override
     public Object resolve(EmailContext context) {
-        if (context.getInterviewId() == null) return "";
-        return interviewRepository.findById(context.getInterviewId())
+        if (context.getInterviewId() == null || context.getCompanyId() == null) return "";
+        return interviewRepository.findByIdAndCompany_IdAndDeletedAtIsNull(context.getInterviewId(), context.getCompanyId())
                 .map(this::formatTime)
                 .orElse("");
     }

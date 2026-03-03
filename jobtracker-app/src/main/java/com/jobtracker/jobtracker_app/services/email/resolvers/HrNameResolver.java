@@ -4,14 +4,17 @@ import com.jobtracker.jobtracker_app.dto.requests.EmailContext;
 import com.jobtracker.jobtracker_app.repositories.UserRepository;
 import com.jobtracker.jobtracker_app.enums.SystemVariable;
 import com.jobtracker.jobtracker_app.services.email.VariableResolver;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class HrNameResolver implements VariableResolver {
 
-    private final UserRepository userRepository;
+    UserRepository userRepository;
 
     @Override
     public String getKey() {
@@ -20,8 +23,8 @@ public class HrNameResolver implements VariableResolver {
 
     @Override
     public Object resolve(EmailContext context) {
-        if (context.getUserId() == null) return "";
-        return userRepository.findById(context.getUserId())
+        if (context.getUserId() == null || context.getCompanyId() == null) return "";
+        return userRepository.findByIdAndCompany_IdAndDeletedAtIsNull(context.getUserId(), context.getCompanyId())
                 .map(u -> nullToEmpty(u.getFirstName()) + " " + nullToEmpty(u.getLastName()))
                 .map(String::trim)
                 .orElse("");
