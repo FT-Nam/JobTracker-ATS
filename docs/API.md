@@ -18,7 +18,7 @@ JobTracker ATS (Applicant Tracking System) cung cấp RESTful API với thiết 
 Base URL: https://api.jobtracker.com/api/v1
 Content-Type: application/json
 Authorization: Bearer <oauth2_access_token>
-X-Company-Id: <company_id> (Optional - auto-extracted from user context)
+X-Company-Id: <company_id> (Optional - backend lấy từ JWT; chỉ System Admin cần gửi khi impersonate)
 ```
 
 ### 🔑 Multi-Tenant Context
@@ -26,12 +26,48 @@ X-Company-Id: <company_id> (Optional - auto-extracted from user context)
 - User chỉ có thể truy cập data của company mình
 - System Admin có thể truy cập tất cả companies
 
+### 🔐 JWT Access Token Structure (Multi-Tenant Best Practice)
+
+Access token payload chứa `companyId` và `role` để backend **không cần query DB** mỗi request:
+
+```json
+{
+  "sub": "userId",
+  "companyId": "c1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+  "role": "COMPANY_ADMIN",
+  "jti": "random-uuid",
+  "iat": 1710000000,
+  "exp": 1710000900
+}
+```
+
+| Claim | Mô tả |
+|-------|-------|
+| `sub` | User ID (subject) |
+| `companyId` | Company ID của tenant — dùng cho `WHERE company_id = ?` |
+| `role` | Role name (COMPANY_ADMIN, HR, USER, INTERVIEWER, SYSTEM_ADMIN) |
+| `jti` | JWT ID — dùng cho token invalidation (logout) |
+| `iat` | Issued at (Unix timestamp) |
+| `exp` | Expiration (Unix timestamp) |
+
+**Vì sao chứa `companyId` trong JWT?**
+
+- **Multi-tenant** → mọi query phải scope theo company
+- Nếu JWT không có `companyId`: mỗi request phải query DB để biết user thuộc company nào, hoặc join user table liên tục
+- Client gửi `companyId` lên → ❌ security hole (client có thể giả mạo)
+- Cho `companyId` vào token giúp: không cần query user mỗi request, scope query trực tiếp `WHERE company_id = token.companyId`, tăng performance và isolation
+
+**Có nguy hiểm không?** Không. JWT được ký (HS256/RS256), client không thể sửa payload nếu không có private key. Backend luôn verify signature. JWT payload không phải secret, chỉ cần integrity.
+
+**`X-Company-Id` header**: Thường **không cần** gửi — backend lấy `companyId` từ JWT. Chỉ System Admin (khi impersonate company) mới cần gửi để override context.
+
 ## 🔐 Authentication APIs
 
 > **🔑 B2B SaaS Auth Flow**: 
 > - **Email + Password** (bắt buộc)
 > - **Email Verification** (bắt buộc)
-> - **Invite-based User Creation**: Admin tạo user → Gửi invite email → User set password → Email verified
+> - **Invite-based User Creation** (HR/Admin): Admin tạo user → Gửi invite email → User set password → Email verified
+> - **Add Employee** (không auth): Admin thêm nhân viên qua `POST /admin/users/employees` — không invite, không app access, không billing (multi-tenant)
 > - **Không có Google OAuth** (trừ enterprise SSO - story khác)
 
 ### 1. Company Self-Signup (Company Admin Registration)
@@ -127,6 +163,8 @@ X-Company-Id: <company_id> (Optional - auto-extracted from user context)
       "firstName": "John",
       "lastName": "Doe",
       "roleName": "USER",
+      "companyId": "c1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "companyName": "Acme Corp",
       "avatarUrl": null
     },
     "tokens": {
@@ -139,6 +177,8 @@ X-Company-Id: <company_id> (Optional - auto-extracted from user context)
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
+
+> **Lưu ý**: `accessToken` chứa `companyId` và `role` trong payload (xem mục JWT Structure ở trên). Client có thể dùng `companyId` từ response để hiển thị tenant context.
 
 ### 3. Email Verification
 **POST** `/auth/verify-email`
@@ -222,6 +262,8 @@ Làm mới access token bằng refresh token.
       "firstName": "John",
       "lastName": "Doe",
       "roleName": "USER",
+      "companyId": "c1a2b3c4-5d6e-7f8g-9h0i-j1k2l3m4n5o6",
+      "companyName": "Acme Corp",
       "avatarUrl": null
     },
     "tokens": {
@@ -235,19 +277,19 @@ Làm mới access token bằng refresh token.
 }
 ```
 
-### 5. Logout
+### 6. Logout
 **POST** `/auth/logout`
 
 Đăng xuất và vô hiệu hóa token.
 
 > **Token Invalidation Flow**:
 > 1. System parse access token từ Authorization header
-> 2. System lấy JWT ID (`jit`) và `expiry_time` từ token claims
-> 3. System lưu vào bảng `invalidated_token` với `id = jit` và `expiry_time = token expiry`
+> 2. System lấy JWT ID (`jti`) và `expiry_time` từ token claims
+> 3. System lưu vào bảng `invalidated_token` với `id = jti` và `expiry_time = token expiry`
 > 4. System xóa refresh token từ Redis cache (nếu có)
 > 5. Token đã bị invalidate → Không thể dùng lại cho các requests sau
 > 
-> **Token Verification**: Khi verify token trong authentication filter, system sẽ check xem `jit` có trong `invalidated_token` không. Nếu có → Reject request.
+> **Token Verification**: Khi verify token trong authentication filter, system sẽ check xem `jti` có trong `invalidated_token` không. Nếu có → Reject request.
 
 #### Request Headers
 ```
@@ -271,7 +313,7 @@ Authorization: Bearer <access_token>
 }
 ```
 
-### 6. Forgot Password
+### 7. Forgot Password
 **POST** `/auth/forgot-password`
 
 Gửi email reset password.
@@ -293,7 +335,7 @@ Gửi email reset password.
 }
 ```
 
-### 7. Reset Password
+### 8. Reset Password
 **POST** `/auth/reset-password`
 
 Reset password với token từ email.
@@ -342,6 +384,7 @@ Authorization: Bearer <access_token>
     "avatarUrl": "https://dropbox.com/avatar.jpg",
     "roleName": "USER",
     "isActive": true,
+    "isBillable": true,
     "emailVerified": true,
     "googleId": null,
     "lastLoginAt": "2024-01-15T09:00:00Z",
@@ -456,12 +499,22 @@ Authorization: Bearer <access_token>
 
 ## 👥 Admin User Management APIs
 
-> **🔑 Invite-based User Creation**: Admin tạo user → System gửi invite email → User click link → Set password → Email verified
+> **🔑 Hai cách tạo user**:
+> 
+> | Flow | API | Mục đích | isBillable | App access |
+> |------|-----|----------|------------|------------|
+> | **Invite User** | POST `/admin/users/invite` | HR/Admin dùng app | `true` | Có (invite → set password → login) |
+> | **Add Employee** | POST `/admin/users/employees` | Chỉ thông tin nhân viên (scheduling, contact, v.v.) | `false` | Không (không invite, không password) |
+> 
+> - **Billing**: Chỉ tính users có `isBillable = true` (Admin, HR) vào plan limit. Employee thêm qua Add Employee không tính.
+> - **Multi-tenant**: `company_id` lấy từ JWT (user hiện tại) — không nhận từ client
 > 
 > Chỉ dành cho **COMPANY_ADMIN** hoặc **HR** (có quyền) để quản lý users trong company của mình.
 
 ### 1. Get Users
 **GET** `/admin/users`
+
+Lấy danh sách users của **company hiện tại** (multi-tenant: `company_id` từ JWT).
 
 Query hỗ trợ `role`, `status`, `search`, `createdFrom`.
 
@@ -480,6 +533,7 @@ Query hỗ trợ `role`, `status`, `search`, `createdFrom`.
       "roleId": "34d9a2e3-1a30-4a1a-b1ad-4b6d2619f1ce",
       "roleName": "ADMIN",
       "isActive": true,
+      "isBillable": true,
       "emailVerified": true,
       "lastLoginAt": "2024-01-15T09:00:00Z",
       "createdAt": "2024-01-01T00:00:00Z",
@@ -497,10 +551,69 @@ Query hỗ trợ `role`, `status`, `search`, `createdFrom`.
 }
 ```
 
-### 2. Invite User (Create User via Invite)
+### 2. Add Employee (Non-billing, No App Access)
+**POST** `/admin/users/employees`
+
+Thêm nhân viên vào company **không gửi invite**, **không tạo password**. Chỉ dùng cho lưu thông tin liên hệ — dùng trong scheduling, gán interview, contact, v.v. **Không login** vào app, không tính billing.
+
+> **Multi-tenant**: `company_id` lấy từ JWT (company của user hiện tại). Không nhận `companyId` từ client.
+
+#### Request Headers
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+#### Request Body
+```json
+{
+  "email": "engineer@company.com",
+  "firstName": "Jane",
+  "lastName": "Engineer",
+  "phone": "+12065551234"
+}
+```
+
+> **Lưu ý**: Chỉ cần thông tin cần thiết (email, firstName, lastName, phone). Không có `roleId` — system tự assign.
+
+#### Response (201 Created)
+```json
+{
+  "success": true,
+  "message": "Employee added successfully",
+  "data": {
+    "id": "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+    "email": "engineer@company.com",
+    "firstName": "Jane",
+    "lastName": "Engineer",
+    "phone": "+12065551234",
+    "isActive": true,
+    "isBillable": false,
+    "emailVerified": false,
+    "createdAt": "2024-01-20T08:00:00Z"
+  },
+  "timestamp": "2024-01-20T08:00:00Z"
+}
+```
+
+> **Lưu ý**:
+> - System tự động set `isBillable = false`, `password = NULL`, `is_active = true`
+> - Không gửi invite email — user không có app access
+> - Có thể gán vào interview, dùng làm contact, v.v.
+
+#### Error Response (400 - Email đã tồn tại trong company)
+```json
+{
+  "success": false,
+  "message": "Email already exists in this company",
+  "timestamp": "2024-01-20T08:00:00Z"
+}
+```
+
+### 3. Invite User (Create User via Invite)
 **POST** `/admin/users/invite`
 
-Tạo user mới và gửi invite email. Đây là **flow chuẩn B2B SaaS** (Jira, Linear, Slack).
+Tạo user mới và gửi invite email. Dành cho **HR/Admin** — user sẽ set password qua link và **login vào app**. Tính billing.
 
 > **Flow**:
 > 1. Admin tạo user → `email_verified = false`, `password = NULL`, `is_active = false`
@@ -525,9 +638,9 @@ Content-Type: application/json
 #### Request Body
 ```json
 {
-  "email": "new.user@company.com",
+  "email": "new.hr@company.com",
   "firstName": "New",
-  "lastName": "User",
+  "lastName": "HR",
   "phone": "+12065551212",
   "roleId": "34d9a2e3-1a30-4a1a-b1ad-4b6d2619f1ce",
   "isBillable": true
@@ -536,7 +649,7 @@ Content-Type: application/json
 
 > **Lưu ý**:
 > - `password` không cần trong request (user sẽ set qua invite link)
-> - `isBillable`: `true` cho ADMIN/HR, `false` cho INTERVIEWER
+> - `isBillable`: `true` cho ADMIN/HR (tính billing). Nhân viên chỉ cần thông tin không dùng app → dùng **Add Employee** thay vì invite
 > - System tự động set `email_verified = false`, `password = NULL`, `is_active = false`
 
 #### Response (201 Created)
@@ -561,7 +674,7 @@ Content-Type: application/json
 }
 ```
 
-### 3. Accept Invite (Set Password)
+### 4. Accept Invite (Set Password)
 **POST** `/auth/accept-invite`
 
 User nhận invite email, click link, và set password. Sau khi set password, `email_verified = true` và `is_active = true`.
@@ -596,7 +709,7 @@ User nhận invite email, click link, và set password. Sau khi set password, `e
 }
 ```
 
-### 4. Resend Invite
+### 5. Resend Invite
 **POST** `/admin/users/{userId}/resend-invite`
 
 Gửi lại invite email cho user chưa verify.
@@ -617,9 +730,7 @@ Gửi lại invite email cho user chưa verify.
 }
 ```
 
-### 5. Get User Details
-
-### 3. Get User Details
+### 6. Get User Details
 **GET** `/admin/users/{id}`
 
 Trả về thông tin đầy đủ của user kèm audit.
@@ -2619,6 +2730,7 @@ Bảng ánh xạ **Email Type** ↔ API / flow gửi email:
 
 | Email Type | API / Trigger | Mô tả |
 |------------|---------------|-------|
+| — | **POST** `/admin/users/employees` | Add Employee. **Không gửi email** — user không có app access. Multi-tenant (company_id từ JWT). |
 | `USER_INVITE` | **POST** `/admin/users/invite` | Invite User (Create User via Invite). Gửi email với link accept-invite. |
 | `USER_INVITE_RESEND` | **POST** `/admin/users/{userId}/resend-invite` | Resend Invite. Gửi lại invite email cho user chưa verify. |
 | `EMAIL_VERIFICATION` | **POST** `/auth/verify-email` | Email Verification. Token từ link verification trong email. |
