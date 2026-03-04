@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jobtracker.jobtracker_app.entities.ApplicationStatus;
+import com.jobtracker.jobtracker_app.enums.SystemRole;
 import com.jobtracker.jobtracker_app.entities.Company;
 import com.jobtracker.jobtracker_app.entities.Permission;
 import com.jobtracker.jobtracker_app.entities.Role;
@@ -62,17 +63,25 @@ public class DataInitializer implements CommandLineRunner {
             return companyRepository.save(c);
         });
 
-        Role adminRole = new Role();
-        adminRole.setName("ADMIN");
-        adminRole.setDescription("Administrator role");
-        adminRole.setIsActive(true);
-        roleRepository.save(adminRole);
+        // System level - Global
+        Role systemAdminRole = new Role();
+        systemAdminRole.setName("SYSTEM_ADMIN");
+        systemAdminRole.setDescription("System administrator (global)");
+        systemAdminRole.setIsActive(true);
+        roleRepository.save(systemAdminRole);
 
-        Role companyAdminRole = new Role();
-        companyAdminRole.setName("COMPANY_ADMIN");
-        companyAdminRole.setDescription("Company administrator (self-signup)");
-        companyAdminRole.setIsActive(true);
-        roleRepository.save(companyAdminRole);
+        // Company level - Per company
+        Role adminCompanyRole = new Role();
+        adminCompanyRole.setName(SystemRole.ADMIN_COMPANY.name());
+        adminCompanyRole.setDescription("Company administrator (owner, self-signup)");
+        adminCompanyRole.setIsActive(true);
+        roleRepository.save(adminCompanyRole);
+
+        Role recruiterRole = new Role();
+        recruiterRole.setName(SystemRole.RECRUITER.name());
+        recruiterRole.setDescription("Recruiter (per company)");
+        recruiterRole.setIsActive(true);
+        roleRepository.save(recruiterRole);
 
         User admin = new User();
         admin.setEmail("admin@gmail.com");
@@ -80,14 +89,16 @@ public class DataInitializer implements CommandLineRunner {
         admin.setFirstName("Admin");
         admin.setLastName("User");
         admin.setCompany(company);
-        admin.setRole(adminRole);
+        admin.setRole(systemAdminRole);
         admin.setEmailVerified(true);
         userRepository.save(admin);
 
-        adminRole.setCreatedBy(admin.getEmail());
-        roleRepository.save(adminRole);
-        companyAdminRole.setCreatedBy(admin.getEmail());
-        roleRepository.save(companyAdminRole);
+        systemAdminRole.setCreatedBy(admin.getEmail());
+        roleRepository.save(systemAdminRole);
+        adminCompanyRole.setCreatedBy(admin.getEmail());
+        roleRepository.save(adminCompanyRole);
+        recruiterRole.setCreatedBy(admin.getEmail());
+        roleRepository.save(recruiterRole);
 
         String adminEmail = admin.getEmail();
         List<Permission> permissions = List.of(
@@ -106,13 +117,28 @@ public class DataInitializer implements CommandLineRunner {
 
         permissionRepository.saveAll(permissions);
 
-        List<RolePermission> rolePermissions = permissions.stream()
+        // SYSTEM_ADMIN: full permissions (global)
+        List<RolePermission> systemAdminPermissions = permissions.stream()
                 .map(permission -> RolePermission.builder()
-                        .role(adminRole)
+                        .role(systemAdminRole)
                         .permission(permission)
                         .build())
                 .toList();
-        rolePermissionRepository.saveAll(rolePermissions);
+        rolePermissionRepository.saveAll(systemAdminPermissions);
+
+        // ADMIN_COMPANY: company-level permissions (user crud, role read)
+        List<RolePermission> adminCompanyPermissions = permissions.stream()
+                .filter(p -> List.of("USER_READ", "USER_CREATE", "USER_UPDATE", "USER_DELETE", "ROLE_READ").contains(p.getName()))
+                .map(p -> RolePermission.builder().role(adminCompanyRole).permission(p).build())
+                .toList();
+        rolePermissionRepository.saveAll(adminCompanyPermissions);
+
+        // RECRUITER: basic recruiter permissions
+        List<RolePermission> recruiterPermissions = permissions.stream()
+                .filter(p -> "USER_READ".equals(p.getName()))
+                .map(p -> RolePermission.builder().role(recruiterRole).permission(p).build())
+                .toList();
+        rolePermissionRepository.saveAll(recruiterPermissions);
 
         log.info("✅ Admin user created successfully: {}", admin.getEmail());
     }

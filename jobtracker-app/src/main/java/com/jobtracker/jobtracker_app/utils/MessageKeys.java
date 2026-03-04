@@ -45,6 +45,9 @@ public class MessageKeys {
 
     // USER ACTIONS
     public static final String USER_CREATE_SUCCESS = "user.create_success";
+    public static final String USER_INVITE_SUCCESS = "user.invite_success";
+    public static final String USER_INVITE_RESEND_SUCCESS = "user.invite_resend_success";
+    public static final String EMPLOYEE_ADD_SUCCESS = "user.employee_add_success";
     public static final String USER_UPDATE_SUCCESS = "user.update_success";
     public static final String USER_DELETE_SUCCESS = "user.delete_success";
     public static final String USER_RESTORE_SUCCESS = "user.restore_success";
@@ -60,12 +63,14 @@ public class MessageKeys {
     public static final String PASSWORD_CHANGE_SUCCESS = "password.change_success";
     public static final String INVALID_VERIFICATION_TOKEN = "auth.invalid_verification_token";
     public static final String INVALID_RESET_TOKEN = "auth.invalid_reset_token";
+    public static final String INVALID_INVITE_TOKEN = "auth.invalid_invite_token";
     public static final String EMAIL_ALREADY_VERIFIED = "auth.email_already_verified";
     public static final String EMAIL_NOT_VERIFIED = "auth.email_not_verified";
     public static final String EMAIL_VERIFIED_SUCCESS = "auth.email_verified_success";
     public static final String VERIFICATION_EMAIL_SENT = "auth.verification_email_sent";
     public static final String PASSWORD_RESET_EMAIL_SENT = "auth.password_reset_email_sent";
     public static final String PASSWORD_RESET_SUCCESS = "auth.password_reset_success";
+    public static final String INVITE_ACCEPTED_SUCCESS = "auth.invite_accepted_success";
 
     // AVATAR
     public static final String USER_AVATAR_UPLOAD_SUCCESS = "user.avatar_upload_success";

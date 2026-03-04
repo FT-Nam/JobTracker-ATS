@@ -1,10 +1,12 @@
 package com.jobtracker.jobtracker_app.controllers;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.UserInviteRequest;
+import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
-import com.jobtracker.jobtracker_app.services.UserService;
+import com.jobtracker.jobtracker_app.services.AdminUserService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
 import jakarta.validation.Valid;
@@ -22,14 +24,30 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/admin/users")
 public class AdminUserController {
-    UserService userService;
+    AdminUserService adminUserService;
     LocalizationUtils localizationUtils;
 
-    @PostMapping
-    public ApiResponse<UserResponse> create(@RequestBody @Valid UserCreationRequest request) {
+    @PostMapping("/employees")
+    public ApiResponse<UserResponse> addEmployee(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
-                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_CREATE_SUCCESS))
-                .data(userService.create(request))
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.EMPLOYEE_ADD_SUCCESS))
+                .data(adminUserService.addEmployee(request))
+                .build();
+    }
+
+    @PostMapping("/invite")
+    public ApiResponse<Void> inviteUser(@RequestBody @Valid UserInviteRequest request) {
+        adminUserService.inviteUser(request);
+        return ApiResponse.<Void>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_INVITE_SUCCESS))
+                .build();
+    }
+
+    @PostMapping("/{userId}/resend-invite")
+    public ApiResponse<Void> resendInvite(@PathVariable String userId) {
+        adminUserService.resendInvite(userId);
+        return ApiResponse.<Void>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_INVITE_RESEND_SUCCESS))
                 .build();
     }
 
@@ -41,7 +59,7 @@ public class AdminUserController {
             @RequestParam(required = false) Boolean emailVerified,
             Pageable pageable) {
 
-        Page<UserResponse> userResponses = userService.getAll(keyword, roleId, isActive, emailVerified, pageable);
+        Page<UserResponse> userResponses = adminUserService.getAll(keyword, roleId, isActive, emailVerified, pageable);
 
         return ApiResponse.<List<UserResponse>>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_LIST_SUCCESS))
@@ -58,13 +76,21 @@ public class AdminUserController {
     public ApiResponse<UserResponse> getById(@PathVariable String id) {
         return ApiResponse.<UserResponse>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_DETAIL_SUCCESS))
-                .data(userService.getById(id))
+                .data(adminUserService.getById(id))
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse<UserResponse> update(@PathVariable String id, @RequestBody @Valid UserUpdateRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_UPDATE_SUCCESS))
+                .data(adminUserService.update(id, request))
                 .build();
     }
 
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable String id) {
-        userService.delete(id);
+        adminUserService.delete(id);
         return ApiResponse.<Void>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_DELETE_SUCCESS))
                 .build();
@@ -72,7 +98,7 @@ public class AdminUserController {
 
     @PatchMapping("/{id}/restore")
     public ApiResponse<Void> restore(@PathVariable String id) {
-        userService.restore(id);
+        adminUserService.restore(id);
         return ApiResponse.<Void>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_RESTORE_SUCCESS))
                 .build();

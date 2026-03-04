@@ -25,3 +25,4 @@ spring:
 auth:
   verification-token-expiry-hours: 24
   password-reset-token-expiry-hours: 1
+  invite-token-expiry-days: 7
