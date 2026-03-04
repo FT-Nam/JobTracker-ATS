@@ -57,9 +57,7 @@ databaseChangeLog:
               - column:
                   name: role_id
                   type: varchar(36)
-                  constraints:
-                    nullable: false
-                  remarks: "UUID vai trò người dùng"
+                  remarks: "UUID vai trò (NULL cho Add Employee - user không login)"
               - column:
                   name: is_active
                   type: boolean
