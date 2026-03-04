@@ -7,7 +7,19 @@ import java.util.stream.Collectors;
 
 @Getter
 public enum SystemVariable {
+    // Company & User
     COMPANY_NAME("company_name"),
+    USER_EMAIL("user_email"),
+    USER_FIRST_NAME("user_first_name"),
+    USER_LAST_NAME("user_last_name"),
+    USER_NAME("user_name"),
+
+    // Auth links
+    INVITE_LINK("invite_link"),
+    VERIFICATION_LINK("verification_link"),
+    RESET_LINK("reset_link"),
+
+    // Application Workflow
     HR_NAME("hr_name"),
     CANDIDATE_NAME("candidate_name"),
     JOB_TITLE("job_title"),

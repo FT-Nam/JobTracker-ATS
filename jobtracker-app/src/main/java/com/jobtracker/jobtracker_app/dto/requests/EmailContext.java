@@ -23,6 +23,9 @@ public class EmailContext {
     String jobId;
     String interviewId;
     String applicationStatusId;
+    String inviteToken;
+    String verificationToken;
+    String resetToken;
 
     Map<String, Object> manualValues;
 }

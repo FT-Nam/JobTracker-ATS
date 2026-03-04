@@ -30,8 +30,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -74,20 +76,17 @@ public class EmailOutboxServiceImpl implements EmailOutboxService {
         String subject = templateRenderer.render(template.getSubject(), variables);
         String renderedContent = templateRenderer.render(template.getHtmlContent(), variables);
 
-        // Layout chứa footer tracking và variable content
-        EmailTemplate layoutTemplate = emailTemplateRepository
-                .findByCodeAndCompanyIsNullAndIsActiveTrueAndDeletedAtIsNull(EmailType.CANDIDATE_WORKFLOW_LAYOUT.toString())
-                .orElseThrow(() ->
-                        new AppException(ErrorCode.EMAIL_TEMPLATE_NOT_FOUND)
-                );
-
-        Map<String, Object> layoutVariables = new HashMap<>(variables);
-        layoutVariables.put("content", renderedContent);
-
-        String finalHtml = templateRenderer.render(
-                layoutTemplate.getHtmlContent(),
-                layoutVariables
-        );
+        String finalHtml;
+        if (usesWorkflowLayout(request.getTemplateCode())) {
+            EmailTemplate layoutTemplate = emailTemplateRepository
+                    .findByCodeAndCompanyIsNullAndIsActiveTrueAndDeletedAtIsNull(EmailType.CANDIDATE_WORKFLOW_LAYOUT.toString())
+                    .orElseThrow(() -> new AppException(ErrorCode.EMAIL_TEMPLATE_NOT_FOUND));
+            Map<String, Object> layoutVariables = new HashMap<>(variables);
+            layoutVariables.put("content", renderedContent);
+            finalHtml = templateRenderer.render(layoutTemplate.getHtmlContent(), layoutVariables);
+        } else {
+            finalHtml = renderedContent;
+        }
 
         Company company = companyRepository.findByIdAndDeletedAtIsNull(request.getCompanyId())
                 .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
@@ -150,6 +149,20 @@ public class EmailOutboxServiceImpl implements EmailOutboxService {
         outbox.setNextRetryAt(null);
         outbox.setFailedReason(null);
         emailOutboxRepository.save(outbox);
+    }
+
+    private static final Set<EmailType> WORKFLOW_LAYOUT_TYPES = EnumSet.of(
+            EmailType.APPLICATION_CONFIRMATION,
+            EmailType.INTERVIEW_SCHEDULED,
+            EmailType.INTERVIEW_RESCHEDULED,
+            EmailType.OFFER_CREATED,
+            EmailType.CANDIDATE_HIRED,
+            EmailType.CANDIDATE_REJECTED,
+            EmailType.MANUAL_OFFER
+    );
+
+    private static boolean usesWorkflowLayout(EmailType type) {
+        return type != null && WORKFLOW_LAYOUT_TYPES.contains(type);
     }
 
     private EmailOutbox getOutboxForCurrentCompanyOrThrow(String id) {

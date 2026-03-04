@@ -4,8 +4,11 @@ import com.jobtracker.jobtracker_app.dto.requests.EmailContext;
 import com.jobtracker.jobtracker_app.dto.requests.email.ManualOfferRequest;
 import com.jobtracker.jobtracker_app.dto.requests.email.SendEmailRequest;
 import com.jobtracker.jobtracker_app.entities.Application;
+import com.jobtracker.jobtracker_app.entities.EmailVerificationToken;
 import com.jobtracker.jobtracker_app.entities.Interview;
+import com.jobtracker.jobtracker_app.entities.PasswordResetToken;
 import com.jobtracker.jobtracker_app.entities.User;
+import com.jobtracker.jobtracker_app.entities.UserInvitation;
 import com.jobtracker.jobtracker_app.enums.AggregateType;
 import com.jobtracker.jobtracker_app.enums.EmailType;
 import com.jobtracker.jobtracker_app.enums.ManualVariable;
@@ -27,7 +30,7 @@ public class EmailServiceImpl implements EmailService {
     EmailOutboxService emailOutboxService;
     SecurityUtils securityUtils;
 
-     // candidate_name, job_title, company_name, application_link
+     // auto: candidate_name, job_title, company_name, application_link
     @Override
     public void sendApplicationConfirmation(Application application) {
         EmailContext context = EmailContext.builder()
@@ -51,8 +54,8 @@ public class EmailServiceImpl implements EmailService {
     }
 
 
-    // candidate_name, job_title, company_name, interview_time, interview_location, meeting_link, hr_name
-    // custom_message
+    // auto: candidate_name, job_title, company_name, interview_time, interview_location, meeting_link, hr_name
+    // manual: custom_message
     @Override
     public void sendInterviewScheduled(Interview interview, String customMessage) {
         EmailContext context = EmailContext.builder()
@@ -76,8 +79,8 @@ public class EmailServiceImpl implements EmailService {
         );
     }
 
-     // candidate_name, job_title, company_name, interview_time, interview_location, meeting_link, hr_name
-     // custom_message
+     // auto: candidate_name, job_title, company_name, interview_time, interview_location, meeting_link, hr_name
+     // manual: custom_message
     @Override
     public void sendInterviewRescheduled(Interview interview, String customMessage) {
         EmailContext context = EmailContext.builder()
@@ -101,8 +104,8 @@ public class EmailServiceImpl implements EmailService {
         );
     }
 
-     // candidate_name, job_title, company_name, hr_name
-     // custom_message
+     // auto: candidate_name, job_title, company_name, hr_name
+     // manual: custom_message
     @Override
     public void sendCandidateRejected(Application application, String customMessage) {
         EmailContext context = EmailContext.builder()
@@ -180,6 +183,122 @@ public class EmailServiceImpl implements EmailService {
                 getCurrentUserReplyToName(),
                 context
         );
+    }
+
+    // auto: company_name, user_email, user_first_name, user_last_name, user_name, invite_link
+    @Override
+    public void sendUserInvite(User user, UserInvitation invitation) {
+        EmailContext context = EmailContext.builder()
+                .userId(user.getId())
+                .companyId(user.getCompany() != null ? user.getCompany().getId() : null)
+                .inviteToken(invitation.getToken())
+                .build();
+
+        sendEmail(
+                EmailType.USER_INVITE,
+                user.getCompany().getId(),
+                AggregateType.USER,
+                user.getId(),
+                user.getEmail(),
+                buildUserName(user),
+                null,
+                null,
+                context
+        );
+    }
+
+    // auto: company_name, user_email, user_first_name, user_last_name, user_name, invite_link
+    @Override
+    public void sendUserInviteResend(User user, UserInvitation invitation) {
+        EmailContext context = EmailContext.builder()
+                .userId(user.getId())
+                .companyId(user.getCompany() != null ? user.getCompany().getId() : null)
+                .inviteToken(invitation.getToken())
+                .build();
+
+        sendEmail(
+                EmailType.USER_INVITE_RESEND,
+                user.getCompany().getId(),
+                AggregateType.USER,
+                user.getId(),
+                user.getEmail(),
+                buildUserName(user),
+                null,
+                null,
+                context
+        );
+    }
+
+    // auto: company_name, user_email, user_first_name, user_last_name, user_name, verification_link
+    @Override
+    public void sendEmailVerification(User user, EmailVerificationToken token) {
+        EmailContext context = EmailContext.builder()
+                .userId(user.getId())
+                .companyId(user.getCompany() != null ? user.getCompany().getId() : null)
+                .verificationToken(token.getToken())
+                .build();
+
+        sendEmail(
+                EmailType.EMAIL_VERIFICATION,
+                user.getCompany().getId(),
+                AggregateType.USER,
+                user.getId(),
+                user.getEmail(),
+                buildUserName(user),
+                null,
+                null,
+                context
+        );
+    }
+
+    // auto: company_name, user_email, user_first_name, user_last_name, user_name, verification_link
+    @Override
+    public void sendEmailVerificationResend(User user, EmailVerificationToken token) {
+        EmailContext context = EmailContext.builder()
+                .userId(user.getId())
+                .companyId(user.getCompany() != null ? user.getCompany().getId() : null)
+                .verificationToken(token.getToken())
+                .build();
+
+        sendEmail(
+                EmailType.EMAIL_VERIFICATION_RESEND,
+                user.getCompany().getId(),
+                AggregateType.USER,
+                user.getId(),
+                user.getEmail(),
+                buildUserName(user),
+                null,
+                null,
+                context
+        );
+    }
+
+    // auto: company_name, user_email, user_first_name, user_last_name, user_name, reset_link
+    @Override
+    public void sendPasswordReset(User user, PasswordResetToken token) {
+        EmailContext context = EmailContext.builder()
+                .userId(user.getId())
+                .companyId(user.getCompany() != null ? user.getCompany().getId() : null)
+                .resetToken(token.getToken())
+                .build();
+
+        sendEmail(
+                EmailType.PASSWORD_RESET,
+                user.getCompany().getId(),
+                AggregateType.USER,
+                user.getId(),
+                user.getEmail(),
+                buildUserName(user),
+                null,
+                null,
+                context
+        );
+    }
+
+    private static String buildUserName(User user) {
+        String first = user.getFirstName() != null ? user.getFirstName() : "";
+        String last = user.getLastName() != null ? user.getLastName() : "";
+        return (first + " " + last).trim();
     }
 
     private void sendEmail(
