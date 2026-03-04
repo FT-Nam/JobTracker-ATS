@@ -1,37 +1,20 @@
 package com.jobtracker.jobtracker_app.services;
 
 import com.jobtracker.jobtracker_app.dto.requests.ChangePasswordRequest;
-import com.jobtracker.jobtracker_app.dto.responses.user.UploadAvatarResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
-import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.UserUpdateProfileRequest;
 import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.responses.user.UploadAvatarResponse;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
 public interface UserService {
-    UserResponse create(UserCreationRequest request);
-
-    UserResponse getById(String id);
-
     UserResponse getProfile();
 
-    Page<UserResponse> getAll(String keyword, String roleId,
-                              Boolean isActive, Boolean emailVerified, Pageable pageable);
-
-    UserResponse update(String id, UserUpdateRequest request);
-
-    UserResponse updateProfile(UserUpdateRequest request);
+    UserResponse updateProfile(UserUpdateProfileRequest request);
 
     void changePassword(ChangePasswordRequest request);
 
-    void delete(String id);
-
-    void restore(String id);
-
     UploadAvatarResponse uploadAvatar(MultipartFile file) throws IOException;
-
 }

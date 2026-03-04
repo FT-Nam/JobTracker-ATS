@@ -1,5 +1,6 @@
 package com.jobtracker.jobtracker_app.mappers;
 
+import com.jobtracker.jobtracker_app.dto.requests.UserUpdateProfileRequest;
 import org.mapstruct.*;
 
 import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
@@ -21,4 +22,7 @@ public interface UserMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateUser(@MappingTarget User user, UserUpdateRequest request);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateUserProfile(@MappingTarget User user, UserUpdateProfileRequest request);
 }

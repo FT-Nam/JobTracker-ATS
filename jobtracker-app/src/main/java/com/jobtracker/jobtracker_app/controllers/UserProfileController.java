@@ -1,6 +1,7 @@
 package com.jobtracker.jobtracker_app.controllers;
 
 import com.jobtracker.jobtracker_app.dto.requests.ChangePasswordRequest;
+import com.jobtracker.jobtracker_app.dto.requests.UserUpdateProfileRequest;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import jakarta.validation.Valid;
 
@@ -36,11 +37,11 @@ public class UserProfileController {
                 .build();
     }
 
-    @PutMapping("/profile/{id}")
-    public ApiResponse<UserResponse> update(@PathVariable String id, @RequestBody @Valid UserUpdateRequest request) {
+    @PutMapping("/profile")
+    public ApiResponse<UserResponse> updateProfile(@RequestBody @Valid UserUpdateProfileRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.USER_UPDATE_SUCCESS))
-                .data(userService.update(id, request))
+                .data(userService.updateProfile(request))
                 .build();
     }
 
