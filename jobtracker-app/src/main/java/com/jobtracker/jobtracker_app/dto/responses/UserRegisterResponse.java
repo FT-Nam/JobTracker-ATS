@@ -1,4 +1,4 @@
-package com.jobtracker.jobtracker_app.dto.responses.user;
+package com.jobtracker.jobtracker_app.dto.responses;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,13 +8,12 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserInfo {
+public class UserRegisterResponse {
     String id;
     String email;
     String firstName;
     String lastName;
     String roleName;
-    String companyId;
-    String companyName;
-    String avatarUrl = null;
+    Boolean emailVerified;
+    Boolean isActive;
 }

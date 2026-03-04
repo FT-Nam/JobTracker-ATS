@@ -2,8 +2,13 @@ package com.jobtracker.jobtracker_app.controllers;
 
 import java.text.ParseException;
 
+import com.jobtracker.jobtracker_app.dto.requests.EmailVerifyRequest;
+import com.jobtracker.jobtracker_app.dto.requests.ForgotPasswordRequest;
 import com.jobtracker.jobtracker_app.dto.requests.RegisterRequest;
+import com.jobtracker.jobtracker_app.dto.requests.ResendEmailVerifyRequest;
+import com.jobtracker.jobtracker_app.dto.requests.ResetPasswordRequest;
 import com.jobtracker.jobtracker_app.dto.responses.CompanySelfSignupResponse;
+import com.jobtracker.jobtracker_app.dto.responses.EmailVerifyResponse;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
 import jakarta.validation.Valid;
@@ -66,5 +71,35 @@ public class AuthController {
                 .build();
     }
 
-    // login google, forgot password, reset password
+    @PostMapping("/verify-email")
+    ApiResponse<EmailVerifyResponse> verifyEmail(@RequestBody @Valid EmailVerifyRequest request) {
+        return ApiResponse.<EmailVerifyResponse>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.EMAIL_VERIFIED_SUCCESS))
+                .data(authService.emailVerify(request))
+                .build();
+    }
+
+    @PostMapping("/resend-verification")
+    ApiResponse<Void> resendVerification(@RequestBody @Valid ResendEmailVerifyRequest request) {
+        authService.resendEmailVerify(request);
+        return ApiResponse.<Void>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.VERIFICATION_EMAIL_SENT))
+                .build();
+    }
+
+    @PostMapping("/forgot-password")
+    ApiResponse<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ApiResponse.<Void>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.PASSWORD_RESET_EMAIL_SENT))
+                .build();
+    }
+
+    @PostMapping("/reset-password")
+    ApiResponse<Void> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ApiResponse.<Void>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.PASSWORD_RESET_SUCCESS))
+                .build();
+    }
 }

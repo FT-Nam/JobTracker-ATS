@@ -1,6 +1,5 @@
 package com.jobtracker.jobtracker_app.dto.responses;
 
-import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CompanySelfSignupResponse {
-    CompanyRegisterResponse company;
-    UserRegisterResponse user;
+public class CompanyRegisterResponse {
+    String id;
+    String name;
 }

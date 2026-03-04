@@ -58,6 +58,14 @@ public class MessageKeys {
 
     // PASSWORD
     public static final String PASSWORD_CHANGE_SUCCESS = "password.change_success";
+    public static final String INVALID_VERIFICATION_TOKEN = "auth.invalid_verification_token";
+    public static final String INVALID_RESET_TOKEN = "auth.invalid_reset_token";
+    public static final String EMAIL_ALREADY_VERIFIED = "auth.email_already_verified";
+    public static final String EMAIL_NOT_VERIFIED = "auth.email_not_verified";
+    public static final String EMAIL_VERIFIED_SUCCESS = "auth.email_verified_success";
+    public static final String VERIFICATION_EMAIL_SENT = "auth.verification_email_sent";
+    public static final String PASSWORD_RESET_EMAIL_SENT = "auth.password_reset_email_sent";
+    public static final String PASSWORD_RESET_SUCCESS = "auth.password_reset_success";
 
     // AVATAR
     public static final String USER_AVATAR_UPLOAD_SUCCESS = "user.avatar_upload_success";

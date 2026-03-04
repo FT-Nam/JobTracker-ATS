@@ -5,10 +5,6 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-/**
- * Request for Company Self-Signup (POST /auth/register).
- * Creates a new company and its first user as COMPANY_ADMIN.
- */
 @Getter
 @Setter
 @Builder

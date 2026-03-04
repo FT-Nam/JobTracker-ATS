@@ -18,6 +18,10 @@ jwt:
   valid-duration: ${JWT_VALID_DURATION:1800}
   refreshable-duration: ${JWT_REFRESHABLE_DURATION:604800}
 
+auth:
+  verification-token-expiry-hours: ${AUTH_VERIFICATION_TOKEN_EXPIRY_HOURS:24}
+  password-reset-token-expiry-hours: ${AUTH_PASSWORD_RESET_TOKEN_EXPIRY_HOURS:1}
+
 cloudinary:
   cloud_name: ${CLOUDINARY_CLOUD_NAME}
   api_key: ${CLOUDINARY_API_KEY}

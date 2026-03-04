@@ -21,3 +21,7 @@ spring:
     basename: i18n/messages
     encoding: UTF-8
     default-locale: en
+
+auth:
+  verification-token-expiry-hours: 24
+  password-reset-token-expiry-hours: 1

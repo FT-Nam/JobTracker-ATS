@@ -2,17 +2,15 @@ package com.jobtracker.jobtracker_app.services.impl;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.jobtracker.jobtracker_app.dto.requests.RegisterRequest;
-import com.jobtracker.jobtracker_app.dto.responses.CompanyResponse;
-import com.jobtracker.jobtracker_app.dto.responses.CompanySelfSignupResponse;
-import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
-import com.jobtracker.jobtracker_app.entities.Company;
-import com.jobtracker.jobtracker_app.entities.Role;
+import com.jobtracker.jobtracker_app.dto.requests.*;
+import com.jobtracker.jobtracker_app.dto.responses.*;
+import com.jobtracker.jobtracker_app.entities.*;
 import com.jobtracker.jobtracker_app.mappers.UserMapper;
 import com.jobtracker.jobtracker_app.repositories.CompanyRepository;
 import com.jobtracker.jobtracker_app.repositories.RoleRepository;
@@ -20,20 +18,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.jobtracker.jobtracker_app.dto.requests.AuthenticationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.LogoutRequest;
-import com.jobtracker.jobtracker_app.dto.requests.RefreshRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.AuthenticationResponse;
-import com.jobtracker.jobtracker_app.dto.responses.TokenInfo;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserInfo;
-import com.jobtracker.jobtracker_app.entities.InvalidatedToken;
-import com.jobtracker.jobtracker_app.entities.User;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
+import com.jobtracker.jobtracker_app.repositories.EmailVerificationTokenRepository;
 import com.jobtracker.jobtracker_app.repositories.InvalidatedRepository;
+import com.jobtracker.jobtracker_app.repositories.PasswordResetTokenRepository;
 import com.jobtracker.jobtracker_app.repositories.UserRepository;
 import com.jobtracker.jobtracker_app.services.AuthService;
+import com.jobtracker.jobtracker_app.services.EmailService;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -56,6 +52,9 @@ public class AuthServiceImpl implements AuthService {
     RoleRepository roleRepository;
     CompanyRepository companyRepository;
     UserMapper userMapper;
+    EmailVerificationTokenRepository emailVerificationTokenRepository;
+    PasswordResetTokenRepository passwordResetTokenRepository;
+    EmailService emailService;
 
     private static final String CACHE_PREFIX = "refresh_token:";
     private static final String COMPANY_ADMIN_ROLE = "COMPANY_ADMIN";
@@ -72,7 +71,16 @@ public class AuthServiceImpl implements AuthService {
     @Value("${jwt.refreshable-duration}")
     Long refreshableDuration;
 
+    @NonFinal
+    @Value("${auth.verification-token-expiry-hours:24}")
+    int verificationTokenExpiryHours;
+
+    @NonFinal
+    @Value("${auth.password-reset-token-expiry-hours:1}")
+    int passwordResetTokenExpiryHours;
+
     @Override
+    @Transactional
     public CompanySelfSignupResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.USER_EXISTED);
@@ -88,26 +96,41 @@ public class AuthServiceImpl implements AuthService {
         Role companyAdminRole = roleRepository.findByName(COMPANY_ADMIN_ROLE)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
 
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setPhone(request.getPhone());
-        user.setCompany(company);
-        user.setRole(companyAdminRole);
-        user.setEmailVerified(false);
-        user.setIsActive(true);
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .company(company)
+                .role(companyAdminRole)
+                .emailVerified(false)
+                .isActive(true)
+                .isBillable(true)
+                .build();
+
         user = userRepository.save(user);
 
-        CompanyResponse companyResponse = CompanyResponse.builder()
+        EmailVerificationToken verificationToken = createAndSaveVerificationToken(user);
+        emailService.sendEmailVerification(user, verificationToken);
+
+        CompanyRegisterResponse companyRegisterResponse = CompanyRegisterResponse.builder()
                 .id(company.getId())
                 .name(company.getName())
                 .build();
-        UserResponse userResponse = userMapper.toUserResponse(user);
+
+        UserRegisterResponse userRegisterResponse = UserRegisterResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .roleName(user.getRole().getName())
+                .emailVerified(user.getEmailVerified())
+                .isActive(user.getIsActive())
+                .build();
+
         return CompanySelfSignupResponse.builder()
-                .company(companyResponse)
-                .user(userResponse)
+                .company(companyRegisterResponse)
+                .user(userRegisterResponse)
                 .build();
     }
 
@@ -116,18 +139,62 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository
                 .findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
         if (!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
+        if (!Boolean.TRUE.equals(user.getEmailVerified())) {
+            throw new AppException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
         AuthenticationResponse authenticationResponse = authenticationResponse(user);
 
-        checkAndCreateRefreshToken(
-                user.getId(), authenticationResponse.getTokens().getRefreshToken());
+        checkAndCreateRefreshToken(user.getId(), authenticationResponse.getTokens().getRefreshToken());
 
         return authenticationResponse;
+    }
+
+    @Override
+    @Transactional
+    public EmailVerifyResponse emailVerify(EmailVerifyRequest request) {
+        if (request.getToken() == null || request.getToken().isBlank()) {
+            throw new AppException(ErrorCode.INVALID_VERIFICATION_TOKEN);
+        }
+        EmailVerificationToken token = emailVerificationTokenRepository
+                .findValidByToken(request.getToken(), LocalDateTime.now())
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_VERIFICATION_TOKEN));
+
+        User user = token.getUser();
+        user.setEmailVerified(true);
+        userRepository.save(user);
+
+        token.setUsedAt(LocalDateTime.now());
+        emailVerificationTokenRepository.save(token);
+
+        return EmailVerifyResponse.builder()
+                .email(user.getEmail())
+                .emailVerified(true)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void resendEmailVerify(ResendEmailVerifyRequest request) {
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (Boolean.TRUE.equals(user.getEmailVerified())) {
+            throw new AppException(ErrorCode.EMAIL_ALREADY_VERIFIED);
+        }
+
+        EmailVerificationToken token = createAndSaveVerificationToken(user);
+        emailService.sendEmailVerificationResend(user, token);
     }
 
     @Override
@@ -139,13 +206,13 @@ public class AuthServiceImpl implements AuthService {
 
         AuthenticationResponse authenticationResponse = authenticationResponse(user);
 
-        checkAndCreateRefreshToken(
-                user.getId(), authenticationResponse.getTokens().getRefreshToken());
+        checkAndCreateRefreshToken(user.getId(), authenticationResponse.getTokens().getRefreshToken());
 
         return authenticationResponse;
     }
 
     @Override
+    @Transactional
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
         var signedJwt = SignedJWT.parse(request.getAccessToken());
 
@@ -158,6 +225,37 @@ public class AuthServiceImpl implements AuthService {
                 InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
         invalidatedRepository.save(invalidatedToken);
         redisTemplate.delete(key);
+    }
+
+    @Override
+    @Transactional
+    public void forgotPassword(ForgotPasswordRequest request) {
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            return;
+        }
+        userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
+            PasswordResetToken token = createAndSavePasswordResetToken(user);
+            emailService.sendPasswordReset(user, token);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        if (request.getToken() == null || request.getToken().isBlank()
+                || request.getNewPassword() == null || request.getNewPassword().isBlank()) {
+            throw new AppException(ErrorCode.INVALID_RESET_TOKEN);
+        }
+        PasswordResetToken token = passwordResetTokenRepository
+                .findValidByToken(request.getToken(), LocalDateTime.now())
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_RESET_TOKEN));
+
+        User user = token.getUser();
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        token.setUsedAt(LocalDateTime.now());
+        passwordResetTokenRepository.save(token);
     }
 
     private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
@@ -181,13 +279,17 @@ public class AuthServiceImpl implements AuthService {
 
         long expirationTime = isRefreshToken ? refreshableDuration : validDuration;
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+        JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder()
                 .subject(user.getId())
                 .issuer("ftnam")
                 .issueTime(new Date())
                 .expirationTime(Date.from(Instant.now().plus(expirationTime, ChronoUnit.SECONDS)))
-                .jwtID(UUID.randomUUID().toString())
-                .build();
+                .jwtID(UUID.randomUUID().toString());
+        if (!isRefreshToken) {
+            claimsBuilder.claim("companyId", user.getCompany().getId());
+            claimsBuilder.claim("role", user.getRole().getName());
+        }
+        JWTClaimsSet claimsSet = claimsBuilder.build();
 
         Payload payload = new Payload(claimsSet.toJSONObject());
 
@@ -216,9 +318,14 @@ public class AuthServiceImpl implements AuthService {
                 .lastName(user.getLastName())
                 .avatarUrl(user.getAvatarUrl())
                 .roleName(user.getRole().getName())
+                .companyId(user.getCompany().getId())
+                .companyName(user.getCompany().getName())
                 .build();
 
-        return AuthenticationResponse.builder().tokens(tokenInfo).user(userInfo).build();
+        return AuthenticationResponse.builder()
+                .user(userInfo)
+                .tokens(tokenInfo)
+                .build();
     }
 
     private void checkAndCreateRefreshToken(String sub, String refreshToken) {
@@ -229,5 +336,30 @@ public class AuthServiceImpl implements AuthService {
         }
 
         redisTemplate.opsForValue().set(key, refreshToken, refreshableDuration, TimeUnit.SECONDS);
+    }
+
+
+    private EmailVerificationToken createAndSaveVerificationToken(User user) {
+        LocalDateTime now = LocalDateTime.now();
+        EmailVerificationToken token = EmailVerificationToken.builder()
+                .user(user)
+                .company(user.getCompany())
+                .token(UUID.randomUUID().toString())
+                .expiresAt(now.plusHours(VERIFICATION_TOKEN_EXPIRY_HOURS))
+                .sentAt(now)
+                .build();
+        return emailVerificationTokenRepository.save(token);
+    }
+
+    private PasswordResetToken createAndSavePasswordResetToken(User user) {
+        LocalDateTime now = LocalDateTime.now();
+        PasswordResetToken token = PasswordResetToken.builder()
+                .user(user)
+                .company(user.getCompany())
+                .token(UUID.randomUUID().toString())
+                .expiresAt(now.plusHours(passwordResetTokenExpiryHours))
+                .sentAt(now)
+                .build();
+        return passwordResetTokenRepository.save(token);
     }
 }
