@@ -2,7 +2,7 @@ package com.jobtracker.jobtracker_app.services;
 
 import com.jobtracker.jobtracker_app.dto.requests.company.CompanyFilterRequest;
 import com.jobtracker.jobtracker_app.dto.requests.company.CompanyUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.responses.CompanyResponse;
+import com.jobtracker.jobtracker_app.dto.responses.company.CompanyResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

@@ -1,9 +1,8 @@
 package com.jobtracker.jobtracker_app.mappers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobtracker.jobtracker_app.dto.requests.NotificationRequest;
-import com.jobtracker.jobtracker_app.dto.responses.NotificationResponse;
+import com.jobtracker.jobtracker_app.dto.requests.notification.NotificationRequest;
+import com.jobtracker.jobtracker_app.dto.responses.notification.NotificationResponse;
 import com.jobtracker.jobtracker_app.entities.Notification;
 import org.mapstruct.*;
 

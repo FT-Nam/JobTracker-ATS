@@ -1,7 +1,7 @@
 package com.jobtracker.jobtracker_app.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.jobtracker.jobtracker_app.dto.requests.PaymentRequest;
+import com.jobtracker.jobtracker_app.dto.requests.payment.PaymentRequest;
 import com.jobtracker.jobtracker_app.dto.responses.payment.InitPaymentResponse;
 import com.jobtracker.jobtracker_app.dto.responses.payment.PaymentResponse;
 import jakarta.servlet.http.HttpServletRequest;

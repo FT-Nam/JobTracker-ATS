@@ -19,8 +19,8 @@
 //import org.springframework.data.domain.PageRequest;
 //import org.springframework.data.domain.Pageable;
 //
-//import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
-//import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
+//import com.jobtracker.jobtracker_app.dto.requests.user.UserCreationRequest;
+//import com.jobtracker.jobtracker_app.dto.requests.user.UserUpdateRequest;
 //import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 //import com.jobtracker.jobtracker_app.entities.Role;
 //import com.jobtracker.jobtracker_app.entities.User;

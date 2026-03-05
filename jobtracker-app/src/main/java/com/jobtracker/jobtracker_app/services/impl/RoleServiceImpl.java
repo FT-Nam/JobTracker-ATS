@@ -2,19 +2,19 @@ package com.jobtracker.jobtracker_app.services.impl;
 
 import java.util.List;
 
-import com.jobtracker.jobtracker_app.dto.requests.RoleCreationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.RolePermissionRequest;
-import com.jobtracker.jobtracker_app.dto.requests.RolePermissionsRequest;
-import com.jobtracker.jobtracker_app.dto.requests.RoleUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.responses.RolePermissionsResponse;
-import com.jobtracker.jobtracker_app.dto.responses.RolePermissionsUpdateResponse;
+import com.jobtracker.jobtracker_app.dto.requests.role.RoleCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.role.RolePermissionRequest;
+import com.jobtracker.jobtracker_app.dto.requests.role.RolePermissionsRequest;
+import com.jobtracker.jobtracker_app.dto.requests.role.RoleUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.responses.role.RolePermissionsResponse;
+import com.jobtracker.jobtracker_app.dto.responses.role.RolePermissionsUpdateResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jobtracker.jobtracker_app.dto.responses.RoleResponse;
+import com.jobtracker.jobtracker_app.dto.responses.role.RoleResponse;
 import com.jobtracker.jobtracker_app.entities.Permission;
 import com.jobtracker.jobtracker_app.entities.Role;
 import com.jobtracker.jobtracker_app.entities.RolePermission;

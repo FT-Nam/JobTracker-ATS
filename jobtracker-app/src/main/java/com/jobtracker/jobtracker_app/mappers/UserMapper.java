@@ -1,10 +1,10 @@
 package com.jobtracker.jobtracker_app.mappers;
 
-import com.jobtracker.jobtracker_app.dto.requests.UserUpdateProfileRequest;
+import com.jobtracker.jobtracker_app.dto.requests.user.UserUpdateProfileRequest;
 import org.mapstruct.*;
 
-import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.requests.user.UserCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.user.UserUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 import com.jobtracker.jobtracker_app.entities.User;
 

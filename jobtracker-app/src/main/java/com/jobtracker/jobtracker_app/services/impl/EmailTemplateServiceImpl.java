@@ -1,6 +1,6 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
-import com.jobtracker.jobtracker_app.dto.requests.EmailContext;
+import com.jobtracker.jobtracker_app.dto.requests.email.EmailContext;
 import com.jobtracker.jobtracker_app.dto.requests.email.*;
 import com.jobtracker.jobtracker_app.dto.responses.email.*;
 import com.jobtracker.jobtracker_app.entities.EmailTemplate;

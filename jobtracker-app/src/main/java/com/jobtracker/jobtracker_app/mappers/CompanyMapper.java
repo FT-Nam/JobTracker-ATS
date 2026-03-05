@@ -2,7 +2,7 @@ package com.jobtracker.jobtracker_app.mappers;
 
 import com.jobtracker.jobtracker_app.dto.requests.company.CompanyCreationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.company.CompanyUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.responses.CompanyResponse;
+import com.jobtracker.jobtracker_app.dto.responses.company.CompanyResponse;
 import com.jobtracker.jobtracker_app.entities.Company;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;

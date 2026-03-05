@@ -4,7 +4,7 @@ import com.jobtracker.jobtracker_app.dto.requests.email.EmailRequest;
 import com.jobtracker.jobtracker_app.dto.requests.email.Recipient;
 import com.jobtracker.jobtracker_app.dto.requests.email.ReplyTo;
 import com.jobtracker.jobtracker_app.dto.requests.email.Sender;
-import com.jobtracker.jobtracker_app.dto.responses.EmailResponse;
+import com.jobtracker.jobtracker_app.dto.responses.email.EmailResponse;
 import com.jobtracker.jobtracker_app.entities.EmailOutbox;
 import com.jobtracker.jobtracker_app.enums.EmailStatus;
 import com.jobtracker.jobtracker_app.repositories.EmailOutboxRepository;

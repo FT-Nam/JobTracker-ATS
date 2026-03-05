@@ -1,6 +1,6 @@
 package com.jobtracker.jobtracker_app.controllers;
 
-import com.jobtracker.jobtracker_app.dto.requests.AttachmentUploadRequest;
+import com.jobtracker.jobtracker_app.dto.requests.attachment.AttachmentUploadRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.attachment.AttachmentCreationResponse;
 import com.jobtracker.jobtracker_app.dto.responses.attachment.AttachmentResponse;

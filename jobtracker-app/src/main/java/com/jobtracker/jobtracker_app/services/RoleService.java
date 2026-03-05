@@ -1,15 +1,15 @@
 package com.jobtracker.jobtracker_app.services;
 
-import com.jobtracker.jobtracker_app.dto.requests.RoleCreationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.RolePermissionRequest;
-import com.jobtracker.jobtracker_app.dto.requests.RolePermissionsRequest;
-import com.jobtracker.jobtracker_app.dto.requests.RoleUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.responses.RolePermissionsResponse;
-import com.jobtracker.jobtracker_app.dto.responses.RolePermissionsUpdateResponse;
+import com.jobtracker.jobtracker_app.dto.requests.role.RoleCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.role.RolePermissionRequest;
+import com.jobtracker.jobtracker_app.dto.requests.role.RolePermissionsRequest;
+import com.jobtracker.jobtracker_app.dto.requests.role.RoleUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.responses.role.RolePermissionsResponse;
+import com.jobtracker.jobtracker_app.dto.responses.role.RolePermissionsUpdateResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.jobtracker.jobtracker_app.dto.responses.RoleResponse;
+import com.jobtracker.jobtracker_app.dto.responses.role.RoleResponse;
 
 public interface RoleService {
     RoleResponse create(RoleCreationRequest request);

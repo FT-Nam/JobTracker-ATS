@@ -1,14 +1,13 @@
 package com.jobtracker.jobtracker_app.controllers;
 
-import com.jobtracker.jobtracker_app.dto.requests.ChangePasswordRequest;
-import com.jobtracker.jobtracker_app.dto.requests.UserUpdateProfileRequest;
+import com.jobtracker.jobtracker_app.dto.requests.auth.ChangePasswordRequest;
+import com.jobtracker.jobtracker_app.dto.requests.user.UserUpdateProfileRequest;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.user.UploadAvatarResponse;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;

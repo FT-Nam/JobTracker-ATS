@@ -2,12 +2,11 @@ package com.jobtracker.jobtracker_app.services;
 
 import java.text.ParseException;
 
-import com.jobtracker.jobtracker_app.dto.requests.*;
-import com.jobtracker.jobtracker_app.dto.responses.AcceptInviteResponse;
-import com.jobtracker.jobtracker_app.dto.responses.AuthResult;
-import com.jobtracker.jobtracker_app.dto.responses.CompanySelfSignupResponse;
-import com.jobtracker.jobtracker_app.dto.responses.EmailVerifyResponse;
-import com.jobtracker.jobtracker_app.dto.responses.common.AuthenticationResponse;
+import com.jobtracker.jobtracker_app.dto.requests.auth.*;
+import com.jobtracker.jobtracker_app.dto.responses.auth.AcceptInviteResponse;
+import com.jobtracker.jobtracker_app.dto.responses.auth.AuthResult;
+import com.jobtracker.jobtracker_app.dto.responses.company.CompanySelfSignupResponse;
+import com.jobtracker.jobtracker_app.dto.responses.auth.EmailVerifyResponse;
 import com.nimbusds.jose.JOSEException;
 
 public interface AuthService {

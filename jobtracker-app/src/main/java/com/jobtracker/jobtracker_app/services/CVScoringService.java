@@ -1,6 +1,6 @@
 package com.jobtracker.jobtracker_app.services;
 
-import com.jobtracker.jobtracker_app.dto.requests.JobSkillWithName;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobSkillWithName;
 import com.jobtracker.jobtracker_app.dto.responses.application.ApplicationScoringResult;
 
 import java.util.List;

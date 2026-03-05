@@ -1,6 +1,6 @@
 package com.jobtracker.jobtracker_app.repositories;
 
-import com.jobtracker.jobtracker_app.dto.requests.JobSkillWithName;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobSkillWithName;
 import com.jobtracker.jobtracker_app.entities.JobSkill;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

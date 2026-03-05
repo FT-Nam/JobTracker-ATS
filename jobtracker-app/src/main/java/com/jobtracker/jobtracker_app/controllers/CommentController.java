@@ -1,8 +1,8 @@
 package com.jobtracker.jobtracker_app.controllers;
 
-import com.jobtracker.jobtracker_app.dto.requests.CommentCreationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.CommentUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.responses.CommentResponse;
+import com.jobtracker.jobtracker_app.dto.requests.comment.CommentCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.comment.CommentUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.responses.comment.CommentResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.services.CommentService;

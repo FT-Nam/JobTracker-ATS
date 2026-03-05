@@ -1,8 +1,8 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
-import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.UserInviteRequest;
-import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.requests.user.UserCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.user.UserInviteRequest;
+import com.jobtracker.jobtracker_app.dto.requests.user.UserUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 import com.jobtracker.jobtracker_app.entities.Company;
 import com.jobtracker.jobtracker_app.entities.Role;
@@ -12,7 +12,6 @@ import com.jobtracker.jobtracker_app.enums.SystemRole;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
 import com.jobtracker.jobtracker_app.mappers.UserMapper;
-import com.jobtracker.jobtracker_app.repositories.CompanyRepository;
 import com.jobtracker.jobtracker_app.repositories.RoleRepository;
 import com.jobtracker.jobtracker_app.services.PlanLimitService;
 import com.jobtracker.jobtracker_app.repositories.UserInvitationRepository;
@@ -28,7 +27,6 @@ import lombok.experimental.NonFinal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

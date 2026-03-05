@@ -2,7 +2,7 @@ package com.jobtracker.jobtracker_app.mappers;
 
 import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewCreationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.responses.InterviewResponse;
+import com.jobtracker.jobtracker_app.dto.responses.interview.InterviewResponse;
 import com.jobtracker.jobtracker_app.entities.Interview;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;

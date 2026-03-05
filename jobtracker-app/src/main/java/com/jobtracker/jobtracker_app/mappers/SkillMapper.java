@@ -1,7 +1,7 @@
 package com.jobtracker.jobtracker_app.mappers;
 
-import com.jobtracker.jobtracker_app.dto.requests.SkillRequest;
-import com.jobtracker.jobtracker_app.dto.responses.SkillResponse;
+import com.jobtracker.jobtracker_app.dto.requests.skill.SkillRequest;
+import com.jobtracker.jobtracker_app.dto.responses.skill.SkillResponse;
 import com.jobtracker.jobtracker_app.entities.Skill;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;

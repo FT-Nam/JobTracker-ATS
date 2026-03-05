@@ -27,8 +27,8 @@
 //import org.springframework.test.web.servlet.MockMvc;
 //
 //import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
-//import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
+//import com.jobtracker.jobtracker_app.dto.requests.user.UserCreationRequest;
+//import com.jobtracker.jobtracker_app.dto.requests.user.UserUpdateRequest;
 //import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 //import com.jobtracker.jobtracker_app.entities.Role;
 //import com.jobtracker.jobtracker_app.services.UserService;

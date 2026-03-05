@@ -1,7 +1,7 @@
 package com.jobtracker.jobtracker_app.repositories.httpclient;
 
 import com.jobtracker.jobtracker_app.dto.requests.email.EmailRequest;
-import com.jobtracker.jobtracker_app.dto.responses.EmailResponse;
+import com.jobtracker.jobtracker_app.dto.responses.email.EmailResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;

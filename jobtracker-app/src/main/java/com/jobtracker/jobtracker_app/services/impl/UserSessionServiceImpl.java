@@ -1,7 +1,7 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
-import com.jobtracker.jobtracker_app.dto.requests.UserSessionRequest;
-import com.jobtracker.jobtracker_app.dto.responses.UserSessionResponse;
+import com.jobtracker.jobtracker_app.dto.requests.user_session.UserSessionRequest;
+import com.jobtracker.jobtracker_app.dto.responses.user_session.UserSessionResponse;
 import com.jobtracker.jobtracker_app.entities.UserSession;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;

@@ -6,8 +6,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jobtracker.jobtracker_app.dto.requests.PermissionRequest;
-import com.jobtracker.jobtracker_app.dto.responses.PermissionResponse;
+import com.jobtracker.jobtracker_app.dto.requests.permission.PermissionRequest;
+import com.jobtracker.jobtracker_app.dto.responses.permission.PermissionResponse;
 import com.jobtracker.jobtracker_app.entities.Permission;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;

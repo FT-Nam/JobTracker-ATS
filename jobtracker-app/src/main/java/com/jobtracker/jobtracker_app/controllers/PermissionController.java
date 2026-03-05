@@ -8,10 +8,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import com.jobtracker.jobtracker_app.dto.requests.PermissionRequest;
+import com.jobtracker.jobtracker_app.dto.requests.permission.PermissionRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
-import com.jobtracker.jobtracker_app.dto.responses.PermissionResponse;
+import com.jobtracker.jobtracker_app.dto.responses.permission.PermissionResponse;
 import com.jobtracker.jobtracker_app.services.PermissionService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;

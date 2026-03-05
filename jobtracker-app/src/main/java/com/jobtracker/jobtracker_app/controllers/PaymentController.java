@@ -1,7 +1,6 @@
 package com.jobtracker.jobtracker_app.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.jobtracker.jobtracker_app.dto.requests.PaymentRequest;
+import com.jobtracker.jobtracker_app.dto.requests.payment.PaymentRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.dto.responses.payment.InitPaymentResponse;

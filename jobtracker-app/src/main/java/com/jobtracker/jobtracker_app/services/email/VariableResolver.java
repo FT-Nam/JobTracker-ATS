@@ -1,6 +1,6 @@
 package com.jobtracker.jobtracker_app.services.email;
 
-import com.jobtracker.jobtracker_app.dto.requests.EmailContext;
+import com.jobtracker.jobtracker_app.dto.requests.email.EmailContext;
 
 public interface VariableResolver {
 

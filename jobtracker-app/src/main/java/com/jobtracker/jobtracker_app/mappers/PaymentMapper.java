@@ -1,6 +1,6 @@
 package com.jobtracker.jobtracker_app.mappers;
 
-import com.jobtracker.jobtracker_app.dto.requests.PaymentRequest;
+import com.jobtracker.jobtracker_app.dto.requests.payment.PaymentRequest;
 import com.jobtracker.jobtracker_app.dto.responses.payment.PaymentResponse;
 import com.jobtracker.jobtracker_app.entities.Payment;
 import org.mapstruct.BeanMapping;

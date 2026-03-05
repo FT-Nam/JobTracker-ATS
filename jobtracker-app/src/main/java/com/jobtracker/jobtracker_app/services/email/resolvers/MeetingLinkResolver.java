@@ -1,6 +1,6 @@
 package com.jobtracker.jobtracker_app.services.email.resolvers;
 
-import com.jobtracker.jobtracker_app.dto.requests.EmailContext;
+import com.jobtracker.jobtracker_app.dto.requests.email.EmailContext;
 import com.jobtracker.jobtracker_app.entities.Interview;
 import com.jobtracker.jobtracker_app.repositories.InterviewRepository;
 import com.jobtracker.jobtracker_app.enums.SystemVariable;

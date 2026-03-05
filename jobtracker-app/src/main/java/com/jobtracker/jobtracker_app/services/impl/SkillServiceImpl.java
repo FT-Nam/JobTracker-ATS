@@ -1,7 +1,7 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
-import com.jobtracker.jobtracker_app.dto.requests.SkillRequest;
-import com.jobtracker.jobtracker_app.dto.responses.SkillResponse;
+import com.jobtracker.jobtracker_app.dto.requests.skill.SkillRequest;
+import com.jobtracker.jobtracker_app.dto.responses.skill.SkillResponse;
 import com.jobtracker.jobtracker_app.entities.Skill;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;

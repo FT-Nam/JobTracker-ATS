@@ -2,7 +2,7 @@ package com.jobtracker.jobtracker_app.services.impl;
 
 import com.jobtracker.jobtracker_app.dto.requests.company.CompanyFilterRequest;
 import com.jobtracker.jobtracker_app.dto.requests.company.CompanyUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.responses.CompanyResponse;
+import com.jobtracker.jobtracker_app.dto.responses.company.CompanyResponse;
 import com.jobtracker.jobtracker_app.entities.Company;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;

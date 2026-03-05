@@ -1,7 +1,7 @@
 package com.jobtracker.jobtracker_app.mappers;
 
-import com.jobtracker.jobtracker_app.dto.requests.AuditLogRequest;
-import com.jobtracker.jobtracker_app.dto.responses.AuditLogResponse;
+import com.jobtracker.jobtracker_app.dto.requests.audit.AuditLogRequest;
+import com.jobtracker.jobtracker_app.dto.responses.audit.AuditLogResponse;
 import com.jobtracker.jobtracker_app.entities.AuditLog;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;

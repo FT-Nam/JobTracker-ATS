@@ -1,7 +1,7 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
-import com.jobtracker.jobtracker_app.dto.requests.ApplicationStatusRequest;
-import com.jobtracker.jobtracker_app.dto.responses.ApplicationStatusResponse;
+import com.jobtracker.jobtracker_app.dto.requests.application_status.ApplicationStatusRequest;
+import com.jobtracker.jobtracker_app.dto.responses.application_status.ApplicationStatusResponse;
 import com.jobtracker.jobtracker_app.entities.ApplicationStatus;
 import com.jobtracker.jobtracker_app.entities.User;
 import com.jobtracker.jobtracker_app.exceptions.AppException;

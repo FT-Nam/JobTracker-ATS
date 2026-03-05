@@ -3,7 +3,7 @@ package com.jobtracker.jobtracker_app.controllers;
 import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewCreationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
-import com.jobtracker.jobtracker_app.dto.responses.InterviewResponse;
+import com.jobtracker.jobtracker_app.dto.responses.interview.InterviewResponse;
 import com.jobtracker.jobtracker_app.services.InterviewService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;

@@ -3,7 +3,7 @@ package com.jobtracker.jobtracker_app.services.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobtracker.jobtracker_app.dto.requests.JobSkillWithName;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobSkillWithName;
 import com.jobtracker.jobtracker_app.dto.requests.application.*;
 import com.jobtracker.jobtracker_app.dto.responses.application.*;
 import com.jobtracker.jobtracker_app.entities.*;

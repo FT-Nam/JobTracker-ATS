@@ -1,8 +1,8 @@
 package com.jobtracker.jobtracker_app.services;
 
-import com.jobtracker.jobtracker_app.dto.requests.UserCreationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.UserInviteRequest;
-import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.requests.user.UserCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.user.UserInviteRequest;
+import com.jobtracker.jobtracker_app.dto.requests.user.UserUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

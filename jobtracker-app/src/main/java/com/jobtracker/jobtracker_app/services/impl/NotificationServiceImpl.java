@@ -1,10 +1,10 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobtracker.jobtracker_app.dto.requests.NotificationRequest;
-import com.jobtracker.jobtracker_app.dto.responses.NotificationMarkAllReadResponse;
-import com.jobtracker.jobtracker_app.dto.responses.NotificationMarkReadResponse;
-import com.jobtracker.jobtracker_app.dto.responses.NotificationResponse;
+import com.jobtracker.jobtracker_app.dto.requests.notification.NotificationRequest;
+import com.jobtracker.jobtracker_app.dto.responses.notification.NotificationMarkAllReadResponse;
+import com.jobtracker.jobtracker_app.dto.responses.notification.NotificationMarkReadResponse;
+import com.jobtracker.jobtracker_app.dto.responses.notification.NotificationResponse;
 import com.jobtracker.jobtracker_app.entities.*;
 import com.jobtracker.jobtracker_app.enums.NotificationType;
 import com.jobtracker.jobtracker_app.exceptions.AppException;

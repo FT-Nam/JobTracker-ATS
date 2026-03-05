@@ -1,0 +1,14 @@
+package com.jobtracker.jobtracker_app.dto.requests.auth;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class EmailVerifyRequest {
+    String token;
+}

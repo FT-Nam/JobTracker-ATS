@@ -3,8 +3,7 @@ package com.jobtracker.jobtracker_app.controllers;
 import com.jobtracker.jobtracker_app.dto.requests.subscription.SubscriptionPlanCreationRequest;
 import com.jobtracker.jobtracker_app.dto.requests.subscription.SubscriptionPlanUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
-import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
-import com.jobtracker.jobtracker_app.dto.responses.SubscriptionPlanResponse;
+import com.jobtracker.jobtracker_app.dto.responses.subscription.SubscriptionPlanResponse;
 import com.jobtracker.jobtracker_app.services.SubscriptionPlanService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
@@ -12,8 +11,6 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

@@ -1,8 +1,7 @@
 package com.jobtracker.jobtracker_app.services;
 
-import com.jobtracker.jobtracker_app.dto.requests.ChangePasswordRequest;
-import com.jobtracker.jobtracker_app.dto.requests.UserUpdateProfileRequest;
-import com.jobtracker.jobtracker_app.dto.requests.UserUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.requests.auth.ChangePasswordRequest;
+import com.jobtracker.jobtracker_app.dto.requests.user.UserUpdateProfileRequest;
 import com.jobtracker.jobtracker_app.dto.responses.user.UploadAvatarResponse;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserResponse;
 import org.springframework.web.multipart.MultipartFile;

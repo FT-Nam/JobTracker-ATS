@@ -4,7 +4,7 @@ import com.jobtracker.jobtracker_app.dto.requests.company.CompanyFilterRequest;
 import com.jobtracker.jobtracker_app.dto.requests.company.CompanyUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.requests.company.CompanyVerifyRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
-import com.jobtracker.jobtracker_app.dto.responses.CompanyResponse;
+import com.jobtracker.jobtracker_app.dto.responses.company.CompanyResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.services.CompanyService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;

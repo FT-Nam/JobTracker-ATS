@@ -1,8 +1,8 @@
 package com.jobtracker.jobtracker_app.controllers;
 
-import com.jobtracker.jobtracker_app.dto.requests.CompanySubscriptionRequest;
+import com.jobtracker.jobtracker_app.dto.requests.subscription.CompanySubscriptionRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
-import com.jobtracker.jobtracker_app.dto.responses.CompanySubscriptionResponse;
+import com.jobtracker.jobtracker_app.dto.responses.subscription.CompanySubscriptionResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.services.CompanySubscriptionService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;

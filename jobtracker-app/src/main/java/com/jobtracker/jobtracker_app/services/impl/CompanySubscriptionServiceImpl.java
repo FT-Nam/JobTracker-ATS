@@ -1,7 +1,7 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
-import com.jobtracker.jobtracker_app.dto.requests.CompanySubscriptionRequest;
-import com.jobtracker.jobtracker_app.dto.responses.CompanySubscriptionResponse;
+import com.jobtracker.jobtracker_app.dto.requests.subscription.CompanySubscriptionRequest;
+import com.jobtracker.jobtracker_app.dto.responses.subscription.CompanySubscriptionResponse;
 import com.jobtracker.jobtracker_app.entities.Company;
 import com.jobtracker.jobtracker_app.entities.CompanySubscription;
 import com.jobtracker.jobtracker_app.entities.SubscriptionPlan;

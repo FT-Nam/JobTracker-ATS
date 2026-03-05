@@ -1,6 +1,5 @@
 package com.jobtracker.jobtracker_app.dto.responses.common;
 
-import com.jobtracker.jobtracker_app.dto.responses.TokenInfo;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserInfo;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

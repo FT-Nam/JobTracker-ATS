@@ -1,19 +1,12 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
-import com.jobtracker.jobtracker_app.dto.requests.JobSkillWithName;
-import com.jobtracker.jobtracker_app.dto.responses.SkillResult;
+import com.jobtracker.jobtracker_app.dto.requests.job.JobSkillWithName;
+import com.jobtracker.jobtracker_app.dto.responses.skill.SkillResult;
 import com.jobtracker.jobtracker_app.dto.responses.application.ApplicationScoringResult;
-import com.jobtracker.jobtracker_app.entities.JobSkill;
 import com.jobtracker.jobtracker_app.services.CVScoringService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.io.RandomAccessRead;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;

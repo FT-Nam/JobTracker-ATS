@@ -8,8 +8,10 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.jobtracker.jobtracker_app.dto.requests.*;
-import com.jobtracker.jobtracker_app.dto.responses.*;
+import com.jobtracker.jobtracker_app.dto.requests.auth.*;
+import com.jobtracker.jobtracker_app.dto.responses.auth.*;
+import com.jobtracker.jobtracker_app.dto.responses.company.CompanyRegisterResponse;
+import com.jobtracker.jobtracker_app.dto.responses.company.CompanySelfSignupResponse;
 import com.jobtracker.jobtracker_app.entities.*;
 import com.jobtracker.jobtracker_app.enums.SystemRole;
 import com.jobtracker.jobtracker_app.mappers.UserMapper;
@@ -21,7 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jobtracker.jobtracker_app.dto.responses.common.AuthenticationResponse;
 import com.jobtracker.jobtracker_app.dto.responses.user.UserInfo;
 import com.jobtracker.jobtracker_app.exceptions.AppException;
 import com.jobtracker.jobtracker_app.exceptions.ErrorCode;

@@ -1,7 +1,7 @@
 package com.jobtracker.jobtracker_app.mappers;
 
-import com.jobtracker.jobtracker_app.dto.requests.ApplicationStatusRequest;
-import com.jobtracker.jobtracker_app.dto.responses.ApplicationStatusResponse;
+import com.jobtracker.jobtracker_app.dto.requests.application_status.ApplicationStatusRequest;
+import com.jobtracker.jobtracker_app.dto.responses.application_status.ApplicationStatusResponse;
 import com.jobtracker.jobtracker_app.entities.ApplicationStatus;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;

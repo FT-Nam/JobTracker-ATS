@@ -1,8 +1,8 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
-import com.jobtracker.jobtracker_app.dto.requests.CommentCreationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.CommentUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.responses.CommentResponse;
+import com.jobtracker.jobtracker_app.dto.requests.comment.CommentCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.comment.CommentUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.responses.comment.CommentResponse;
 import com.jobtracker.jobtracker_app.entities.Application;
 import com.jobtracker.jobtracker_app.entities.Comment;
 import com.jobtracker.jobtracker_app.entities.User;

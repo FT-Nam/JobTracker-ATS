@@ -1,7 +1,7 @@
 package com.jobtracker.jobtracker_app.services;
 
-import com.jobtracker.jobtracker_app.dto.requests.UserSessionRequest;
-import com.jobtracker.jobtracker_app.dto.responses.UserSessionResponse;
+import com.jobtracker.jobtracker_app.dto.requests.user_session.UserSessionRequest;
+import com.jobtracker.jobtracker_app.dto.responses.user_session.UserSessionResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

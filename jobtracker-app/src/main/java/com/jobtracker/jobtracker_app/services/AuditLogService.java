@@ -1,7 +1,7 @@
 package com.jobtracker.jobtracker_app.services;
 
-import com.jobtracker.jobtracker_app.dto.requests.AuditLogRequest;
-import com.jobtracker.jobtracker_app.dto.responses.AuditLogResponse;
+import com.jobtracker.jobtracker_app.dto.requests.audit.AuditLogRequest;
+import com.jobtracker.jobtracker_app.dto.responses.audit.AuditLogResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

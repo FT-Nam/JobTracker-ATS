@@ -1,8 +1,8 @@
 package com.jobtracker.jobtracker_app.controllers;
 
-import com.jobtracker.jobtracker_app.dto.requests.ApplicationStatusRequest;
+import com.jobtracker.jobtracker_app.dto.requests.application_status.ApplicationStatusRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
-import com.jobtracker.jobtracker_app.dto.responses.ApplicationStatusResponse;
+import com.jobtracker.jobtracker_app.dto.responses.application_status.ApplicationStatusResponse;
 import com.jobtracker.jobtracker_app.services.ApplicationStatusService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
 import com.jobtracker.jobtracker_app.utils.MessageKeys;
@@ -10,8 +10,6 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

@@ -1,14 +1,13 @@
 package com.jobtracker.jobtracker_app.mappers;
 
-import com.jobtracker.jobtracker_app.dto.requests.RoleCreationRequest;
-import com.jobtracker.jobtracker_app.dto.requests.RolePermissionsRequest;
-import com.jobtracker.jobtracker_app.dto.requests.RoleUpdateRequest;
-import com.jobtracker.jobtracker_app.dto.responses.RolePermissionsResponse;
-import com.jobtracker.jobtracker_app.dto.responses.RolePermissionsUpdateResponse;
+import com.jobtracker.jobtracker_app.dto.requests.role.RoleCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.role.RolePermissionsRequest;
+import com.jobtracker.jobtracker_app.dto.requests.role.RoleUpdateRequest;
+import com.jobtracker.jobtracker_app.dto.responses.role.RolePermissionsResponse;
 import com.jobtracker.jobtracker_app.entities.RolePermission;
 import org.mapstruct.*;
 
-import com.jobtracker.jobtracker_app.dto.responses.RoleResponse;
+import com.jobtracker.jobtracker_app.dto.responses.role.RoleResponse;
 import com.jobtracker.jobtracker_app.entities.Role;
 
 import java.util.List;

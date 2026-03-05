@@ -1,8 +1,8 @@
 package com.jobtracker.jobtracker_app.controllers;
 
-import com.jobtracker.jobtracker_app.dto.requests.AuditLogRequest;
+import com.jobtracker.jobtracker_app.dto.requests.audit.AuditLogRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
-import com.jobtracker.jobtracker_app.dto.responses.AuditLogResponse;
+import com.jobtracker.jobtracker_app.dto.responses.audit.AuditLogResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.services.AuditLogService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;

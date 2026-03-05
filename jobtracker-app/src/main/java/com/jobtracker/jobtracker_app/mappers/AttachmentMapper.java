@@ -1,13 +1,11 @@
 package com.jobtracker.jobtracker_app.mappers;
 
-import com.jobtracker.jobtracker_app.dto.requests.AttachmentRequest;
+import com.jobtracker.jobtracker_app.dto.requests.attachment.AttachmentRequest;
 import com.jobtracker.jobtracker_app.dto.responses.attachment.AttachmentCreationResponse;
 import com.jobtracker.jobtracker_app.dto.responses.attachment.AttachmentResponse;
 import com.jobtracker.jobtracker_app.entities.Attachment;
-import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")

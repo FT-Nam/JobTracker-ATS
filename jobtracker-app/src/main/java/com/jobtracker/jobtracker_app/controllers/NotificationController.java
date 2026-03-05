@@ -1,9 +1,9 @@
 package com.jobtracker.jobtracker_app.controllers;
 
-import com.jobtracker.jobtracker_app.dto.requests.NotificationRequest;
-import com.jobtracker.jobtracker_app.dto.responses.NotificationMarkAllReadResponse;
-import com.jobtracker.jobtracker_app.dto.responses.NotificationMarkReadResponse;
-import com.jobtracker.jobtracker_app.dto.responses.NotificationResponse;
+import com.jobtracker.jobtracker_app.dto.requests.notification.NotificationRequest;
+import com.jobtracker.jobtracker_app.dto.responses.notification.NotificationMarkAllReadResponse;
+import com.jobtracker.jobtracker_app.dto.responses.notification.NotificationMarkReadResponse;
+import com.jobtracker.jobtracker_app.dto.responses.notification.NotificationResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
 import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.entities.User;
