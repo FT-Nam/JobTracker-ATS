@@ -6,12 +6,24 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: "1"
-            sql: SELECT IF((SELECT COUNT(*) FROM users) > 0, 1, 0)
+            sql: SELECT IF((SELECT COUNT(*) FROM roles) > 0, 1, 0)
       changes:
         - sql:
             sql: |
               INSERT IGNORE INTO permissions (id, name, resource, action, description, is_active, created_at, updated_at)
               VALUES
+              (UUID(), 'USER_READ', 'user', 'read', 'Read user', true, NOW(), NOW()),
+              (UUID(), 'USER_CREATE', 'user', 'create', 'Create user', true, NOW(), NOW()),
+              (UUID(), 'USER_UPDATE', 'user', 'update', 'Update user', true, NOW(), NOW()),
+              (UUID(), 'USER_DELETE', 'user', 'delete', 'Delete user', true, NOW(), NOW()),
+              (UUID(), 'PERMISSION_READ', 'permission', 'read', 'Read permission', true, NOW(), NOW()),
+              (UUID(), 'PERMISSION_CREATE', 'permission', 'create', 'Create permission', true, NOW(), NOW()),
+              (UUID(), 'PERMISSION_UPDATE', 'permission', 'update', 'Update permission', true, NOW(), NOW()),
+              (UUID(), 'PERMISSION_DELETE', 'permission', 'delete', 'Delete permission', true, NOW(), NOW()),
+              (UUID(), 'ROLE_READ', 'role', 'read', 'Read role', true, NOW(), NOW()),
+              (UUID(), 'ROLE_CREATE', 'role', 'create', 'Create role', true, NOW(), NOW()),
+              (UUID(), 'ROLE_UPDATE', 'role', 'update', 'Update role', true, NOW(), NOW()),
+              (UUID(), 'ROLE_DELETE', 'role', 'delete', 'Delete role', true, NOW(), NOW()),
               (UUID(), 'JOB_READ', 'job', 'read', 'Read job', true, NOW(), NOW()),
               (UUID(), 'JOB_CREATE', 'job', 'create', 'Create job', true, NOW(), NOW()),
               (UUID(), 'JOB_UPDATE', 'job', 'update', 'Update job', true, NOW(), NOW()),
@@ -63,7 +75,7 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: "1"
-            sql: SELECT IF((SELECT COUNT(*) FROM users) > 0, 1, 0)
+            sql: SELECT IF((SELECT COUNT(*) FROM roles) > 0, 1, 0)
       changes:
         - sql:
             sql: |
@@ -73,6 +85,9 @@ databaseChangeLog:
               CROSS JOIN permissions p
               WHERE r.name = 'SYSTEM_ADMIN'
               AND p.name IN (
+                'USER_READ','USER_CREATE','USER_UPDATE','USER_DELETE',
+                'PERMISSION_READ','PERMISSION_CREATE','PERMISSION_UPDATE','PERMISSION_DELETE',
+                'ROLE_READ','ROLE_CREATE','ROLE_UPDATE','ROLE_DELETE',
                 'JOB_READ','JOB_CREATE','JOB_UPDATE','JOB_DELETE',
                 'APPLICATION_READ','APPLICATION_CREATE','APPLICATION_UPDATE','APPLICATION_DELETE',
                 'INTERVIEW_READ','INTERVIEW_CREATE','INTERVIEW_UPDATE','INTERVIEW_DELETE',
@@ -96,7 +111,7 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: "1"
-            sql: SELECT IF((SELECT COUNT(*) FROM users) > 0, 1, 0)
+            sql: SELECT IF((SELECT COUNT(*) FROM roles) > 0, 1, 0)
       changes:
         - sql:
             sql: |
@@ -106,6 +121,7 @@ databaseChangeLog:
               CROSS JOIN permissions p
               WHERE r.name = 'ADMIN_COMPANY'
               AND p.name IN (
+                'USER_READ','USER_CREATE','USER_UPDATE','USER_DELETE','ROLE_READ',
                 'JOB_READ','JOB_CREATE','JOB_UPDATE','JOB_DELETE',
                 'APPLICATION_READ','APPLICATION_CREATE','APPLICATION_UPDATE','APPLICATION_DELETE',
                 'INTERVIEW_READ','INTERVIEW_CREATE','INTERVIEW_UPDATE','INTERVIEW_DELETE',
@@ -129,7 +145,7 @@ databaseChangeLog:
         - onFail: MARK_RAN
         - sqlCheck:
             expectedResult: "1"
-            sql: SELECT IF((SELECT COUNT(*) FROM users) > 0, 1, 0)
+            sql: SELECT IF((SELECT COUNT(*) FROM roles) > 0, 1, 0)
       changes:
         - sql:
             sql: |
@@ -139,7 +155,7 @@ databaseChangeLog:
               CROSS JOIN permissions p
               WHERE r.name = 'RECRUITER'
               AND p.name IN (
-                'JOB_READ','APPLICATION_READ','APPLICATION_UPDATE',
+                'USER_READ','JOB_READ','APPLICATION_READ','APPLICATION_UPDATE',
                 'INTERVIEW_READ','INTERVIEW_CREATE','INTERVIEW_UPDATE','INTERVIEW_DELETE',
                 'COMMENT_READ','COMMENT_CREATE','COMMENT_UPDATE','COMMENT_DELETE',
                 'ATTACHMENT_READ','ATTACHMENT_CREATE','ATTACHMENT_DELETE',
