@@ -15,6 +15,7 @@ import com.jobtracker.jobtracker_app.utils.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,7 @@ public class InterviewServiceImpl implements InterviewService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('INTERVIEW_CREATE')")
     public InterviewResponse create(InterviewCreationRequest request, String applicationId) {
         Set<InterviewInterviewer> interviewInterviewersSet = new HashSet<>();
 
@@ -98,6 +100,7 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('INTERVIEW_READ')")
     public InterviewResponse getById(String id) {
         User currentUser = securityUtils.getCurrentUser();
         Interview interview = interviewRepository
@@ -119,6 +122,7 @@ public class InterviewServiceImpl implements InterviewService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('INTERVIEW_UPDATE')")
     public InterviewResponse update(String id, InterviewUpdateRequest request) {
 
         User currentUser = securityUtils.getCurrentUser();
@@ -220,6 +224,7 @@ public class InterviewServiceImpl implements InterviewService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('INTERVIEW_DELETE')")
     public void delete(String id) {
         User currentUser = securityUtils.getCurrentUser();
         Interview interview = interviewRepository
@@ -232,6 +237,7 @@ public class InterviewServiceImpl implements InterviewService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('INTERVIEW_UPDATE')")
     public void cancel(String id) {
         User currentUser = securityUtils.getCurrentUser();
         Interview interview = interviewRepository

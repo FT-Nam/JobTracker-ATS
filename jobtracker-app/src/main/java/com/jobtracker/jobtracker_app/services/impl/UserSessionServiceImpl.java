@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ public class UserSessionServiceImpl implements UserSessionService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('USER_CREATE')")
     public UserSessionResponse create(UserSessionRequest request) {
         UserSession userSession = userSessionMapper.toUserSession(request);
         userSession.setUser(userRepository.findById(request.getUserId())
@@ -36,6 +38,7 @@ public class UserSessionServiceImpl implements UserSessionService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('USER_READ')")
     public UserSessionResponse getById(String id) {
         UserSession userSession = userSessionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_SESSION_NOT_EXISTED));
@@ -43,12 +46,14 @@ public class UserSessionServiceImpl implements UserSessionService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('USER_READ')")
     public Page<UserSessionResponse> getAll(Pageable pageable) {
         return userSessionRepository.findAll(pageable).map(userSessionMapper::toUserSessionResponse);
     }
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     public UserSessionResponse update(String id, UserSessionRequest request) {
         UserSession userSession = userSessionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_SESSION_NOT_EXISTED));
@@ -65,6 +70,7 @@ public class UserSessionServiceImpl implements UserSessionService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('USER_DELETE')")
     public void delete(String id) {
         UserSession userSession = userSessionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_SESSION_NOT_EXISTED));

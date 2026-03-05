@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ public class AuditLogServiceImpl implements AuditLogService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('AUDIT_LOG_READ')")
     public AuditLogResponse create(AuditLogRequest request) {
         AuditLog auditLog = auditLogMapper.toAuditLog(request);
         
@@ -40,6 +42,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('AUDIT_LOG_READ')")
     public AuditLogResponse getById(String id) {
         AuditLog auditLog = auditLogRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.AUDIT_LOG_NOT_EXISTED));
@@ -47,12 +50,14 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('AUDIT_LOG_READ')")
     public Page<AuditLogResponse> getAll(Pageable pageable) {
         return auditLogRepository.findAll(pageable).map(auditLogMapper::toAuditLogResponse);
     }
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('AUDIT_LOG_READ')")
     public AuditLogResponse update(String id, AuditLogRequest request) {
         AuditLog auditLog = auditLogRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.AUDIT_LOG_NOT_EXISTED));
@@ -69,6 +74,7 @@ public class AuditLogServiceImpl implements AuditLogService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('AUDIT_LOG_READ')")
     public void delete(String id) {
         AuditLog auditLog = auditLogRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.AUDIT_LOG_NOT_EXISTED));

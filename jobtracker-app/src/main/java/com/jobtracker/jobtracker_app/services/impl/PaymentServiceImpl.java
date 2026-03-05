@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +51,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('PAYMENT_CREATE')")
     public InitPaymentResponse create(PaymentRequest request, HttpServletRequest httpServletRequest)  throws UnsupportedEncodingException {
         Company company = companyRepository.findById(request.getCompanyId())
                 .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
@@ -207,6 +208,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('PAYMENT_READ')")
     public PaymentResponse getById(String id) {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_EXISTED));
@@ -214,18 +216,21 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('PAYMENT_READ')")
     public Page<PaymentResponse> getAll(Pageable pageable) {
         return paymentRepository.findAll(pageable)
                 .map(paymentMapper::toPaymentResponse);
     }
 
     @Override
+    @PreAuthorize("hasAuthority('PAYMENT_READ')")
     public Page<PaymentResponse> getByCompany(String companyId, Pageable pageable) {
         return paymentRepository.findByCompany_Id(companyId, pageable)
                 .map(paymentMapper::toPaymentResponse);
     }
 
     @Override
+    @PreAuthorize("hasAuthority('PAYMENT_READ')")
     public Page<PaymentResponse> getByCompanySubscription(String companySubscriptionId, Pageable pageable) {
         return paymentRepository.findByCompanySubscription_Id(companySubscriptionId, pageable)
                 .map(paymentMapper::toPaymentResponse);

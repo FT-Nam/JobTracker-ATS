@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('ATTACHMENT_CREATE')")
     public AttachmentCreationResponse uploadAttachment(String applicationId,
                                                        AttachmentUploadRequest request) throws IOException {
         pdfFileValidator.validate(request.getFile());
@@ -141,6 +143,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('ATTACHMENT_READ')")
     public URI downloadAttachment(String id) {
 
         String userId = SecurityContextHolder.getContext()
@@ -170,6 +173,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
 
     @Override
+    @PreAuthorize("hasAuthority('ATTACHMENT_READ')")
     public Page<AttachmentResponse> getApplicationAttachments(String applicationId, Pageable pageable) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -188,6 +192,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('ATTACHMENT_DELETE')")
     public void delete(String id) throws IOException {
         if(!attachmentRepository.existsById(id)){
             throw new AppException(ErrorCode.ATTACHMENT_NOT_EXISTED);

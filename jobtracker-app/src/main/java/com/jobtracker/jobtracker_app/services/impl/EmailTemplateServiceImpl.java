@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +49,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('EMAIL_TEMPLATE_CREATE')")
     public EmailTemplateResponse create(EmailTemplateCreationRequest request) {
         User currentUser = securityUtils.getCurrentUser();
         String companyId = currentUser.getCompany().getId();
@@ -73,12 +75,14 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('EMAIL_TEMPLATE_READ')")
     public EmailTemplateDetailResponse getById(String id) {
         EmailTemplate template = getTemplateForCurrentCompanyOrThrow(id);
         return emailTemplateMapper.toDetailResponse(template, objectMapper);
     }
 
     @Override
+    @PreAuthorize("hasAuthority('EMAIL_TEMPLATE_READ')")
     public Page<EmailTemplateResponse> getAll(String code, String name, Boolean isActive, Pageable pageable) {
         User currentUser = securityUtils.getCurrentUser();
         String companyId = currentUser.getCompany().getId();
@@ -89,6 +93,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('EMAIL_TEMPLATE_UPDATE')")
     public EmailTemplateResponse update(String id, EmailTemplateUpdateRequest request) {
         EmailTemplate template = getTemplateForCurrentCompanyOrThrow(id);
         if (template.isGlobal()) {
@@ -119,6 +124,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('EMAIL_TEMPLATE_READ')")
     public EmailTemplatePreviewResponse preview(String id, EmailTemplatePreviewRequest request) {
         EmailTemplate template = getTemplateForCurrentCompanyOrThrow(id);
         Map<String, Object> variables = resolveVariables(template, request);
@@ -132,6 +138,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('EMAIL_TEMPLATE_UPDATE')")
     public void sendTest(String id, EmailTemplateSendTestRequest request) {
         EmailTemplate template = getTemplateForCurrentCompanyOrThrow(id);
         User currentUser = securityUtils.getCurrentUser();

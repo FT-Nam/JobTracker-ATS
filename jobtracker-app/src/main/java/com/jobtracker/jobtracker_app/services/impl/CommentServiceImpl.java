@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ public class CommentServiceImpl implements CommentService {
     SecurityUtils securityUtils;
 
     @Override
+    @PreAuthorize("hasAuthority('COMMENT_READ')")
     public Page<CommentResponse> getComments(String applicationId, Boolean isInternal, Pageable pageable) {
         User currentUser = securityUtils.getCurrentUser();
 
@@ -46,6 +48,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('COMMENT_CREATE')")
     public CommentResponse create(String applicationId, CommentCreationRequest request) {
         User currentUser = securityUtils.getCurrentUser();
 
@@ -63,6 +66,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('COMMENT_UPDATE')")
     public CommentResponse update(String applicationId, String commentId, CommentUpdateRequest request) {
         User currentUser = securityUtils.getCurrentUser();
         Application application = applicationRepository
@@ -87,6 +91,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('COMMENT_DELETE')")
     public void delete(String applicationId, String commentId) {
         User currentUser = securityUtils.getCurrentUser();
 

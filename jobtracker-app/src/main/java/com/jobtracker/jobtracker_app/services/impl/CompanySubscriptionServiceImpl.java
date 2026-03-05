@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,7 @@ public class CompanySubscriptionServiceImpl implements CompanySubscriptionServic
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('SUBSCRIPTION_CREATE')")
     public CompanySubscriptionResponse create(CompanySubscriptionRequest request) {
         Company company = companyRepository.findById(request.getCompanyId())
                 .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
@@ -61,6 +63,7 @@ public class CompanySubscriptionServiceImpl implements CompanySubscriptionServic
     }
 
     @Override
+    @PreAuthorize("hasAuthority('SUBSCRIPTION_READ')")
     public CompanySubscriptionResponse getById(String id) {
         CompanySubscription subscription = companySubscriptionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COMPANY_SUBSCRIPTION_NOT_EXISTED));
@@ -68,18 +71,21 @@ public class CompanySubscriptionServiceImpl implements CompanySubscriptionServic
     }
 
     @Override
+    @PreAuthorize("hasAuthority('SUBSCRIPTION_READ')")
     public Page<CompanySubscriptionResponse> getAll(Pageable pageable) {
         return companySubscriptionRepository.findAll(pageable)
                 .map(companySubscriptionMapper::toCompanySubscriptionResponse);
     }
 
     @Override
+    @PreAuthorize("hasAuthority('SUBSCRIPTION_READ')")
     public Page<CompanySubscriptionResponse> getByCompany(String companyId, Pageable pageable) {
         return companySubscriptionRepository.findByCompany_Id(companyId, pageable)
                 .map(companySubscriptionMapper::toCompanySubscriptionResponse);
     }
 
     @Override
+    @PreAuthorize("hasAuthority('SUBSCRIPTION_READ')")
     public CompanySubscriptionResponse getActiveByCompany(String companyId) {
         CompanySubscription subscription = companySubscriptionRepository
                 .findLatestSubscription(companyId, SubscriptionStatus.ACTIVE)

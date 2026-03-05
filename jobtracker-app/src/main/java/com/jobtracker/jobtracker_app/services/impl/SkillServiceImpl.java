@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,12 +27,14 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('SKILL_CREATE')")
     public SkillResponse create(SkillRequest request) {
         Skill skill = skillMapper.toSkill(request);
         return skillMapper.toSkillResponse(skillRepository.save(skill));
     }
 
     @Override
+    @PreAuthorize("hasAuthority('SKILL_READ')")
     public SkillResponse getById(String id) {
         Skill skill = skillRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));
@@ -39,12 +42,14 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('SKILL_READ')")
     public Page<SkillResponse> getAll(Pageable pageable) {
         return skillRepository.findAllByDeletedAtIsNull(pageable).map(skillMapper::toSkillResponse);
     }
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('SKILL_UPDATE')")
     public SkillResponse update(String id, SkillRequest request) {
         Skill skill = skillRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));
@@ -56,6 +61,7 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('SKILL_DELETE')")
     public void delete(String id) {
         Skill skill = skillRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));

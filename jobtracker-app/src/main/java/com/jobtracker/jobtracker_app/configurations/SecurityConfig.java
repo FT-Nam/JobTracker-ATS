@@ -38,7 +38,11 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    private final String[] PUBLIC_ENDPOINT = {"/auth/**"};
+    private final String[] PUBLIC_ENDPOINT = {
+            "/auth/**",
+            "/public/**",
+            "/payments/vnpay/return"
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

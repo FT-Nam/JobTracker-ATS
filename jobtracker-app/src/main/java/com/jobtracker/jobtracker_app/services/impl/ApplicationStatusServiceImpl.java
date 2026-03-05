@@ -13,6 +13,7 @@ import com.jobtracker.jobtracker_app.utils.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ public class ApplicationStatusServiceImpl implements ApplicationStatusService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('APPLICATION_STATUS_CREATE')")
     public ApplicationStatusResponse create(ApplicationStatusRequest request) {
         User currentUser = securityUtils.getCurrentUser();
 
@@ -56,6 +58,7 @@ public class ApplicationStatusServiceImpl implements ApplicationStatusService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('APPLICATION_STATUS_READ')")
     public List<ApplicationStatusResponse> getAll() {
         User currentUser = securityUtils.getCurrentUser();
 
@@ -68,6 +71,7 @@ public class ApplicationStatusServiceImpl implements ApplicationStatusService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('APPLICATION_STATUS_UPDATE')")
     public ApplicationStatusResponse update(String id, ApplicationStatusRequest request) {
         User currentUser = securityUtils.getCurrentUser();
 
@@ -90,6 +94,7 @@ public class ApplicationStatusServiceImpl implements ApplicationStatusService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('APPLICATION_STATUS_DELETE')")
     public void delete(String id) {
         User currentUser = securityUtils.getCurrentUser();
 

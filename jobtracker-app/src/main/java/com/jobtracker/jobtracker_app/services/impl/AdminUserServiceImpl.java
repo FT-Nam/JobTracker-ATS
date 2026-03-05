@@ -24,6 +24,7 @@ import com.jobtracker.jobtracker_app.utils.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -49,6 +50,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     EmailService emailService;
     PlanLimitService planLimitService;
 
+    @NonFinal
     @Value("${auth.invite-token-expiry-days:7}")
     int inviteTokenExpiryDays;
 

@@ -12,7 +12,7 @@
 	<artifactId>jobtracker-app</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>jobtracker-app</name>
-	<description>Demo project for Spring Boot</description>
+	<description>JobTracker ATS – SME Applicant Tracking System</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -133,13 +133,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mustache</artifactId>
-			<version>4.1.0-M2</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
-			<version>4.2.1</version>
+			<version>4.3.1</version>
+			<scope>compile</scope>
 		</dependency>
 
 	</dependencies>

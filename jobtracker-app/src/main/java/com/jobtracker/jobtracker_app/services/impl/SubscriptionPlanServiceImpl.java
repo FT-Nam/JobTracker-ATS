@@ -12,6 +12,7 @@ import com.jobtracker.jobtracker_app.services.SubscriptionPlanService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('SUBSCRIPTION_CREATE')")
     public SubscriptionPlanResponse create(SubscriptionPlanCreationRequest request) {
         subscriptionPlanRepository.findByCodeIgnoreCase(request.getCode())
                 .ifPresent(existing -> {
@@ -46,6 +48,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('SUBSCRIPTION_READ')")
     public List<SubscriptionPlanResponse> getAll() {
         return subscriptionPlanRepository.findAll().stream()
                 .map(subscriptionPlanMapper::toSubscriptionPlanResponse).toList();
@@ -53,6 +56,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('SUBSCRIPTION_CREATE')")
     public SubscriptionPlanResponse update(String id, SubscriptionPlanUpdateRequest request) {
         SubscriptionPlan plan = subscriptionPlanRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.SUBSCRIPTION_PLAN_NOT_EXISTED));
@@ -64,6 +68,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('SUBSCRIPTION_CREATE')")
     public void delete(String id) {
         SubscriptionPlan plan = subscriptionPlanRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.SUBSCRIPTION_PLAN_NOT_EXISTED));

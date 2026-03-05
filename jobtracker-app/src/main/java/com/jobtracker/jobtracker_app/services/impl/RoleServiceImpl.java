@@ -100,6 +100,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('ROLE_UPDATE')")
     public void addPermissionToRole(String roleId, RolePermissionRequest request) {
         Role role = roleRepository.findById(roleId)
                 .filter(r -> Boolean.TRUE.equals(r.getIsActive()) && !r.isDeleted())
@@ -129,6 +130,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('ROLE_READ')")
     public Page<RolePermissionsResponse> getRolePermissions(String roleId, Pageable pageable) {
         Role role = roleRepository.findById(roleId)
                 .filter(Role::getIsActive)
@@ -140,6 +142,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('ROLE_UPDATE')")
     public RolePermissionsUpdateResponse updateRolePermissions(String roleId, RolePermissionsRequest request) {
         Role role = roleRepository.findById(roleId)
                 .filter(r -> Boolean.TRUE.equals(r.getIsActive()) && !r.isDeleted())

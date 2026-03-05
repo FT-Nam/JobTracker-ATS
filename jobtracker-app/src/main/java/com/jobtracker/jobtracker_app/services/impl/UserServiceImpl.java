@@ -76,6 +76,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     public UploadAvatarResponse uploadAvatar(MultipartFile file) throws IOException {
         imageFileValidator.validate(file);
 
@@ -116,9 +117,5 @@ public class UserServiceImpl implements UserService {
         return UploadAvatarResponse.builder()
                 .avatarUrl(newUrl)
                 .build();
-    }
-
-    private String getAuthenticationId() {
-        return securityUtils.getCurrentUser().getId();
     }
 }

@@ -54,11 +54,6 @@ public interface EmailTemplateMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "company", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "variables", ignore = true)
     EmailTemplate toEntity(EmailTemplateCreationRequest request);
 
@@ -67,11 +62,6 @@ public interface EmailTemplateMapper {
     @Mapping(target = "company", ignore = true)
     @Mapping(target = "code", ignore = true)
     @Mapping(target = "name", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "variables", ignore = true)
     void updateEntity(@MappingTarget EmailTemplate template, EmailTemplateUpdateRequest request);
 }

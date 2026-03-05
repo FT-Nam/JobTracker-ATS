@@ -27,6 +27,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -233,6 +234,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('APPLICATION_UPDATE')")
     public AssignApplicationResponse AssignApplication(String id, AssignApplicationRequest request) {
         User user = userRepository.findById(request.getAssignedTo())
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -252,6 +254,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('APPLICATION_READ')")
     public Page<ApplicationResponse> getApplications(ApplicationFilterRequest filter, Pageable pageable) {
         User currentUser = securityUtils.getCurrentUser();
         Page<Application> applications = applicationRepository.searchApplications(
@@ -267,6 +270,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('APPLICATION_READ')")
     public ApplicationResponse getApplicationById(String id) {
         User currentUser = securityUtils.getCurrentUser();
         Application application = applicationRepository
@@ -277,6 +281,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('APPLICATION_CREATE')")
     public ApplicationResponse createApplication(ApplicationCreateRequest request) {
         Job job = jobRepository.findByIdAndDeletedAtIsNull(request.getJobId())
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
@@ -305,6 +310,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('APPLICATION_UPDATE')")
     public UpdateApplicationStatusResponse updateStatus(String id,
                                                         ApplicationStatusUpdateRequest request) {
 
@@ -379,6 +385,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('APPLICATION_UPDATE')")
     public ApplicationResponse updateApplication(String id, ApplicationUpdateRequest request) {
         User currentUser = securityUtils.getCurrentUser();
         Application application = applicationRepository
@@ -392,6 +399,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('APPLICATION_DELETE')")
     public void deleteApplication(String id) {
         User currentUser = securityUtils.getCurrentUser();
         Application application = applicationRepository
@@ -403,6 +411,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('APPLICATION_READ')")
     public List<ApplicationStatusHistoryResponse> ApplicationStatusHistory(String id) {
         User currentUser = securityUtils.getCurrentUser();
         Application application = applicationRepository

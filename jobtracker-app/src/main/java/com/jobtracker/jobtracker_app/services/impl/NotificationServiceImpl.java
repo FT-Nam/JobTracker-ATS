@@ -1,5 +1,6 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobtracker.jobtracker_app.dto.requests.NotificationRequest;
 import com.jobtracker.jobtracker_app.dto.responses.NotificationMarkAllReadResponse;
 import com.jobtracker.jobtracker_app.dto.responses.NotificationMarkReadResponse;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,9 +34,11 @@ public class NotificationServiceImpl implements NotificationService {
     JobRepository jobRepository;
     ApplicationRepository applicationRepository;
     SecurityUtils securityUtils;
+    ObjectMapper objectMapper;
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('NOTIFICATION_READ')")
     public NotificationResponse create(NotificationRequest request) {
         User user = userRepository
                 .findByIdAndCompany_IdAndDeletedAtIsNull(request.getUserId(), request.getCompanyId())
@@ -63,17 +67,19 @@ public class NotificationServiceImpl implements NotificationService {
             notification.setApplication(application);
         }
         
-        return notificationMapper.toNotificationResponse(notificationRepository.save(notification));
+        return notificationMapper.toNotificationResponse(notificationRepository.save(notification), objectMapper);
     }
 
     @Override
+    @PreAuthorize("hasAuthority('NOTIFICATION_READ')")
     public NotificationResponse getById(String id) {
         Notification notification = getNotificationForCurrentCompanyUserOrThrow(id);
 
-        return notificationMapper.toNotificationResponse(notification);
+        return notificationMapper.toNotificationResponse(notification, objectMapper);
     }
 
     @Override
+    @PreAuthorize("hasAuthority('NOTIFICATION_READ')")
     public Page<NotificationResponse> getAll(String userId,
                                              String companyId,
                                              Boolean isRead,
@@ -82,11 +88,12 @@ public class NotificationServiceImpl implements NotificationService {
                                              Pageable pageable) {
         return notificationRepository
                 .searchNotification(userId, companyId, isRead, type, applicationId, pageable)
-                .map(notificationMapper::toNotificationResponse);
+                .map(noti -> notificationMapper.toNotificationResponse(noti, objectMapper));
     }
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('NOTIFICATION_DELETE')")
     public void delete(String id) {
         Notification notification = getNotificationForCurrentCompanyUserOrThrow(id);
 
@@ -95,6 +102,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('NOTIFICATION_UPDATE')")
     public NotificationMarkReadResponse markNotification(String id) {
         Notification notification = getNotificationForCurrentCompanyUserOrThrow(id);
 
@@ -109,6 +117,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('NOTIFICATION_UPDATE')")
     public NotificationMarkAllReadResponse markAllNotification() {
         User user = securityUtils.getCurrentUser();
         int updateCount  = notificationRepository

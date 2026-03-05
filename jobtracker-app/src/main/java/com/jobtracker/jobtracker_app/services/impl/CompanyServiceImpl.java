@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class CompanyServiceImpl implements CompanyService {
     CompanyMapper companyMapper;
 
     @Override
+    @PreAuthorize("hasAuthority('COMPANY_READ')")
     public CompanyResponse getById(String id) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
@@ -33,6 +35,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('COMPANY_READ')")
     public Page<CompanyResponse> getAll(CompanyFilterRequest request, Pageable pageable) {
         return companyRepository.searchCompanies(
                 request.getIndustry(),
@@ -43,6 +46,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('COMPANY_UPDATE')")
     public CompanyResponse update(String id, CompanyUpdateRequest request) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
@@ -52,6 +56,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('COMPANY_VERIFY')")
     public CompanyResponse setVerified(String id, boolean isVerified) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));
@@ -61,6 +66,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('COMPANY_UPDATE')")
     public void delete(String id) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COMPANY_NOT_EXISTED));

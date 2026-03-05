@@ -17,8 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +41,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('JOB_CREATE')")
     public JobSummaryResponse create(JobCreationRequest request) {
         User currentUser = securityUtils.getCurrentUser();
         planLimitService.enforceJobLimit(currentUser.getCompany().getId());
@@ -52,12 +52,14 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('JOB_READ')")
     public JobResponse getById(String id) {
         Job job = getJobForCurrentCompanyOrThrow(id);
         return jobMapper.toJobResponse(job);
     }
 
     @Override
+    @PreAuthorize("hasAuthority('JOB_READ')")
     public Page<JobSummaryResponse> getAllJobByCompany(JobFilterRequest request, Pageable pageable) {
         User user = securityUtils.getCurrentUser();
         String companyId = user.getCompany().getId();
@@ -70,6 +72,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('JOB_UPDATE')")
     public JobUpdateResponse update(String id, JobUpdateRequest request) {
         Job job = getJobForCurrentCompanyOrThrow(id);
         jobMapper.updateJob(job, request);
@@ -79,6 +82,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('JOB_UPDATE')")
     public JobUpdateStatusResponse updateStatus(String id, JobUpdateStatusRequest request) {
         Job job = getJobForCurrentCompanyOrThrow(id);
 
@@ -104,6 +108,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('JOB_DELETE')")
     public void delete(String id) {
         Job job = getJobForCurrentCompanyOrThrow(id);
         job.softDelete();
@@ -111,6 +116,7 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('JOB_READ')")
     public List<JobSkillResponse> getJobSkills(String jobId) {
         getJobForCurrentCompanyOrThrow(jobId);
         return jobSkillRepository.findByJobIdWithSkill(jobId)
@@ -119,6 +125,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('JOB_UPDATE')")
     public JobSkillCreationResponse addSkillToJob(JobSkillCreationRequest request, String jobId) {
         Skill skill = skillRepository.findByIdAndDeletedAtIsNull(request.getSkillId())
                 .filter(Skill::getIsActive)
@@ -139,6 +146,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('JOB_UPDATE')")
     public JobSkillResponse updateJobSkill(String jobId, String skillId, JobSkillUpdateRequest request) {
         Skill skill = skillRepository.findByIdAndDeletedAtIsNull(skillId)
                 .filter(Skill::getIsActive)
@@ -164,6 +172,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAuthority('JOB_UPDATE')")
     public void deleteJobSkill(String jobId, String skillId) {
         Skill skill = skillRepository.findByIdAndDeletedAtIsNull(skillId)
                 .filter(Skill::getIsActive)

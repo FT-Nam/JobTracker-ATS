@@ -113,7 +113,50 @@ public class DataInitializer implements CommandLineRunner {
                 createPermission("ROLE_CREATE", "role", "create", "Create role", adminEmail),
                 createPermission("ROLE_READ", "role", "read", "Read role", adminEmail),
                 createPermission("ROLE_UPDATE", "role", "update", "Update role", adminEmail),
-                createPermission("ROLE_DELETE", "role", "delete", "Delete role", adminEmail));
+                createPermission("ROLE_DELETE", "role", "delete", "Delete role", adminEmail),
+                createPermission("JOB_READ", "job", "read", "Read job", adminEmail),
+                createPermission("JOB_CREATE", "job", "create", "Create job", adminEmail),
+                createPermission("JOB_UPDATE", "job", "update", "Update job", adminEmail),
+                createPermission("JOB_DELETE", "job", "delete", "Delete job", adminEmail),
+                createPermission("APPLICATION_READ", "application", "read", "Read application", adminEmail),
+                createPermission("APPLICATION_CREATE", "application", "create", "Create application", adminEmail),
+                createPermission("APPLICATION_UPDATE", "application", "update", "Update application", adminEmail),
+                createPermission("APPLICATION_DELETE", "application", "delete", "Delete application", adminEmail),
+                createPermission("INTERVIEW_READ", "interview", "read", "Read interview", adminEmail),
+                createPermission("INTERVIEW_CREATE", "interview", "create", "Create interview", adminEmail),
+                createPermission("INTERVIEW_UPDATE", "interview", "update", "Update interview", adminEmail),
+                createPermission("INTERVIEW_DELETE", "interview", "delete", "Delete interview", adminEmail),
+                createPermission("COMMENT_READ", "comment", "read", "Read comment", adminEmail),
+                createPermission("COMMENT_CREATE", "comment", "create", "Create comment", adminEmail),
+                createPermission("COMMENT_UPDATE", "comment", "update", "Update comment", adminEmail),
+                createPermission("COMMENT_DELETE", "comment", "delete", "Delete comment", adminEmail),
+                createPermission("ATTACHMENT_READ", "attachment", "read", "Read attachment", adminEmail),
+                createPermission("ATTACHMENT_CREATE", "attachment", "create", "Create attachment", adminEmail),
+                createPermission("ATTACHMENT_DELETE", "attachment", "delete", "Delete attachment", adminEmail),
+                createPermission("SKILL_READ", "skill", "read", "Read skill", adminEmail),
+                createPermission("SKILL_CREATE", "skill", "create", "Create skill", adminEmail),
+                createPermission("SKILL_UPDATE", "skill", "update", "Update skill", adminEmail),
+                createPermission("SKILL_DELETE", "skill", "delete", "Delete skill", adminEmail),
+                createPermission("COMPANY_READ", "company", "read", "Read company", adminEmail),
+                createPermission("COMPANY_UPDATE", "company", "update", "Update company", adminEmail),
+                createPermission("COMPANY_VERIFY", "company", "verify", "Verify company", adminEmail),
+                createPermission("SUBSCRIPTION_READ", "subscription", "read", "Read subscription", adminEmail),
+                createPermission("SUBSCRIPTION_CREATE", "subscription", "create", "Create subscription", adminEmail),
+                createPermission("PAYMENT_READ", "payment", "read", "Read payment", adminEmail),
+                createPermission("PAYMENT_CREATE", "payment", "create", "Create payment", adminEmail),
+                createPermission("APPLICATION_STATUS_READ", "application_status", "read", "Read application status", adminEmail),
+                createPermission("APPLICATION_STATUS_CREATE", "application_status", "create", "Create application status", adminEmail),
+                createPermission("APPLICATION_STATUS_UPDATE", "application_status", "update", "Update application status", adminEmail),
+                createPermission("APPLICATION_STATUS_DELETE", "application_status", "delete", "Delete application status", adminEmail),
+                createPermission("EMAIL_TEMPLATE_READ", "email_template", "read", "Read email template", adminEmail),
+                createPermission("EMAIL_TEMPLATE_CREATE", "email_template", "create", "Create email template", adminEmail),
+                createPermission("EMAIL_TEMPLATE_UPDATE", "email_template", "update", "Update email template", adminEmail),
+                createPermission("EMAIL_TEMPLATE_DELETE", "email_template", "delete", "Delete email template", adminEmail),
+                createPermission("EMAIL_HISTORY_READ", "email_history", "read", "Read email history", adminEmail),
+                createPermission("NOTIFICATION_READ", "notification", "read", "Read notification", adminEmail),
+                createPermission("NOTIFICATION_UPDATE", "notification", "update", "Update notification", adminEmail),
+                createPermission("NOTIFICATION_DELETE", "notification", "delete", "Delete notification", adminEmail),
+                createPermission("AUDIT_LOG_READ", "audit_log", "read", "Read audit log", adminEmail));
 
         permissionRepository.saveAll(permissions);
 
@@ -126,16 +169,35 @@ public class DataInitializer implements CommandLineRunner {
                 .toList();
         rolePermissionRepository.saveAll(systemAdminPermissions);
 
-        // ADMIN_COMPANY: company-level permissions (user crud, role read)
+        // ADMIN_COMPANY: company-level permissions
+        List<String> adminCompanyPermNames = List.of(
+                "USER_READ", "USER_CREATE", "USER_UPDATE", "USER_DELETE", "ROLE_READ",
+                "JOB_READ", "JOB_CREATE", "JOB_UPDATE", "JOB_DELETE",
+                "APPLICATION_READ", "APPLICATION_CREATE", "APPLICATION_UPDATE", "APPLICATION_DELETE",
+                "INTERVIEW_READ", "INTERVIEW_CREATE", "INTERVIEW_UPDATE", "INTERVIEW_DELETE",
+                "COMMENT_READ", "COMMENT_CREATE", "COMMENT_UPDATE", "COMMENT_DELETE",
+                "ATTACHMENT_READ", "ATTACHMENT_CREATE", "ATTACHMENT_DELETE",
+                "SKILL_READ", "SKILL_CREATE", "SKILL_UPDATE", "SKILL_DELETE",
+                "COMPANY_READ", "COMPANY_UPDATE",
+                "SUBSCRIPTION_READ", "SUBSCRIPTION_CREATE", "PAYMENT_READ", "PAYMENT_CREATE",
+                "APPLICATION_STATUS_READ", "APPLICATION_STATUS_CREATE", "APPLICATION_STATUS_UPDATE", "APPLICATION_STATUS_DELETE",
+                "EMAIL_TEMPLATE_READ", "EMAIL_TEMPLATE_CREATE", "EMAIL_TEMPLATE_UPDATE", "EMAIL_TEMPLATE_DELETE",
+                "EMAIL_HISTORY_READ", "NOTIFICATION_READ", "NOTIFICATION_UPDATE", "NOTIFICATION_DELETE", "AUDIT_LOG_READ");
         List<RolePermission> adminCompanyPermissions = permissions.stream()
-                .filter(p -> List.of("USER_READ", "USER_CREATE", "USER_UPDATE", "USER_DELETE", "ROLE_READ").contains(p.getName()))
+                .filter(p -> adminCompanyPermNames.contains(p.getName()))
                 .map(p -> RolePermission.builder().role(adminCompanyRole).permission(p).build())
                 .toList();
         rolePermissionRepository.saveAll(adminCompanyPermissions);
 
-        // RECRUITER: basic recruiter permissions
+        // RECRUITER: recruiter permissions
+        List<String> recruiterPermNames = List.of(
+                "USER_READ", "JOB_READ", "APPLICATION_READ", "APPLICATION_UPDATE",
+                "INTERVIEW_READ", "INTERVIEW_CREATE", "INTERVIEW_UPDATE", "INTERVIEW_DELETE",
+                "COMMENT_READ", "COMMENT_CREATE", "COMMENT_UPDATE", "COMMENT_DELETE",
+                "ATTACHMENT_READ", "ATTACHMENT_CREATE", "ATTACHMENT_DELETE",
+                "SKILL_READ", "NOTIFICATION_READ", "NOTIFICATION_UPDATE", "NOTIFICATION_DELETE");
         List<RolePermission> recruiterPermissions = permissions.stream()
-                .filter(p -> "USER_READ".equals(p.getName()))
+                .filter(p -> recruiterPermNames.contains(p.getName()))
                 .map(p -> RolePermission.builder().role(recruiterRole).permission(p).build())
                 .toList();
         rolePermissionRepository.saveAll(recruiterPermissions);
