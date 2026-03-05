@@ -38,4 +38,6 @@ public interface JobRepository extends JpaRepository<Job, String> {
     Optional<Job> findByIdAndDeletedAtIsNull(String id);
 
     Optional<Job> findByIdAndCompany_IdAndDeletedAtIsNull(String id, String companyId);
+
+    long countByCompany_IdAndDeletedAtIsNull(String companyId);
 }

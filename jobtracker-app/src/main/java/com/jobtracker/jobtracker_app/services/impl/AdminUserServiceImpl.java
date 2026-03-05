@@ -14,6 +14,7 @@ import com.jobtracker.jobtracker_app.exceptions.ErrorCode;
 import com.jobtracker.jobtracker_app.mappers.UserMapper;
 import com.jobtracker.jobtracker_app.repositories.CompanyRepository;
 import com.jobtracker.jobtracker_app.repositories.RoleRepository;
+import com.jobtracker.jobtracker_app.services.PlanLimitService;
 import com.jobtracker.jobtracker_app.repositories.UserInvitationRepository;
 import com.jobtracker.jobtracker_app.repositories.UserRepository;
 import com.jobtracker.jobtracker_app.services.AdminUserService;
@@ -46,6 +47,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     PermissionCacheService permissionCacheService;
     SecurityUtils securityUtils;
     EmailService emailService;
+    PlanLimitService planLimitService;
 
     @Value("${auth.invite-token-expiry-days:7}")
     int inviteTokenExpiryDays;
@@ -137,6 +139,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Transactional
     public void inviteUser(UserInviteRequest request) {
         Company company = securityUtils.getCurrentUser().getCompany();
+        planLimitService.enforceUserLimit(company.getId());
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.USER_EXISTED);

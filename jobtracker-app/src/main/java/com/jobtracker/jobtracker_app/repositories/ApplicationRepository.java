@@ -20,6 +20,8 @@ public interface ApplicationRepository extends JpaRepository<Application, String
 
     boolean existsByIdAndCompany_Id(String id, String companyId);
 
+    long countByCompany_IdAndDeletedAtIsNull(String companyId);
+
     Optional<Application> findByApplicationTokenAndDeletedAtIsNull(String applicationToken);
 
     @Query("SELECT a FROM Application a WHERE a.company.id = :companyId AND a.deletedAt IS NULL " +

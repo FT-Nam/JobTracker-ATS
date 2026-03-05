@@ -10,6 +10,7 @@ import com.jobtracker.jobtracker_app.mappers.JobMapper;
 import com.jobtracker.jobtracker_app.mappers.JobSkillMapper;
 import com.jobtracker.jobtracker_app.repositories.*;
 import com.jobtracker.jobtracker_app.services.JobService;
+import com.jobtracker.jobtracker_app.services.PlanLimitService;
 import com.jobtracker.jobtracker_app.utils.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -37,11 +38,13 @@ public class JobServiceImpl implements JobService {
     JobSkillMapper jobSkillMapper;
     SkillRepository skillRepository;
     SecurityUtils securityUtils;
+    PlanLimitService planLimitService;
 
     @Override
     @Transactional
     public JobSummaryResponse create(JobCreationRequest request) {
         User currentUser = securityUtils.getCurrentUser();
+        planLimitService.enforceJobLimit(currentUser.getCompany().getId());
         Job job = jobMapper.toJob(request);
         job.setUser(currentUser);
         job.setCompany(currentUser.getCompany());

@@ -62,6 +62,8 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByCompany_Id(String companyId);
 
+    long countByCompany_IdAndIsBillableTrueAndDeletedAtIsNull(String companyId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
     select u from User u

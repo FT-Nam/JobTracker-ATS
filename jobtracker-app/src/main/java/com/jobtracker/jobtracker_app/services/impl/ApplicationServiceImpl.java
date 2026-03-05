@@ -15,6 +15,7 @@ import com.jobtracker.jobtracker_app.mappers.ApplicationStatusHistoryMapper;
 import com.jobtracker.jobtracker_app.repositories.*;
 import com.jobtracker.jobtracker_app.services.ApplicationService;
 import com.jobtracker.jobtracker_app.services.CVScoringService;
+import com.jobtracker.jobtracker_app.services.PlanLimitService;
 import com.jobtracker.jobtracker_app.services.EmailService;
 import com.jobtracker.jobtracker_app.utils.SecurityUtils;
 import com.jobtracker.jobtracker_app.validator.file.impl.PdfFileValidator;
@@ -56,12 +57,15 @@ public class ApplicationServiceImpl implements ApplicationService {
     ApplicationMapper applicationMapper;
     ApplicationStatusHistoryMapper applicationStatusHistoryMapper;
     EmailService emailService;
+    PlanLimitService planLimitService;
 
     @Override
     @Transactional
     public void ApplyToJob(ApplyToJobRequest request, String jobId) throws IOException {
         Job job = jobRepository.findByIdAndDeletedAtIsNull(jobId)
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
+
+        planLimitService.enforceApplicationLimit(job.getCompany().getId());
 
         ApplicationStatus newStatus =
                 applicationStatusRepository
@@ -276,6 +280,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     public ApplicationResponse createApplication(ApplicationCreateRequest request) {
         Job job = jobRepository.findByIdAndDeletedAtIsNull(request.getJobId())
                 .orElseThrow(() -> new AppException(ErrorCode.JOB_NOT_EXISTED));
+
+        planLimitService.enforceApplicationLimit(job.getCompany().getId());
 
         ApplicationStatus status = applicationStatusRepository.findById(request.getStatusId())
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_STATUS_NOT_EXISTED));

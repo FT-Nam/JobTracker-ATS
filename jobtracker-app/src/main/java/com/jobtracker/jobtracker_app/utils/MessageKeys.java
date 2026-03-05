@@ -290,6 +290,9 @@ public class MessageKeys {
 
     // COMPANY SUBSCRIPTION
     public static final String COMPANY_SUBSCRIPTION_NOT_EXISTED = "company_subscription.not_existed";
+    public static final String PLAN_LIMIT_APPLICATIONS_EXCEEDED = "plan_limit.applications_exceeded";
+    public static final String PLAN_LIMIT_JOBS_EXCEEDED = "plan_limit.jobs_exceeded";
+    public static final String PLAN_LIMIT_USERS_EXCEEDED = "plan_limit.users_exceeded";
     public static final String COMPANY_SUBSCRIPTION_CREATE_SUCCESS = "company_subscription.create_success";
     public static final String COMPANY_SUBSCRIPTION_UPDATE_SUCCESS = "company_subscription.update_success";
     public static final String COMPANY_SUBSCRIPTION_LIST_SUCCESS = "company_subscription.list_success";

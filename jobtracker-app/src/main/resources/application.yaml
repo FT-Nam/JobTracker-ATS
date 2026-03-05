@@ -26,3 +26,8 @@ auth:
   verification-token-expiry-hours: 24
   password-reset-token-expiry-hours: 1
   invite-token-expiry-days: 7
+
+# Scheduler: cron cho PlanLimitScheduler (expire subscriptions). Mặc định: mỗi giờ (0 phút)
+scheduler:
+  plan-limit:
+    cron: "0 0 * * * ?"
