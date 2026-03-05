@@ -65,6 +65,7 @@ Configure in `application.yaml` or environment variables:
 ## Documentation
 
 - [API Documentation](./docs/API.md) – API endpoints
+- [API Security](./docs/API_SECURITY.md) – Public/private endpoints, permissions, roles
 - [Database Schema](./docs/DATABASE.md) – Multi-tenant database design
 - [Architecture Guide](./docs/ARCHITECTURE.md) – System architecture
 - [Business Flows](./docs/BUSINESS_FLOWS.md) – Business logic and flows
