@@ -38,6 +38,14 @@ databaseChangeLog:
                   defaultValueBoolean: true
                   remarks: "Bình luận nội bộ"
               - column:
+                  name: created_by
+                  type: varchar(36)
+                  remarks: "Người tạo"
+              - column:
+                  name: updated_by
+                  type: varchar(36)
+                  remarks: "Người cập nhật"
+              - column:
                   name: created_at
                   type: timestamp
                   defaultValueComputed: CURRENT_TIMESTAMP
@@ -51,4 +59,3 @@ databaseChangeLog:
                   name: deleted_at
                   type: timestamp
                   remarks: "Thời gian xóa (soft delete)"
-

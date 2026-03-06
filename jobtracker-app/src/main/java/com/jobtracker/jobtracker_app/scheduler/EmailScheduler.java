@@ -42,7 +42,7 @@ public class EmailScheduler {
         Pageable pageable = PageRequest.of(0, 50);
 
         List<EmailOutbox> emails =
-                emailOutboxRepository.findPendingEmails(pageable);
+                emailOutboxRepository.findPendingEmails(LocalDateTime.now(), pageable);
 
         for (EmailOutbox email : emails) {
 
@@ -54,9 +54,14 @@ public class EmailScheduler {
                 email.setProviderMessageId(response.getMessageId());
 
             } catch (Exception ex) {
-                email.setStatus(EmailStatus.FAILED);
-                email.setRetryCount(email.getRetryCount() + 1);
-                email.setNextRetryAt(LocalDateTime.now().plusMinutes(5));
+                int retry = email.getRetryCount() + 1;
+
+                if (retry >= email.getMaxRetries()) {
+                    email.setStatus(EmailStatus.FAILED);
+                } else {
+                    email.setRetryCount(retry);
+                    email.setNextRetryAt(LocalDateTime.now().plusMinutes(5));
+                }
             }
         }
     }

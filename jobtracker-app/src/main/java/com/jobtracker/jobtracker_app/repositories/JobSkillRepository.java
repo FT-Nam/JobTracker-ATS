@@ -20,7 +20,7 @@ public interface JobSkillRepository extends JpaRepository<JobSkill, String> {
     List<JobSkill> findByJobIdWithSkill(@Param("jobId") String jobId);
 
     @Query("""
-       SELECT new com.jobtracker.jobtracker_app.dto.requests.JobSkillWithName(
+       SELECT new com.jobtracker.jobtracker_app.dto.requests.job.JobSkillWithName(
            s.id,
            s.name,
            js.isRequired,

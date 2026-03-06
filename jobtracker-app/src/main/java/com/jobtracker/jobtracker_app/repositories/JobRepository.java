@@ -14,10 +14,8 @@ import java.util.Optional;
 public interface JobRepository extends JpaRepository<Job, String> {
     @EntityGraph(attributePaths = {
             "company",
-            "status",
-            "jobType",
-            "priority",
-            "experienceLevel"
+            "jobStatus",
+            "jobType"
     })
     @Query("SELECT j FROM Job j " +
             "WHERE j.company.id = :companyId " +

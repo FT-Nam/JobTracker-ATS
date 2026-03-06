@@ -15,6 +15,8 @@ public interface SkillRepository extends JpaRepository<Skill, String> {
 
 //    @Query("SELECT s FROM Skill s WHERE s.deletedAt IS NULL")
     Page<Skill> findAllByDeletedAtIsNull(Pageable pageable);
+
+    Optional<Skill> findByNameIgnoreCase(String name);
 }
 
 

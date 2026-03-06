@@ -60,7 +60,7 @@ public class AuthController {
                 .from("refreshToken", authResult.getTokenInfo().getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
-                .path("/auth/refresh")
+                .path("/api/v1/auth/refresh")
                 .sameSite("Strict")
                 .maxAge(Duration.ofSeconds(authResult.getTokenInfo().getRefreshMaxAge()))
                 .build();
@@ -90,7 +90,7 @@ public class AuthController {
                 .from("refreshToken", authResult.getTokenInfo().getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
-                .path("/auth/refresh")
+                .path("/api/v1/auth/refresh")
                 .sameSite("Strict")
                 .maxAge(Duration.ofSeconds(authResult.getTokenInfo().getRefreshMaxAge()))
                 .build();
@@ -118,7 +118,7 @@ public class AuthController {
         ResponseCookie clearCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
                 .secure(true)
-                .path("/auth/refresh")
+                .path("/api/v1/auth/refresh")
                 .sameSite("Strict")
                 .maxAge(0)
                 .build();

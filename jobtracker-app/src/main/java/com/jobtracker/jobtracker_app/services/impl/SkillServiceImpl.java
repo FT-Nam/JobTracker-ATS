@@ -29,7 +29,27 @@ public class SkillServiceImpl implements SkillService {
     @Transactional
     @PreAuthorize("hasAuthority('SKILL_CREATE')")
     public SkillResponse create(SkillRequest request) {
+        String rawName = request.getName() != null ? request.getName().trim() : "";
+        if (rawName.isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_INPUT);
+        }
+
+        // Viết hoa chữ cái đầu, phần còn lại giữ nguyên
+        String normalizedName = rawName.substring(0, 1).toUpperCase() + rawName.substring(1);
+
+        // Nếu đã tồn tại skill cùng tên thì trả về skill đó, không tạo mới
+        Skill existing = skillRepository.findByNameIgnoreCase(normalizedName).orElse(null);
+        if (existing != null) {
+            // Nếu skill đang inactive thì bật lại
+            if (Boolean.FALSE.equals(existing.getIsActive())) {
+                existing.setIsActive(true);
+                skillRepository.save(existing);
+            }
+            return skillMapper.toSkillResponse(existing);
+        }
+
         Skill skill = skillMapper.toSkill(request);
+        skill.setName(normalizedName);
         return skillMapper.toSkillResponse(skillRepository.save(skill));
     }
 
@@ -44,7 +64,8 @@ public class SkillServiceImpl implements SkillService {
     @Override
     @PreAuthorize("hasAuthority('SKILL_READ')")
     public Page<SkillResponse> getAll(Pageable pageable) {
-        return skillRepository.findAllByDeletedAtIsNull(pageable).map(skillMapper::toSkillResponse);
+        return skillRepository.findAllByDeletedAtIsNull(pageable)
+                .map(skillMapper::toSkillResponse);
     }
 
     @Override
@@ -55,6 +76,22 @@ public class SkillServiceImpl implements SkillService {
                 .orElseThrow(() -> new AppException(ErrorCode.SKILL_NOT_EXISTED));
 
         skillMapper.updateSkill(skill, request);
+
+        if (skill.getName() != null) {
+            String rawName = skill.getName().trim();
+            if (rawName.isEmpty()) {
+                throw new AppException(ErrorCode.INVALID_INPUT);
+            }
+            String normalizedName = rawName.substring(0, 1).toUpperCase() + rawName.substring(1);
+
+            Skill duplicated = skillRepository.findByNameIgnoreCase(normalizedName).orElse(null);
+            if (duplicated != null && !duplicated.getId().equals(skill.getId())) {
+                // Không cho phép rename thành tên đã tồn tại
+                throw new AppException(ErrorCode.NAME_EXISTED);
+            }
+
+            skill.setName(normalizedName);
+        }
 
         return skillMapper.toSkillResponse(skillRepository.save(skill));
     }

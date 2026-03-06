@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+@Table(name = "skills")
 @Entity
 @Getter
 @Setter

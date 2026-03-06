@@ -23,7 +23,7 @@ import lombok.experimental.FieldDefaults;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("/permission")
+@RequestMapping("admin/permissions")
 public class PermissionController {
     PermissionService permissionService;
     LocalizationUtils localizationUtils;

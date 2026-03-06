@@ -19,7 +19,6 @@ public class JobSkillCreationRequest {
     @NotNull(message = "{userSkill.isRequired.not_null}")
     Boolean isRequired;
 
-    @NotBlank(message = "{userSkill.proficiencyLevel.not_blank}")
     String proficiencyLevel;
 }
 

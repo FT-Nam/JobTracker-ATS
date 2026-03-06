@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(uniqueConstraints = @UniqueConstraint(name = "uk_job_skill", columnNames = {"job_id", "skill_id"}))
+@Table(name = "job_skills", uniqueConstraints = @UniqueConstraint(name = "uk_job_skill", columnNames = {"job_id", "skill_id"}))
 public class JobSkill extends PartialAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

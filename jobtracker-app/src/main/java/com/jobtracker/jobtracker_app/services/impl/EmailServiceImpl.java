@@ -18,6 +18,8 @@ import com.jobtracker.jobtracker_app.utils.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -30,6 +32,14 @@ public class EmailServiceImpl implements EmailService {
     EmailOutboxService emailOutboxService;
     SecurityUtils securityUtils;
 
+    @Value("${brevo.email-system}")
+    @NonFinal
+    String systemEmail;
+
+    @Value("${brevo.email-system-name}")
+    @NonFinal
+    String systemName;
+
      // auto: candidate_name, job_title, company_name, application_link
     @Override
     public void sendApplicationConfirmation(Application application) {
@@ -37,7 +47,6 @@ public class EmailServiceImpl implements EmailService {
                 .applicationId(application.getId())
                 .companyId(application.getCompany().getId())
                 .jobId(application.getJob().getId())
-                .userId(securityUtils.getCurrentUser().getId())
                 .build();
 
         sendEmail(
@@ -47,8 +56,8 @@ public class EmailServiceImpl implements EmailService {
                 application.getId(),
                 application.getCandidateEmail(),
                 application.getCandidateName(),
-                null,
-                null,
+                systemEmail,
+                systemName,
                 context
         );
     }
@@ -201,8 +210,8 @@ public class EmailServiceImpl implements EmailService {
                 user.getId(),
                 user.getEmail(),
                 buildUserName(user),
-                null,
-                null,
+                systemEmail,
+                systemName,
                 context
         );
     }
@@ -223,8 +232,8 @@ public class EmailServiceImpl implements EmailService {
                 user.getId(),
                 user.getEmail(),
                 buildUserName(user),
-                null,
-                null,
+                systemEmail,
+                systemName,
                 context
         );
     }
@@ -245,8 +254,8 @@ public class EmailServiceImpl implements EmailService {
                 user.getId(),
                 user.getEmail(),
                 buildUserName(user),
-                null,
-                null,
+                systemEmail,
+                systemName,
                 context
         );
     }
@@ -267,8 +276,8 @@ public class EmailServiceImpl implements EmailService {
                 user.getId(),
                 user.getEmail(),
                 buildUserName(user),
-                null,
-                null,
+                systemEmail,
+                systemName,
                 context
         );
     }
@@ -289,8 +298,8 @@ public class EmailServiceImpl implements EmailService {
                 user.getId(),
                 user.getEmail(),
                 buildUserName(user),
-                null,
-                null,
+                systemEmail,
+                systemName,
                 context
         );
     }

@@ -18,11 +18,11 @@ public interface EmailOutboxRepository extends JpaRepository<EmailOutbox, String
     @Query("""
             SELECT e FROM EmailOutbox e
             WHERE e.status = 'PENDING'
-            AND (e.nextRetryAt IS NULL OR e.nextRetryAt <= CURRENT_TIMESTAMP)
+            AND (e.nextRetryAt IS NULL OR e.nextRetryAt <= :now)
             AND (e.retryCount < e.maxRetries)
             ORDER BY e.createdAt ASC
             """)
-    List<EmailOutbox> findPendingEmails(Pageable pageable);
+    List<EmailOutbox> findPendingEmails(LocalDateTime now, Pageable pageable);
 
     Optional<EmailOutbox> findByIdAndCompany_Id(String id, String companyId);
 

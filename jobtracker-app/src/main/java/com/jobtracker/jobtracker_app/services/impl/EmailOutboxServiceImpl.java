@@ -50,11 +50,11 @@ public class EmailOutboxServiceImpl implements EmailOutboxService {
 
     @Value("${brevo.email-system}")
     @NonFinal
-    String emailSystem;
+    String systemEmail;
 
     @Value("${brevo.email-system-name}")
     @NonFinal
-    String emailSystemName;
+    String systemName;
 
     @Override
     @Transactional
@@ -79,7 +79,7 @@ public class EmailOutboxServiceImpl implements EmailOutboxService {
         String finalHtml;
         if (usesWorkflowLayout(request.getTemplateCode())) {
             EmailTemplate layoutTemplate = emailTemplateRepository
-                    .findByCodeAndCompanyIsNullAndIsActiveTrueAndDeletedAtIsNull(EmailType.CANDIDATE_WORKFLOW_LAYOUT.toString())
+                    .findByCodeAndCompanyIsNullAndIsActiveTrueAndDeletedAtIsNull(EmailType.CANDIDATE_WORKFLOW_LAYOUT.name())
                     .orElseThrow(() -> new AppException(ErrorCode.EMAIL_TEMPLATE_NOT_FOUND));
             Map<String, Object> layoutVariables = new HashMap<>(variables);
             layoutVariables.put("content", renderedContent);
@@ -101,14 +101,15 @@ public class EmailOutboxServiceImpl implements EmailOutboxService {
                 .company(company)
                 .toEmail(request.getRecipientEmail())
                 .toName(request.getRecipientName())
-                .fromEmail(emailSystem)
-                .fromName(template.getFromName() != null ? template.getFromName() : emailSystemName)
+                .fromEmail(systemEmail)
+                .fromName(template.getFromName() != null ? template.getFromName() : systemName)
                 .replyToEmail(request.getReplyToEmail())
                 .replyToName(request.getReplyToName())
                 .subject(subject)
                 .htmlBody(finalHtml)
                 .status(EmailStatus.PENDING)
                 .retryCount(0)
+                .maxRetries(5)
                 .build();
 
         emailOutboxRepository.save(emailOutbox);
