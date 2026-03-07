@@ -31,22 +31,22 @@ public class GlobalException {
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(apiResponse);
     }
 
-    @ExceptionHandler(exception = MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
-        Map<String,String> errors = new HashMap<>();
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
 
-        for(FieldError error : e.getBindingResult().getFieldErrors()){
-            errors.put(error.getField(), localizationUtils.getLocalizedMessage(error.getDefaultMessage()));
+        Map<String, String> errors = new HashMap<>();
+
+        for (FieldError error : e.getBindingResult().getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
         }
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .success(false)
-                .message(localizationUtils.getLocalizedMessage(ErrorCode.INVALID_INPUT.getMessage()))
+                .message("Invalid input")
                 .errors(errors)
                 .build();
 
-        return ResponseEntity.status(ErrorCode.INVALID_INPUT.getHttpStatus())
-                .body(apiResponse);
+        return ResponseEntity.badRequest().body(apiResponse);
     }
 
 //    @ExceptionHandler(exception = DataIntegrityViolationException.class)

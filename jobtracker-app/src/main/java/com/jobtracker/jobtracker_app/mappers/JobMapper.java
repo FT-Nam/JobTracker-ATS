@@ -46,9 +46,9 @@ public interface JobMapper {
     @Mapping(source = "company.name", target = "companyName")
     PublicJobListResponse toPublicJobListResponse(Job job);
 
-    @Mapping(source = "company.id", target = "companyId")
-    @Mapping(source = "company.name", target = "companyName")
-    @Mapping(source = "company.website", target = "companyWebsite")
+    @Mapping(source = "job.company.id", target = "companyId")
+    @Mapping(source = "job.company.name", target = "companyName")
+    @Mapping(source = "job.company.website", target = "companyWebsite")
     @Mapping(target = "skills", source = "skills")
     PublicJobDetailResponse toPublicJobDetailResponse(Job job, List<PublicJobSkillResponse> skills);
 }

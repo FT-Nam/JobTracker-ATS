@@ -1,6 +1,7 @@
 package com.jobtracker.jobtracker_app.services.impl;
 
 import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewFilterRequest;
 import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.interview.InterviewResponse;
 import com.jobtracker.jobtracker_app.entities.*;
@@ -15,6 +16,9 @@ import com.jobtracker.jobtracker_app.utils.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -118,6 +122,26 @@ public class InterviewServiceImpl implements InterviewService {
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTED));
         return interviewRepository.findByApplicationIdWithInterviewers(application.getId())
                 .stream().map(interviewMapper::toInterviewResponse).toList();
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('INTERVIEW_READ')")
+    public Page<InterviewResponse> getAllInterviews(InterviewFilterRequest filter, Pageable pageable) {
+        String companyId = securityUtils.getCurrentUser().getCompany().getId();
+        String applicationId = filter != null ? filter.getApplicationId() : null;
+        String jobId = filter != null ? filter.getJobId() : null;
+        String interviewerId = filter != null ? filter.getInterviewerId() : null;
+        InterviewStatus status = filter != null ? filter.getStatus() : null;
+        LocalDateTime from = filter != null ? filter.getFrom() : null;
+        LocalDateTime to = filter != null ? filter.getTo() : null;
+
+        List<Interview> content = interviewRepository.searchByCompany(
+                companyId, applicationId, jobId, interviewerId, status, from, to, pageable);
+        long total = interviewRepository.countByCompanyAndFilter(
+                companyId, applicationId, jobId, interviewerId, status, from, to);
+
+        List<InterviewResponse> list = content.stream().map(interviewMapper::toInterviewResponse).toList();
+        return new PageImpl<>(list, pageable, total);
     }
 
     @Override

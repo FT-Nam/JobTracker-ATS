@@ -2,6 +2,7 @@ package com.jobtracker.jobtracker_app.repositories;
 
 import com.jobtracker.jobtracker_app.entities.Interview;
 import com.jobtracker.jobtracker_app.enums.InterviewStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,6 +28,42 @@ public interface InterviewRepository extends JpaRepository<Interview, String> {
             @Param("status") InterviewStatus status,
             @Param("fromDate") LocalDateTime fromDate,
             Pageable pageable);
+
+    @Query(value = "SELECT DISTINCT i FROM Interview i LEFT JOIN FETCH i.interviewers " +
+            "WHERE i.company.id = :companyId AND i.deletedAt IS NULL " +
+            "AND (:applicationId IS NULL OR i.application.id = :applicationId) " +
+            "AND (:jobId IS NULL OR i.job.id = :jobId) " +
+            "AND (:interviewerId IS NULL OR EXISTS (SELECT 1 FROM InterviewInterviewer ii WHERE ii.interview.id = i.id AND ii.interviewer.id = :interviewerId AND (ii.isDeleted = false))) " +
+            "AND (:status IS NULL OR i.status = :status) " +
+            "AND (:fromDate IS NULL OR i.scheduledDate >= :fromDate) " +
+            "AND (:toDate IS NULL OR i.scheduledDate <= :toDate) " +
+            "ORDER BY i.scheduledDate DESC")
+    List<Interview> searchByCompany(
+            @Param("companyId") String companyId,
+            @Param("applicationId") String applicationId,
+            @Param("jobId") String jobId,
+            @Param("interviewerId") String interviewerId,
+            @Param("status") InterviewStatus status,
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("toDate") LocalDateTime toDate,
+            Pageable pageable);
+
+    @Query("SELECT COUNT(DISTINCT i) FROM Interview i " +
+            "WHERE i.company.id = :companyId AND i.deletedAt IS NULL " +
+            "AND (:applicationId IS NULL OR i.application.id = :applicationId) " +
+            "AND (:jobId IS NULL OR i.job.id = :jobId) " +
+            "AND (:interviewerId IS NULL OR EXISTS (SELECT 1 FROM InterviewInterviewer ii WHERE ii.interview.id = i.id AND ii.interviewer.id = :interviewerId AND (ii.isDeleted = false))) " +
+            "AND (:status IS NULL OR i.status = :status) " +
+            "AND (:fromDate IS NULL OR i.scheduledDate >= :fromDate) " +
+            "AND (:toDate IS NULL OR i.scheduledDate <= :toDate)")
+    long countByCompanyAndFilter(
+            @Param("companyId") String companyId,
+            @Param("applicationId") String applicationId,
+            @Param("jobId") String jobId,
+            @Param("interviewerId") String interviewerId,
+            @Param("status") InterviewStatus status,
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("toDate") LocalDateTime toDate);
 }
 
 

@@ -1,8 +1,10 @@
 package com.jobtracker.jobtracker_app.controllers;
 
 import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewCreationRequest;
+import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewFilterRequest;
 import com.jobtracker.jobtracker_app.dto.requests.interview.InterviewUpdateRequest;
 import com.jobtracker.jobtracker_app.dto.responses.common.ApiResponse;
+import com.jobtracker.jobtracker_app.dto.responses.common.PaginationInfo;
 import com.jobtracker.jobtracker_app.dto.responses.interview.InterviewResponse;
 import com.jobtracker.jobtracker_app.services.InterviewService;
 import com.jobtracker.jobtracker_app.utils.LocalizationUtils;
@@ -11,6 +13,8 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +26,23 @@ import java.util.List;
 public class InterviewController {
     InterviewService interviewService;
     LocalizationUtils localizationUtils;
+
+    @GetMapping("/interviews")
+    public ApiResponse<List<InterviewResponse>> getAllInterviews(
+            @ModelAttribute InterviewFilterRequest filter,
+            Pageable pageable) {
+        Page<InterviewResponse> page = interviewService.getAllInterviews(filter, pageable);
+        return ApiResponse.<List<InterviewResponse>>builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.INTERVIEW_LIST_SUCCESS))
+                .data(page.getContent())
+                .paginationInfo(PaginationInfo.builder()
+                        .page(page.getNumber())
+                        .size(page.getSize())
+                        .totalElements(page.getTotalElements())
+                        .totalPages(page.getTotalPages())
+                        .build())
+                .build();
+    }
 
     @GetMapping("/applications/{applicationId}/interviews")
     public ApiResponse<List<InterviewResponse>> getByApplication(@PathVariable String applicationId) {
