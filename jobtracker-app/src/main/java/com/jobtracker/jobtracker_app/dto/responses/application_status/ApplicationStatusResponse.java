@@ -1,5 +1,6 @@
 package com.jobtracker.jobtracker_app.dto.responses.application_status;
 
+import com.jobtracker.jobtracker_app.enums.StatusType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,11 +13,15 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ApplicationStatusResponse {
     String id;
+    String companyId;
     String name;
     String displayName;
     String description;
     String color;
+    StatusType statusType;
     Integer sortOrder;
+    Boolean isTerminal;
+    Boolean isDefault;
     Boolean isActive;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

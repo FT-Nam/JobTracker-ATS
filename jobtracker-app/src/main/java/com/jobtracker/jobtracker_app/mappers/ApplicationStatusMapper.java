@@ -5,6 +5,7 @@ import com.jobtracker.jobtracker_app.dto.responses.application_status.Applicatio
 import com.jobtracker.jobtracker_app.entities.ApplicationStatus;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
@@ -12,6 +13,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface ApplicationStatusMapper {
     ApplicationStatus toApplicationStatus(ApplicationStatusRequest request);
 
+    @Mapping(target = "companyId", source = "company.id")
     ApplicationStatusResponse toApplicationStatusResponse(ApplicationStatus applicationStatus);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

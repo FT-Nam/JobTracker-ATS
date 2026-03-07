@@ -1,5 +1,6 @@
 package com.jobtracker.jobtracker_app.dto.requests.application_status;
 
+import com.jobtracker.jobtracker_app.enums.StatusType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -26,7 +27,13 @@ public class ApplicationStatusRequest {
     @Size(max = 7, message = "{application_status.color.size}")
     String color;
 
+    StatusType statusType;
+
     Integer sortOrder;
+
+    Boolean isTerminal;
+
+    Boolean isDefault;
 
     Boolean isActive;
 }

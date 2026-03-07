@@ -34,6 +34,10 @@ public class ApplicationStatusServiceImpl implements ApplicationStatusService {
     public ApplicationStatusResponse create(ApplicationStatusRequest request) {
         User currentUser = securityUtils.getCurrentUser();
 
+        if (request.getStatusType() == null) {
+            throw new AppException(ErrorCode.APPLICATION_STATUS_STATUS_TYPE_REQUIRED);
+        }
+
         if (applicationStatusRepository
                 .findByNameAndCompany_IdAndDeletedAtIsNull(request.getName(), currentUser.getCompany().getId())
                 .isPresent()) {
@@ -42,9 +46,14 @@ public class ApplicationStatusServiceImpl implements ApplicationStatusService {
 
         ApplicationStatus applicationStatus = applicationStatusMapper.toApplicationStatus(request);
         applicationStatus.setCompany(currentUser.getCompany());
+        if (applicationStatus.getIsTerminal() == null) {
+            applicationStatus.setIsTerminal(request.getStatusType().isTerminal());
+        }
+        if (applicationStatus.getIsDefault() == null) {
+            applicationStatus.setIsDefault(false);
+        }
 
-        return applicationStatusMapper.toApplicationStatusResponse(
-                applicationStatusRepository.save(applicationStatus));
+        return applicationStatusMapper.toApplicationStatusResponse(applicationStatusRepository.save(applicationStatus));
     }
 
     @Override
@@ -88,6 +97,9 @@ public class ApplicationStatusServiceImpl implements ApplicationStatusService {
         }
 
         applicationStatusMapper.updateApplicationStatus(applicationStatus, request);
+        if (request.getStatusType() != null && request.getIsTerminal() == null) {
+            applicationStatus.setIsTerminal(request.getStatusType().isTerminal());
+        }
         return applicationStatusMapper.toApplicationStatusResponse(
                 applicationStatusRepository.save(applicationStatus));
     }
