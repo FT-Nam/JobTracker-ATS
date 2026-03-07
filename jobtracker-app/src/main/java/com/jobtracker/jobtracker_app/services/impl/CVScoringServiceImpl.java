@@ -102,10 +102,12 @@ public class CVScoringServiceImpl implements CVScoringService {
     // NFD là tách dấu(Ví dụ: ế => e + ^ + ')
     // \p{M} sẽ lấy tất cả dấu => bỏ dấu
     // \p{M} space nhiều hơn 1 => replace thành 1 space
+    // cho phép a-z, 0-9, # . space
     private String normalize(String input) {
         return Normalizer.normalize(input, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
                 .toLowerCase()
+                .replaceAll("[^a-z0-9+.# ]", " ")
                 .replaceAll("\\s+", " ")
                 .trim();
     }
