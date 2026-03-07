@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VerificationLinkResolver implements VariableResolver {
 
-    @Value("${app.base-url:https://app.yourats.com}")
+    @Value("${app.base-url:http://localhost:5173/app}")
     String appBaseUrl;
 
     @Override

@@ -20,7 +20,7 @@ public class ApplicationLinkResolver implements VariableResolver {
     ApplicationRepository applicationRepository;
 
     @NonFinal
-    @Value("${app.base-url:https://app.yourats.com}")
+    @Value("${app.base-url:http://localhost:5173/app}")
     String appBaseUrl;
 
     @Override

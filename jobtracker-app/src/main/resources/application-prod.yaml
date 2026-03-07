@@ -22,9 +22,24 @@ auth:
   verification-token-expiry-hours: ${AUTH_VERIFICATION_TOKEN_EXPIRY_HOURS:24}
   password-reset-token-expiry-hours: ${AUTH_PASSWORD_RESET_TOKEN_EXPIRY_HOURS:1}
 
+app:
+  base-url: ${APP_BASE_URL}
+
 cloudinary:
   cloud_name: ${CLOUDINARY_CLOUD_NAME}
   api_key: ${CLOUDINARY_API_KEY}
   api_secret: ${CLOUDINARY_API_SECRET}
 
+brevo:
+  api-key: ${BREVO_API_KEY}
+  url: ${BREVO_URL:https://api.brevo.com}
+  email-system: ${BREVO_EMAIL_SYSTEM}
+  email-system-name: ${BREVO_EMAIL_SYSTEM_NAME:Automated Mailer}
+
+vnpay:
+  pay-url: ${VNPAY_PAY_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+  return-url: ${VNPAY_RETURN_URI}
+  tmn-code: ${VNPAY_TMN_CODE}
+  secret-key: ${VNPAY_SECRET_KEY}
+  api-url: ${VNPAY_API_URL:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}
 
