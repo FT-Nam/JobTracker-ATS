@@ -78,8 +78,8 @@ public class AttachmentServiceImpl implements AttachmentService {
                         "use_filename", true,
                         "unique_filename", true,
                         "folder", folderPath,
-                        "type", "authenticated",
-                        "resource_type", "raw"
+                        "type", "upload",
+                        "resource_type", "image"
                 ));
 
         if(result.get("asset_id") == null || result.get("secure_url") == null){
@@ -135,7 +135,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         } catch (Exception e) {
             // rollback file nếu DB fail
             cloudinary.uploader().destroy(publicId,
-                    ObjectUtils.asMap("resource_type", "raw", "type", "authenticated"));
+                    ObjectUtils.asMap("resource_type", "image", "type", "upload"));
             throw e;
         }
 
@@ -162,7 +162,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
         String signedUrl = cloudinary.url()
                 .resourceType("raw")
-                .type("authenticated")
+                .type("upload")
                 .signed(true)
                 .transformation(new Transformation().flags("attachment"))
                 .generate(id);

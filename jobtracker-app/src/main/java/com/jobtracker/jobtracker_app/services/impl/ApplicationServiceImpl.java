@@ -90,9 +90,10 @@ public class ApplicationServiceImpl implements ApplicationService {
                         "use_filename", true,
                         "unique_filename", true,
                         "folder", folderPath,
-                        "type", "authenticated",
-                        "resource_type", "raw"
+                        "type", "upload",
+                        "resource_type", "image"
                 ));
+
 
         if(result.get("asset_id") == null || result.get("secure_url") == null){
             throw new AppException(ErrorCode.UPLOAD_FILE_FAILED);
@@ -136,11 +137,15 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         try{
             saved = applicationRepository.save(application);
+
+            job.setApplicationsCount(job.getApplicationsCount() + 1);
+            jobRepository.save(job);
+
             emailService.sendApplicationConfirmation(application);
         } catch (Exception e) {
             // rollback file nếu DB fail
             cloudinary.uploader().destroy(publicId,
-                    ObjectUtils.asMap("resource_type", "raw", "type", "authenticated"));
+                    ObjectUtils.asMap("resource_type", "image", "type", "upload"));
             throw e;
         }
     }
@@ -166,8 +171,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                         "use_filename", true,
                         "unique_filename", true,
                         "folder", folderPath,
-                        "type", "authenticated",
-                        "resource_type", "raw"
+                        "type", "upload",
+                        "resource_type", "image"
                 ));
 
         if(result.get("asset_id") == null || result.get("secure_url") == null) {
@@ -196,7 +201,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         } catch (Exception e) {
             // rollback file nếu DB fail
             cloudinary.uploader().destroy(publicId,
-                    ObjectUtils.asMap("resource_type", "raw", "type", "authenticated"));
+                    ObjectUtils.asMap("resource_type", "image", "type", "upload"));
             throw e;
         }
 
@@ -305,6 +310,10 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .build();
 
         application = applicationRepository.save(application);
+
+        job.setApplicationsCount(job.getApplicationsCount() + 1);
+        jobRepository.save(job);
+
         return applicationMapper.toApplicationResponse(application, objectMapper);
     }
 
