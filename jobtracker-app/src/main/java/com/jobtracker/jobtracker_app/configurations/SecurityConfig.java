@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +42,11 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINT = {
             "/auth/**",
             "/public/**",
-            "/payments/vnpay/return"
+            "/payments/vnpay/return",
+
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
     };
 
     @Bean

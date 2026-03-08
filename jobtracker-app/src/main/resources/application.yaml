@@ -30,3 +30,6 @@ auth:
 scheduler:
   plan-limit:
     cron: "0 0 * * * ?"
+
+springdoc:
+  default-flat-param-object: true
