@@ -227,7 +227,7 @@ public class DataInitializer implements CommandLineRunner {
 
         log.info("✅ Admin user created successfully: {}", admin.getEmail());
 
-        // Seed unlimited subscription for system admin company if applicable
+        // Seed unlimited subscription for system admin
         seedSystemAdminSubscription(admin);
     }
 
@@ -238,17 +238,17 @@ public class DataInitializer implements CommandLineRunner {
             String systemUser = "system";
 
             List<ApplicationStatus> statuses = List.of(
-                    createApplicationStatus("applied", "Applied", "Candidate just applied", "#6B7280", 1,
+                    createApplicationStatus("NEW", "Mới", "Ứng viên vừa nộp đơn", "#6B7280", 1,
                             StatusType.APPLIED, false, true, systemUser),
-                    createApplicationStatus("screening", "Screening", "Screening in progress", "#3B82F6", 2,
+                    createApplicationStatus("SCREENING", "Sàng lọc", "Đang sàng lọc hồ sơ", "#3B82F6", 2,
                             StatusType.SCREENING, false, false, systemUser),
-                    createApplicationStatus("interview", "Interview", "In interview process", "#F59E0B", 3,
+                    createApplicationStatus("INTERVIEWING", "Phỏng vấn", "Đang trong quá trình phỏng vấn", "#F59E0B", 3,
                             StatusType.INTERVIEW, false, false, systemUser),
-                    createApplicationStatus("offer", "Offer", "Offer sent to candidate", "#8B5CF6", 4,
+                    createApplicationStatus("OFFERED", "Đã đề xuất", "Đã gửi offer cho ứng viên", "#8B5CF6", 4,
                             StatusType.OFFER, false, false, systemUser),
-                    createApplicationStatus("hired", "Hired", "Candidate hired", "#10B981", 5,
+                    createApplicationStatus("HIRED", "Đã tuyển", "Ứng viên đã được tuyển", "#10B981", 5,
                             StatusType.HIRED, true, false, systemUser),
-                    createApplicationStatus("rejected", "Rejected", "Candidate rejected", "#EF4444", 6,
+                    createApplicationStatus("REJECTED", "Từ chối", "Ứng viên bị từ chối", "#EF4444", 6,
                             StatusType.REJECTED, true, false, systemUser)
             );
             
@@ -547,7 +547,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("Enterprise")
                 .price(new java.math.BigDecimal("599000.00"))
                 .durationDays(30)
-                .maxJobs(null) // Unlimited for this plan
+                .maxJobs(null) // Unlimited plan
                 .maxUsers(null)
                 .maxApplications(null)
                 .isActive(true)
