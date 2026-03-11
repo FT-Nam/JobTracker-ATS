@@ -173,13 +173,19 @@ public class InterviewServiceImpl implements InterviewService {
                         ? request.getDurationMinutes()
                         : oldDuration;
 
+        Set<String> oldInterviewerIds = interview.getInterviewers()
+                .stream()
+                .map(ii -> ii.getInterviewer().getId())
+                .collect(Collectors.toSet());
+
+        boolean interviewerChanged =
+                request.getInterviewerIds() != null &&
+                        !new HashSet<>(request.getInterviewerIds()).equals(oldInterviewerIds);
+
         Set<String> finalInterviewerIds =
-                request.getInterviewerIds() != null && !request.getInterviewerIds().isEmpty()
+                request.getInterviewerIds() != null
                         ? request.getInterviewerIds()
-                        : interview.getInterviewers()
-                        .stream()
-                        .map(ii -> ii.getInterviewer().getId())
-                        .collect(Collectors.toSet());
+                        : oldInterviewerIds;
 
         boolean scheduleChanged =
                 request.getScheduledDate() != null
@@ -188,9 +194,6 @@ public class InterviewServiceImpl implements InterviewService {
         boolean durationChanged =
                 request.getDurationMinutes() != null
                         && !request.getDurationMinutes().equals(oldDuration);
-
-        boolean interviewerChanged =
-                request.getInterviewerIds() != null;
 
         if (scheduleChanged || durationChanged || interviewerChanged) {
             userRepository.findForUpdate(finalInterviewerIds, companyId);
@@ -204,7 +207,7 @@ public class InterviewServiceImpl implements InterviewService {
             );
         }
 
-        if (request.getInterviewerIds() != null && !request.getInterviewerIds().isEmpty()) {
+        if (interviewerChanged) {
 
             String primaryId = request.getPrimaryInterviewerId();
             if (primaryId == null) {

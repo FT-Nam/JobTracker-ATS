@@ -49,6 +49,7 @@ public class JobServiceImpl implements JobService {
         Job job = jobMapper.toJob(request);
         job.setUser(currentUser);
         job.setCompany(currentUser.getCompany());
+        job.setApplicationsCount(0);
         return jobMapper.toJobSummaryResponse(jobRepository.save(job));
     }
 
