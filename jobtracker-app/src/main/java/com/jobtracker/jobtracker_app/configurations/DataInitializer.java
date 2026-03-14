@@ -192,7 +192,7 @@ public class DataInitializer implements CommandLineRunner {
                 .toList();
         rolePermissionRepository.saveAll(systemAdminPermissions);
 
-        // ADMIN_COMPANY: company-level permissions
+        // ADMIN_COMPANY: company-level permissions (không được chỉnh sửa global skills)
         List<String> adminCompanyPermNames = List.of(
                 "USER_READ", "USER_CREATE", "USER_UPDATE", "USER_DELETE", "ROLE_READ",
                 "JOB_READ", "JOB_CREATE", "JOB_UPDATE", "JOB_DELETE",
@@ -200,7 +200,7 @@ public class DataInitializer implements CommandLineRunner {
                 "INTERVIEW_READ", "INTERVIEW_CREATE", "INTERVIEW_UPDATE", "INTERVIEW_DELETE",
                 "COMMENT_READ", "COMMENT_CREATE", "COMMENT_UPDATE", "COMMENT_DELETE",
                 "ATTACHMENT_READ", "ATTACHMENT_CREATE", "ATTACHMENT_DELETE",
-                "SKILL_READ", "SKILL_CREATE", "SKILL_UPDATE", "SKILL_DELETE",
+                "SKILL_READ",
                 "COMPANY_READ", "COMPANY_UPDATE",
                 "SUBSCRIPTION_READ", "SUBSCRIPTION_CREATE", "PAYMENT_READ", "PAYMENT_CREATE",
                 "APPLICATION_STATUS_READ", "APPLICATION_STATUS_CREATE", "APPLICATION_STATUS_UPDATE", "APPLICATION_STATUS_DELETE",

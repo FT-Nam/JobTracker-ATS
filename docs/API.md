@@ -3597,7 +3597,7 @@ Cập nhật danh sách permission cho role cụ thể.
 ### 1. Get All Skills
 **GET** `/skills`
 
-Lấy danh sách tất cả skills.
+Lấy danh sách skills (có phân trang, filter theo tên và category).
 
 #### Request Headers
 ```
@@ -3606,7 +3606,7 @@ Authorization: Bearer <access_token>
 
 #### Query Parameters
 ```
-page=0&size=50&sort=name,asc&category=PROGRAMMING&search=Java
+page=0&size=50&sort=name,asc&category=PROGRAMMING&name=Java
 ```
 
 #### Response (200 OK)
